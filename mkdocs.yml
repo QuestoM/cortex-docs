@@ -34,6 +34,7 @@ theme:
 plugins:
   - search
   - mkdocstrings:
+      on_error: warn
       handlers:
         python:
           paths: [.]
