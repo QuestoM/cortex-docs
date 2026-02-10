@@ -1,0 +1,188 @@
+site_name: corteX Documentation
+site_url: https://docs.cortex-ai.com
+site_description: "Enterprise AI Agent SDK - Brain-inspired, goal-driven, on-prem ready"
+
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: deep purple
+      accent: amber
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: deep purple
+      accent: amber
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.indexes
+    - toc.follow
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.tabs.link
+    - content.code.annotate
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [.]
+          options:
+            docstring_style: google
+            show_source: true
+            show_root_heading: true
+            show_symbol_type_heading: true
+            members_order: source
+            merge_init_into_class: true
+            show_signature_annotations: true
+            separate_signature: true
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - attr_list
+  - md_in_html
+  - toc:
+      permalink: true
+
+nav:
+  - Home: index.md
+
+  - Getting Started:
+    - getting-started/index.md
+    - Installation: getting-started/installation.md
+    - Quick Start: getting-started/quickstart.md
+    - Your First Agent: getting-started/first-agent.md
+    - Adding Tools: getting-started/adding-tools.md
+    - Streaming Responses: getting-started/streaming.md
+
+  - Tutorials:
+    - tutorials/index.md
+    - Customer Support Agent: tutorials/support-agent.md
+    - Code Review Agent: tutorials/code-review-agent.md
+    - Research Agent: tutorials/research-agent.md
+    - Multi-Provider Failover: tutorials/multi-provider.md
+    - Deploy to Production: tutorials/production.md
+
+  - Concepts:
+    - concepts/index.md
+    - Architecture Overview: concepts/architecture.md
+    - The Brain Engine:
+      - concepts/brain/index.md
+      - Synaptic Weights: concepts/brain/weights.md
+      - Goal Tracking: concepts/brain/goal-tracking.md
+      - Dual-Process Routing: concepts/brain/dual-process.md
+      - Prediction & Surprise: concepts/brain/prediction.md
+      - Feedback System: concepts/brain/feedback.md
+      - Plasticity & Learning: concepts/brain/plasticity.md
+      - Sensory Adaptation: concepts/brain/adaptation.md
+    - Context & Memory:
+      - concepts/context/index.md
+      - Cortical Context Engine: concepts/context/context-engine.md
+      - Memory Fabric: concepts/context/memory.md
+      - Cross-Modal Association: concepts/context/cross-modal.md
+    - Advanced Subsystems:
+      - concepts/advanced/index.md
+      - Attention & Filtering: concepts/advanced/attention.md
+      - Cortical Columns: concepts/advanced/columns.md
+      - Resource Allocation: concepts/advanced/resource-map.md
+      - Concept Graphs: concepts/advanced/concept-graphs.md
+      - Calibration & Metacognition: concepts/advanced/calibration.md
+      - Targeted Modulation: concepts/advanced/modulation.md
+      - Map Reorganization: concepts/advanced/reorganization.md
+      - Population Estimation: concepts/advanced/population.md
+      - Component Simulation: concepts/advanced/simulation.md
+    - LLM Routing: concepts/llm-routing.md
+    - Tool Reputation: concepts/tool-reputation.md
+
+  - How-To Guides:
+    - guides/index.md
+    - LLM Providers:
+      - guides/providers/openai.md
+      - guides/providers/gemini.md
+      - guides/providers/local-models.md
+      - guides/providers/switching-providers.md
+    - Configuration:
+      - guides/config/weight-tuning.md
+      - guides/config/context-profiles.md
+      - guides/config/temperature.md
+    - Tools:
+      - guides/tools/custom-tools.md
+      - guides/tools/tool-reputation.md
+    - Advanced:
+      - guides/advanced/what-if-simulation.md
+      - guides/advanced/modulation-overrides.md
+      - guides/advanced/weight-persistence.md
+      - guides/advanced/observability.md
+
+  - Enterprise:
+    - enterprise/index.md
+    - Multi-Tenant Setup: enterprise/multi-tenant.md
+    - Security & Isolation: enterprise/security.md
+    - Safety Controls: enterprise/safety.md
+    - Audit Logging: enterprise/audit.md
+    - Compliance: enterprise/compliance.md
+    - Licensing: enterprise/licensing.md
+    - On-Premises Deployment: enterprise/on-prem.md
+    - Updates & Versioning: enterprise/updates.md
+
+  - API Reference:
+    - reference/index.md
+    - Public API:
+      - reference/engine.md
+      - reference/agent.md
+      - reference/session.md
+      - reference/response.md
+    - Engine Modules:
+      - reference/engine/weights.md
+      - reference/engine/goal-tracker.md
+      - reference/engine/feedback.md
+      - reference/engine/prediction.md
+      - reference/engine/plasticity.md
+      - reference/engine/adaptation.md
+      - reference/engine/game-theory.md
+      - reference/engine/context.md
+      - reference/engine/memory.md
+      - reference/engine/bayesian.md
+      - reference/engine/calibration.md
+      - reference/engine/columns.md
+      - reference/engine/concepts.md
+      - reference/engine/cross-modal.md
+      - reference/engine/attention.md
+      - reference/engine/resource-map.md
+      - reference/engine/modulator.md
+      - reference/engine/proactive.md
+      - reference/engine/reorganization.md
+      - reference/engine/population.md
+      - reference/engine/simulator.md
+    - Enterprise:
+      - reference/enterprise/config.md
+      - reference/enterprise/licensing.md
+      - reference/enterprise/updates.md
+    - Tools:
+      - reference/tools/decorator.md
+      - reference/tools/executor.md
+    - LLM Layer:
+      - reference/llm/router.md
+      - reference/llm/base.md
+      - reference/llm/openai-client.md
+      - reference/llm/gemini-client.md
+
+  - Changelog: changelog.md
