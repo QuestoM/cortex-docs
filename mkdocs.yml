@@ -34,7 +34,7 @@ theme:
 plugins:
   - search
   - mkdocstrings:
-      on_error: warn
+      enabled: !ENV [ENABLE_MKDOCSTRINGS, false]
       handlers:
         python:
           paths: [.]
