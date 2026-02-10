@@ -37,7 +37,16 @@
 12. [Codebase Statistics](#12-codebase-statistics)
 13. [Future Roadmap](#13-future-roadmap)
 14. [Competitive Landscape](#14-competitive-landscape)
-15. [Development Log](#15-development-log)
+15. [Phase 6: Barvaz Demo Application Build](#15-phase-6-barvaz-demo-application-build)
+    - 15.1: Company Selection Process
+    - 15.2: Market Research
+    - 15.3: Company Design: Barvaz Security
+    - 15.4: Critical Design Philosophy
+    - 15.5: Architecture (3 Layers)
+    - 15.6: Data Seeding Plan
+    - 15.7: GitHub Repositories
+    - 15.8: Current Build Status
+16. [Development Log](#16-development-log)
 
 ---
 
@@ -2391,7 +2400,7 @@ From our analysis of Prof. Segev's lectures, **all P0-P3 patterns are now fully 
 | Full code review + hardening | **[DONE]** 8 parallel review agents, 24 CRITICAL + 15 HIGH findings resolved |
 | Developer documentation (78 pages) | **[DONE]** MkDocs Material with Diataxis framework |
 | How-To Guides + Tutorials (20 more pages) | **[IN PROGRESS]** Expanding practical recipes and step-by-step tutorials |
-| Demo application (complex customer service platform) | **[PLANNED]** Showcase full SDK capabilities in a real-world scenario |
+| Demo application: Barvaz Security (Odoo Enterprise) | **[IN PROGRESS]** Cloud cybersecurity SaaS demo on Odoo Enterprise -- see Section 15 |
 | End-to-end pipeline integration tests | **[PLANNED]** Full SDK pipeline tests beyond current unit + integration coverage |
 | New Gemini API key (current exhausted) | **[NEEDS USER]** Current API key quota depleted; integration tests require fresh key |
 
@@ -2497,7 +2506,156 @@ corteX now has the **most sophisticated context management system in the market*
 
 ---
 
-## 15. Development Log
+## 15. Phase 6: Barvaz Demo Application Build
+
+### 15.1 Company Selection Process
+
+Building the demo application required selecting an enterprise platform that would showcase corteX's full capabilities. Three platform options were evaluated:
+
+1. **erxes** - Open-source CRM/Customer Experience platform. Pros: fully self-hosted, modern stack. Cons: smaller ecosystem, limited module count, fewer data models to demonstrate complexity.
+2. **Chatwoot + Twenty** - Open-source support + CRM combo. Pros: modern UI, active communities. Cons: two separate systems needing integration, limited business process depth.
+3. **Odoo Enterprise SaaS** - Comprehensive ERP with 235 modules and 722 data models. Pros: massive data surface area for AI exploration, enterprise-grade complexity, real business processes (CRM, Helpdesk, Knowledge Base, Projects, Inventory, HR). Cons: SaaS dependency for demo.
+
+**Selected: Odoo Enterprise SaaS** -- The 235 modules and 722 data models provide the richest possible environment for demonstrating how corteX agents can understand and navigate complex enterprise systems without pre-programmed scenarios.
+
+The fictional company was designed as a cloud cybersecurity company named **"Barvaz Security"**. The name was chosen from 45 candidates across 5 categories (animals, Hebrew words, mythological, compound words, abstract) optimized for memorability, domain availability, and brandability. "Barvaz" is a Hebrew word meaning "duck" -- a metaphor for calm on the surface, relentless activity underneath. This perfectly captures both the cybersecurity positioning (quiet monitoring, aggressive response) and the corteX philosophy (simple SDK surface, sophisticated brain engine below).
+
+### 15.2 Market Research
+
+Comprehensive cloud security market research was conducted to ensure Barvaz Security would be a credible, realistic demo company:
+
+- **Market Size**: Cloud security market valued at $35.8B in 2024, projected to reach $75.3B by 2030 (CAGR ~13%)
+- **Landmark Deal**: Wiz acquired by Google for $32B (March 2025) -- the largest cybersecurity acquisition in history, validating the market
+- **Key Market Gaps Identified**:
+  - AI workload security (LLM-specific threats, prompt injection, model poisoning)
+  - Autonomous remediation (automated response vs. alert fatigue)
+  - Non-Human Identity (NHI) security (service accounts, API keys, machine identities)
+  - Runtime intelligence (real-time behavioral analysis vs. static scanning)
+- **Barvaz Positioning**: At the intersection of runtime intelligence + AI security + autonomous remediation -- a credible next-generation cloud security company that fills gaps left by Wiz, CrowdStrike, and Palo Alto
+
+### 15.3 Company Design: Barvaz Security
+
+**Tagline**: "Calm above. Relentless below."
+
+**Product Line - 4 Subscription Tiers**:
+
+| Tier | Price | Target | Key Features |
+|------|-------|--------|--------------|
+| Starter | $299/mo | Startups | Cloud posture management, basic scanning, 1 cloud |
+| Professional | $999/mo | Mid-market | Runtime protection, 3 clouds, API security |
+| Enterprise | $2,999/mo | Enterprise | AI workload security, autonomous remediation, unlimited clouds |
+| Elite | $7,999+/mo | Critical infrastructure | Custom threat models, dedicated SOC, SLA guarantees |
+
+**Organization Structure**:
+- 18 employees across 9 departments (Sales, Engineering, Customer Success, Security Research, Marketing, HR, Finance, Operations, Executive)
+- Each employee has a realistic title, department, and role in the company
+
+**Helpdesk Structure - 4 Teams**:
+1. **L1 Triage** - Initial ticket classification, SLA monitoring, basic troubleshooting
+2. **L2 Technical** - Technical deep dives, configuration issues, integration support
+3. **L3 Security Experts** - Threat analysis, false positive investigation, custom rule development
+4. **Incident Response** - Active breach support, emergency escalation, forensics coordination
+
+**CRM Pipeline - 10 Stages** for enterprise security sales:
+Designed to mirror realistic B2B enterprise security sales cycles with stages from initial contact through security assessment, proof of concept, procurement, and deployment.
+
+**Knowledge Base**: 100 articles covering product documentation, troubleshooting guides, security best practices, API references, and deployment guides.
+
+**Project Templates**: 4 templates for common customer engagement patterns (onboarding, security audit, migration, incident response).
+
+### 15.4 Critical Design Philosophy
+
+The most important design principle for the demo, as stated by the user:
+
+> "The goal is NOT that the developer pre-programs every scenario -- that's just automation and you can use Zapier for that. The goal is that the developer simply CONNECTS it to everything, gives general information, so the AI can know the entire system like a user."
+
+This philosophy fundamentally shapes the demo architecture:
+- **No scenario-specific code**: The corteX agent is NOT given pre-built workflows for "handle a refund" or "escalate a ticket"
+- **Generic tool layer**: ~35 generic Odoo tools (read, write, search, create) that mirror what a human user can do in the Odoo UI
+- **Brain does the work**: The agent's 20 brain components (weights, plasticity, prediction, columns, attention, etc.) figure out HOW to accomplish goals by exploring the system
+- **This is the differentiator**: LangChain/CrewAI require developers to pre-program every workflow. corteX agents discover workflows by understanding the system holistically -- just like a smart employee would.
+
+### 15.5 Architecture (3 Layers)
+
+The demo application is structured as three distinct layers:
+
+**Layer 1: Odoo SaaS (The Business Platform)**
+- Odoo Enterprise at odoo.com with full module suite
+- Contains all business data: CRM, Helpdesk, Knowledge Base, HR, Products, Projects
+- Accessed via XML-RPC API (Odoo's standard external API)
+- Represents the "real enterprise system" that the AI agent navigates
+
+**Layer 2: Developer Dashboard (FastAPI + React)**
+- FastAPI backend serving as the corteX DevTools interface
+- React frontend with developer-facing dashboards
+- Configuration panels for agent behavior, tool registration, tenant settings
+- Real-time logs showing agent decisions, tool calls, weight changes
+- This is what a SaaS developer would use to configure and monitor their corteX agent
+
+**Layer 3: Brain Visualizer (Real-Time Display)**
+- Real-time visualization of all 20 brain components during agent operation
+- Synaptic weight changes, plasticity events, prediction accuracy
+- Column competition, attention gating, concept graph activation
+- Goal tracking, loop detection, feedback signals
+- Demonstrates corteX's transparency and explainability advantage
+
+### 15.6 Data Seeding Plan
+
+The demo requires realistic data to showcase agent capabilities:
+
+| Data Type | Count | Status | Details |
+|-----------|-------|--------|---------|
+| Departments | 9 | DONE | Sales, Engineering, Customer Success, Security Research, Marketing, HR, Finance, Operations, Executive |
+| Job Positions | 17 | DONE | Across all departments |
+| Employees | 18 | DONE | Realistic titles and department assignments |
+| Helpdesk Teams | 4 | DONE | L1 Triage, L2 Technical, L3 Security Experts, Incident Response |
+| Ticket Stages | 10 | DONE | Full lifecycle from New to Closed |
+| Helpdesk Tags | 50 | DONE | Categorization taxonomy for cybersecurity tickets |
+| SLA Policies | 24 | DONE | Per-tier response/resolution time targets |
+| CRM Stages | 10 | DONE | Enterprise B2B security sales pipeline |
+| CRM Tags + Lost Reasons | 14 + 7 | DONE | Lead categorization and loss tracking |
+| Products | 21 | DONE | 4 subscription tiers + 13 add-ons + 4 professional services |
+| Custom Fields | 23 | DONE | 9 ticket + 8 partner + 6 lead fields |
+| Customer Companies + Contacts | 50 + 50 | DONE | Across 4 segments: Enterprise (10), Mid-Market (15), Growth (15), Startup (10) |
+| Knowledge Base Articles | 100 | DONE | 7 categories: product docs, troubleshooting, best practices, API refs, deployment, security advisories, compliance |
+| CRM Leads | 30 | DONE | $2.89M pipeline, various stages and deal sizes |
+| Project Templates | 4 (62 tasks) | DONE | Onboarding, security audit, migration, incident response |
+| Support Tickets | 200 | IN PROGRESS | Across 4 priority levels (Critical/High/Medium/Low), various statuses |
+| Odoo Tools | ~35 | IN PROGRESS | Generic tools registered via @cortex.tool decorator |
+
+All data is seeded programmatically via Odoo's XML-RPC API, ensuring reproducibility and the ability to reset the demo environment.
+
+### 15.7 GitHub Repositories
+
+Two repositories were established for the project:
+
+1. **QuestoM/cortex-sdk** (PRIVATE)
+   - The main SDK repository containing all corteX source code
+   - 250 files, 87,738 lines of code
+   - Contains: core engine (21 modules), enterprise layer, memory fabric, tools framework, SDK entry point, tests (3,355 passing), demo application code
+
+2. **QuestoM/cortex-docs** (PUBLIC)
+   - Developer documentation hosted via GitHub Pages
+   - URL: questom.github.io/cortex-docs/
+   - 97 pages of MkDocs Material documentation
+   - Covers: Getting Started, Tutorials, How-To Guides, Concepts, Enterprise, API Reference
+
+### 15.8 Current Build Status
+
+| Phase | Description | Status | Details |
+|-------|-------------|--------|---------|
+| Phase 1 | Odoo structure (departments, employees, helpdesk, CRM, products) | **[COMPLETE]** | 9 depts, 17 jobs, 18 employees, 4 helpdesk teams, 10 ticket stages, 50 tags, 24 SLAs, 10 CRM stages, 14 CRM tags, 7 lost reasons, 21 products, 23 custom fields |
+| Phase 2 | Content seeding (customers, tickets, leads, KB articles, projects) | **[COMPLETE]** | 50 customers + 50 contacts across 7 countries, 200 tickets (30 critical, 50 high, 70 medium, 50 low), 100 KB articles with real HTML content, 30 CRM leads ($2.89M pipeline), 4 project templates (62 tasks) |
+| Phase 3 | corteX tool layer (~35 generic Odoo tools via @cortex.tool) | **[COMPLETE]** | 35 generic Odoo tools across 7 files. Categories: CRUD, Helpdesk, CRM, Knowledge, Sales, Project, Communication, General |
+| Phase 4 | FastAPI backend + corteX agent integration | **[COMPLETE]** | server.py with 17 REST endpoints + WebSocket, config.py with Barvaz system prompt + weights + safety, ws_broadcaster.py for real-time brain state. Full code review + 12 bug fixes applied |
+| Phase 5 | React frontend dashboards (Developer + Brain Visualizer) | **[COMPLETE]** | 37 source files, ~2,964 lines. Landing page + Developer Dashboard + Brain Visualizer. 20 brain component cards with charts. Mock data fallback when backend offline |
+| Phase 6 | Snapshot/Restore mechanism | **[IN PROGRESS]** | Researched 5 approaches, chose API-level + DB duplicate hybrid |
+
+The demo application, once complete, will serve as the definitive proof-of-concept that corteX agents can navigate complex enterprise systems without pre-programmed workflows -- achieving true AI agency rather than sophisticated automation.
+
+---
+
+## 16. Development Log
 
 This section is designed to be continuously updated by a documentation agent throughout development.
 
@@ -2683,8 +2841,85 @@ This section is designed to be continuously updated by a documentation agent thr
 
 Final result: 3,324 tests passing, 0 failures, production-ready SDK.
 
+### Session: Barvaz Demo Application Build (February 10, 2026 continued)
+
+**Date**: 2026-02-10 (continued)
+
+Barvaz Demo Build -- Started building cloud cybersecurity SaaS demo on Odoo Enterprise. Researched market ($35.8B), designed company "Barvaz Security" (duck = calm above, relentless below), created GitHub repos (SDK private, docs public with GitHub Pages), began data seeding via XML-RPC API.
+
+**Key activities:**
+- Evaluated 3 platform options (erxes, Chatwoot+Twenty, Odoo) -- selected Odoo Enterprise SaaS for its 235 modules and 722 data models
+- Conducted cloud security market research: $35.8B market, Wiz acquired for $32B, identified gaps in AI workload security and autonomous remediation
+- Designed fictional company "Barvaz Security" with full organizational structure: 18 employees, 9 departments, 4 helpdesk teams, 10-stage CRM pipeline
+- Created 4 subscription tiers (Starter $299 to Elite $7,999+) for cloud security products
+- Planned comprehensive data seeding: 50 customers, 200 tickets, 30 CRM leads, 100 KB articles
+- Established GitHub repositories: cortex-sdk (private, 250 files, 87,738 lines) and cortex-docs (public, GitHub Pages)
+- Defined 3-layer architecture: Odoo SaaS + Developer Dashboard (FastAPI+React) + Brain Visualizer
+- Articulated core philosophy: generic tools + brain intelligence, NOT pre-programmed workflows
+- Began Phase 1 data seeding: departments, employees, helpdesk teams, CRM pipeline, products via XML-RPC API
+
+### Session: Barvaz Data Seeding Complete (February 10, 2026 continued)
+
+**Date**: 2026-02-10 (continued)
+
+Data seeding Phase 1 complete. Comprehensive Odoo instance populated with realistic cybersecurity SaaS company data via XML-RPC API.
+
+**Phase 1 (Structure) -- COMPLETE:**
+- 9 departments, 17 job positions, 18 employees with realistic titles and roles
+- 4 helpdesk teams (L1 Triage, L2 Technical, L3 Security Experts, Incident Response)
+- 10 ticket stages, 50 helpdesk tags, 24 SLA policies
+- 10 CRM stages, 14 CRM tags, 7 lost reasons
+- 21 products (4 subscription tiers + 13 add-ons + 4 professional services)
+- 23 custom fields (9 ticket fields + 8 partner fields + 6 lead fields)
+
+**Phase 2 (Content) -- Mostly Complete:**
+- 50 customer companies + 50 contacts across 4 segments (Enterprise/Mid-Market/Growth/Startup)
+- 100 knowledge base articles across 7 categories (product docs, troubleshooting, best practices, API references, deployment guides, security advisories, compliance)
+- 30 CRM leads at various pipeline stages ($2.89M total pipeline value)
+- 4 project templates with 62 tasks (onboarding, security audit, migration, incident response)
+- Remaining: 200 support tickets (in progress)
+
+**Key discoveries:**
+- Odoo API research revealed built-in demo data only works at DB creation time -- all seeding must be done programmatically via XML-RPC
+- Created comprehensive API reference guide for Odoo data model patterns
+- Phase 2 in progress: 200 tickets + corteX tool layer next
+
+### Session: Barvaz Demo Feature-Complete (February 10, 2026 continued)
+
+**Date**: 2026-02-10 (continued)
+
+Demo app feature-complete: FastAPI backend (17 endpoints), React frontend (3 pages, 20 brain cards), 35 corteX tools, code review with 12 fixes. Snapshot/restore mechanism in progress.
+
+**Phase 2 (Content Seeding) -- COMPLETE:**
+- 200 support tickets seeded (30 critical, 50 high, 70 medium, 50 low priority)
+- 50 customers + 50 contacts across 7 countries
+- All content now has real HTML content (not placeholder text)
+
+**Phase 3 (corteX Tool Layer) -- COMPLETE:**
+- 35 generic Odoo tools implemented across 7 files
+- Tool categories: CRUD, Helpdesk, CRM, Knowledge, Sales, Project, Communication, General
+- All tools use `@cortex.tool` decorator with full type hints and docstrings
+
+**Phase 4 (FastAPI Backend) -- COMPLETE:**
+- `server.py`: 17 REST endpoints + WebSocket for real-time brain state streaming
+- `config.py`: Barvaz system prompt, weight configurations, safety policies
+- `ws_broadcaster.py`: WebSocket broadcaster for live brain state updates
+- Full code review performed, 12 bugs fixed (import paths, type mismatches, missing files)
+
+**Phase 5 (React Frontend) -- COMPLETE:**
+- 37 source files, ~2,964 lines of TypeScript/React code
+- Landing page with product overview and demo CTA
+- Developer Dashboard with agent controls and tool monitoring
+- Brain Visualizer with 20 brain component cards (charts via Recharts)
+- Mock data fallback when backend is offline for standalone demo capability
+
+**Phase 6 (Snapshot/Restore) -- IN PROGRESS:**
+- Researched 5 approaches (DB backup, API-level, module, migration, filestore)
+- Selected hybrid: API-level snapshot + DB duplicate for full restore
+- Implementation started
+
 ---
 
-*This document is designed to be a living reference. Future development sessions should append to the Development Log (Section 15) and update statistics (Section 12) as the codebase evolves.*
+*This document is designed to be a living reference. Future development sessions should append to the Development Log (Section 16) and update statistics (Section 12) as the codebase evolves.*
 
 *:amin sheli, kol ha-documentation b-ivrit-friendly formatting -- Netan*
