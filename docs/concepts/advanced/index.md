@@ -1,6 +1,6 @@
 # Advanced Subsystems
 
-Beyond the core Brain Engine and Context/Memory systems, corteX includes nine advanced subsystems that implement deeper neuroscience patterns. These subsystems operate at higher levels of abstraction, building on the foundational weight engine, memory fabric, and context engine.
+Beyond the core Brain Engine and Context/Memory systems, corteX includes fourteen advanced subsystems that implement deeper neuroscience and decision-theory patterns. These subsystems operate at higher levels of abstraction, building on the foundational weight engine, memory fabric, and context engine.
 
 ## Subsystem Map
 
@@ -15,6 +15,11 @@ Beyond the core Brain Engine and Context/Memory systems, corteX includes nine ad
 | [Map Reorganization](reorganization.md) | Cortical plasticity | P3 | Territory reallocation based on usage patterns |
 | [Population Coding](population.md) | Motor cortex ensemble | P0 | Multi-evaluator consensus decisions |
 | [Component Simulator](simulation.md) | Mental simulation | P3 | What-if analysis and A/B testing |
+| [Structured Output](structured-output.md) | Self-monitoring | P1 | LLM self-assessment signal extraction (zero extra calls) |
+| [Content-Aware Predictions](content-prediction.md) | Prefrontal rehearsal | P1 | LLM-powered tool/response/sentiment prediction |
+| [Game Theory Integration](game-integration.md) | Nash/Shapley | P2 | Equilibrium routing and fair credit attribution |
+| [Context Summarization](context-summarizer.md) | Memory consolidation | P1 | L2/L3 progressive compression for long sessions |
+| [Semantic Scoring](semantic-scorer.md) | Semantic memory | P1 | TF-IDF vector relevance and novelty scoring |
 
 ## Priority Levels
 

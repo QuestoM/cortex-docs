@@ -112,6 +112,11 @@ nav:
       - Map Reorganization: concepts/advanced/reorganization.md
       - Population Estimation: concepts/advanced/population.md
       - Component Simulation: concepts/advanced/simulation.md
+      - Structured Output: concepts/advanced/structured-output.md
+      - Content-Aware Predictions: concepts/advanced/content-prediction.md
+      - Game Theory Integration: concepts/advanced/game-integration.md
+      - Context Summarization: concepts/advanced/context-summarizer.md
+      - Semantic Scoring: concepts/advanced/semantic-scorer.md
     - LLM Routing: concepts/llm-routing.md
     - Tool Reputation: concepts/tool-reputation.md
 
@@ -180,6 +185,10 @@ nav:
       - reference/engine/brain-state-injector.md
       - reference/engine/parameter-resolver.md
       - reference/engine/inference-hooks.md
+      - reference/engine/structured-output.md
+      - reference/engine/content-prediction.md
+      - reference/engine/context-summarizer.md
+      - reference/engine/semantic-scorer.md
     - NeuroLlama:
       - reference/neurollama/neurollama-model.md
     - Enterprise:
