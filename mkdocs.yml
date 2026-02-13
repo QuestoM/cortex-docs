@@ -95,6 +95,7 @@ nav:
       - Plasticity & Learning: concepts/brain/plasticity.md
       - Sensory Adaptation: concepts/brain/adaptation.md
       - Brain-LLM Bridge: concepts/brain/brain-llm-bridge.md
+      - NeuroLlama Architecture: concepts/brain/neurollama-architecture.md
     - Context & Memory:
       - concepts/context/index.md
       - Cortical Context Engine: concepts/context/context-engine.md
@@ -126,6 +127,7 @@ nav:
       - guides/config/context-profiles.md
       - guides/config/temperature.md
       - guides/config/brain-parameters.md
+      - guides/config/inference-hooks.md
     - Tools:
       - guides/tools/custom-tools.md
       - guides/tools/tool-reputation.md
@@ -177,6 +179,9 @@ nav:
       - reference/engine/simulator.md
       - reference/engine/brain-state-injector.md
       - reference/engine/parameter-resolver.md
+      - reference/engine/inference-hooks.md
+    - NeuroLlama:
+      - reference/neurollama/neurollama-model.md
     - Enterprise:
       - reference/enterprise/config.md
       - reference/enterprise/licensing.md
