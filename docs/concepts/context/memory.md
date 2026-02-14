@@ -195,6 +195,7 @@ stats = fabric.get_stats()
 
 ## When It Activates
 
+- **Before every LLM call**: `get_relevant_context()` is called with the current message to retrieve matching working memory items, similar episodic experiences, and relevant semantic knowledge. These are injected into the LLM context window automatically.
 - **Every step**: Working memory stores current step state (active file, goal, errors)
 - **After task completion**: Episodic memory records the trajectory and outcome
 - **During learning**: Semantic memory stores extracted domain knowledge

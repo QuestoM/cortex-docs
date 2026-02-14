@@ -4,6 +4,26 @@ All notable changes to corteX are documented here.
 
 ---
 
+## v3.0.0-alpha.2
+
+*Agentic engine gap fixes -- 6,200 tests passing.*
+
+### Agentic engine wiring (6 fixes)
+
+- **ContextCompiler in chat mode**: `session.run()` now uses the 4-zone context compiler (was agentic-only).
+- **L2/L3 summarization execution**: Summarization prompts are now sent to the LLM and results stored (was generating prompts without executing them).
+- **Sub-agent delegation**: The agentic loop now delegates work to `SubAgentManager` when the LLM requests task delegation.
+- **Memory retrieval injection**: `MemoryFabric.get_relevant_context()` is called before each LLM call, injecting relevant memories into context.
+- **Brain params consistency**: All 14 `generate()` call sites now pass the full 7-parameter brain state bundle.
+- **Streaming with tools**: `run_stream()` now supports tool execution (up to 5 rounds).
+
+### StreamChunk update
+
+- Added `model` field (which model generated the chunk).
+- Added `chunk_type` field (`text`, `tool_call`, `tool_result`, `error`).
+
+---
+
 ## v3.0.0-alpha
 
 *Initial release.*

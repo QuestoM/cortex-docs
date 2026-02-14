@@ -30,7 +30,9 @@ User message
     |
 [6] Tool filtering (reputation + modulation)
     |
-[7] LLM generation
+[6b] Context compilation (4-zone) + memory injection
+    |
+[7] LLM generation (full brain params on all calls)
     |
 [8] Tool execution loop (up to 5 rounds)
     |
@@ -101,13 +103,17 @@ The `DualProcessRouter` decides between System 1 (fast/worker model) and System 
 
 Quarantined tools (those that have failed repeatedly) are removed from the available tool set. The `TargetedModulator` can additionally force-activate or silence specific tools.
 
+### Step 6b: Context compilation
+
+The `ContextCompiler` assembles the context window using its 4-zone architecture (System 12%, Persistent 8%, Working 40%, Recent 40%). This step runs in **both chat and agentic modes**, ensuring KV-cache-aware context assembly, goal placement at both extremes, and automatic compaction regardless of execution path. Relevant memories from the `MemoryFabric` (working, episodic, and semantic) are injected into the context at this stage.
+
 ### Step 7: LLM generation
 
-The `LLMRouter` sends the conversation history to the selected model. Role selection combines signals from attention priority, dual-process routing, resource allocation, column recommendation, and concept graph suggestions.
+The `LLMRouter` sends the compiled context to the selected model. Role selection combines signals from attention priority, dual-process routing, resource allocation, column recommendation, and concept graph suggestions. All LLM calls (initial, tool follow-up, retry, and sub-agent) receive the full 7-parameter brain state bundle (surprise, ECE, population confidence, column mode, attention priority, resource tier, concept recommendations).
 
 ### Step 8: Tool execution
 
-If the LLM returns tool calls, each is executed through the `ToolExecutor`. Results are fed back into the LLM for up to 5 rounds. Every tool call is recorded in:
+If the LLM returns tool calls, each is executed through the `ToolExecutor`. Results are fed back into the LLM for up to 5 rounds. This tool execution loop operates in all three execution modes: `run()`, `run_agentic()`, and `run_stream()`. Every tool call is recorded in:
 
 - `WeightEngine` (Bayesian success tracking)
 - `ReputationSystem` (trust scoring)
