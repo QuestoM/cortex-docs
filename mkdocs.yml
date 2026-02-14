@@ -85,7 +85,7 @@ nav:
   - Concepts:
     - concepts/index.md
     - Architecture Overview: concepts/architecture.md
-    - Engine v2 - Agentic Architecture: concepts/engine-v2.md
+    - Agentic Engine Architecture: concepts/engine-v2.md
     - The Brain Engine:
       - concepts/brain/index.md
       - Synaptic Weights: concepts/brain/weights.md
@@ -126,6 +126,7 @@ nav:
     - LLM Providers:
       - guides/providers/openai.md
       - guides/providers/gemini.md
+      - guides/providers/anthropic.md
       - guides/providers/local-models.md
       - guides/providers/switching-providers.md
     - Configuration:
@@ -204,5 +205,6 @@ nav:
       - reference/llm/base.md
       - reference/llm/openai-client.md
       - reference/llm/gemini-client.md
+      - reference/llm/anthropic-client.md
 
   - Changelog: changelog.md

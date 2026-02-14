@@ -84,5 +84,5 @@ Organized by priority tier. All components initialize when a session starts and 
 ## Learn more
 
 - [Architecture deep-dive](architecture.md) -- the 14-step `run()` pipeline in detail.
-- [Engine v2: Agentic Architecture](engine-v2.md) -- multi-step goal-driven execution with planning, reflection, and recovery.
+- [Agentic Engine Architecture](engine-v2.md) -- multi-step goal-driven execution with planning, reflection, and recovery.
 - [LLM Routing](llm-routing.md) -- how the thalamus selects models.

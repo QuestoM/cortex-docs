@@ -135,5 +135,6 @@ This sends planning and reasoning to OpenAI while using Gemini's fast models for
 ## Next steps
 
 - [Connect to OpenAI](openai.md) -- add OpenAI as a second provider.
+- [Connect to Anthropic Claude](anthropic.md) -- add Claude as a provider with extended thinking.
 - [Use Local Models](local-models.md) -- run fully offline with Ollama or vLLM.
 - [Switch Between Providers](switching-providers.md) -- configure failover and split routing.

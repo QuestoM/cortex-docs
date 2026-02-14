@@ -15,14 +15,15 @@ engine = cortex.Engine(
     providers={
         "openai": {"api_key": "sk-..."},
         "gemini": {"api_key": "AIza..."},
+        "anthropic": {"api_key": "sk-ant-..."},
         "local": {"base_url": "http://localhost:11434/v1"},
     },
-    orchestrator_model="gpt-4o",
-    worker_model="gemini-2.0-flash",
+    orchestrator_model="claude-opus-4-6",
+    worker_model="gemini-3-flash-preview",
 )
 ```
 
-corteX identifies the correct provider for each model automatically. In the example above, `gpt-4o` routes to OpenAI and `gemini-2.0-flash` routes to Gemini.
+corteX identifies the correct provider for each model automatically. In the example above, `claude-opus-4-6` routes to Anthropic and `gemini-3-flash-preview` routes to Gemini.
 
 ## Split orchestrator and worker
 
@@ -51,6 +52,19 @@ The **orchestrator** handles planning, goal decomposition, and multi-step reason
         },
         orchestrator_model="gemini-2.5-flash", # Cheap planning
         worker_model="gemini-2.5-flash",       # Cheap execution
+    )
+    ```
+
+=== "Claude + Gemini"
+
+    ```python
+    engine = cortex.Engine(
+        providers={
+            "anthropic": {"api_key": "sk-ant-..."},
+            "gemini": {"api_key": "AIza..."},
+        },
+        orchestrator_model="claude-opus-4-6",  # Best reasoning
+        worker_model="gemini-3-flash-preview", # Fast execution
     )
     ```
 
@@ -158,5 +172,6 @@ asyncio.run(main())
 
 - [Connect to OpenAI](openai.md) -- detailed OpenAI and Azure configuration.
 - [Connect to Google Gemini](gemini.md) -- detailed Gemini and Vertex AI configuration.
+- [Connect to Anthropic Claude](anthropic.md) -- detailed Claude configuration with extended thinking.
 - [Use Local Models](local-models.md) -- add an on-premises provider to your mix.
 - [Monitor Your Agent](../advanced/observability.md) -- track which providers serve each request.

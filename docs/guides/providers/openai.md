@@ -124,5 +124,6 @@ If you want to confirm your credentials are valid before creating agents, check 
 ## Next steps
 
 - [Connect to Google Gemini](gemini.md) -- add a second provider for failover.
+- [Connect to Anthropic Claude](anthropic.md) -- add Claude as a provider with extended thinking.
 - [Switch Between Providers](switching-providers.md) -- route orchestrator and worker to different backends.
 - [Tune Agent Weights](../config/weight-tuning.md) -- adjust how your agent behaves.

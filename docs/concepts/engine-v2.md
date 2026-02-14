@@ -1,14 +1,14 @@
-# Engine v2: Agentic Architecture
+# Agentic Engine Architecture
 
-corteX Engine v2 transforms the SDK from a reactive single-turn chat wrapper into a **goal-driven multi-step agent loop**. Built on patterns from Claude Code, OpenClaw (IBM), CUGA, Cursor, and Manus, Engine v2 introduces planning, reflection, recovery, policy enforcement, and sub-agent delegation -- all while keeping the existing 20-component brain engine intact.
+The corteX Agentic Engine transforms the SDK from a reactive single-turn chat wrapper into a **goal-driven multi-step agent loop**. Built on patterns from Claude Code, OpenClaw (IBM), CUGA, Cursor, and Manus, the Agentic Engine introduces planning, reflection, recovery, policy enforcement, and sub-agent delegation -- all while keeping the existing 20-component brain engine intact.
 
 ---
 
-## Why v2?
+## Why the Agentic Engine?
 
-Engine v1 processes one message at a time: the user sends a message, the 14-step pipeline runs once, and a response comes back. This works for conversational use cases, but enterprise workflows demand multi-step execution where the agent decomposes a goal, executes steps autonomously, reflects on quality, and recovers from errors -- all without manual intervention.
+The base engine processes one message at a time: the user sends a message, the 14-step pipeline runs once, and a response comes back. This works for conversational use cases, but enterprise workflows demand multi-step execution where the agent decomposes a goal, executes steps autonomously, reflects on quality, and recovers from errors -- all without manual intervention.
 
-Engine v2 adds an **agentic loop** on top of the existing pipeline. The v1 `session.run()` API remains unchanged. The new `session.run_agentic()` API drives multi-step execution.
+The Agentic Engine adds an **agentic loop** on top of the existing pipeline. The `session.run()` API remains unchanged. The `session.run_agentic()` API drives multi-step execution.
 
 ---
 
@@ -250,7 +250,7 @@ result = await session.run_agentic(
 
 ## How v2 Integrates with the Brain Engine
 
-Engine v2 does not replace the 20 brain components -- it builds on top of them. Every step in the agentic loop runs through the existing 14-step pipeline:
+The Agentic Engine does not replace the 20 brain components -- it builds on top of them. Every step in the agentic loop runs through the existing 14-step pipeline:
 
 | Brain Component | Role in v2 |
 |----------------|------------|
@@ -270,8 +270,8 @@ Engine v2 does not replace the 20 brain components -- it builds on top of them. 
 ## Design Principles
 
 1. **Thin orchestrator**: The agentic loop yields actions; the caller executes them. This keeps the loop testable without live LLM calls.
-2. **Provider-agnostic**: Engine v2 works with any LLM provider supported by corteX (OpenAI, Gemini, local models).
-3. **Backward-compatible**: `session.run()` continues to work exactly as before. Engine v2 is opt-in via `session.run_agentic()`.
+2. **Provider-agnostic**: The Agentic Engine works with any LLM provider supported by corteX (OpenAI, Gemini, Anthropic, local models).
+3. **Backward-compatible**: `session.run()` continues to work exactly as before. The Agentic Engine is opt-in via `session.run_agentic()`.
 4. **Enterprise-first**: Policy enforcement, audit logging, and safety controls are built into every step of the agentic loop.
 5. **On-prem ready**: No external service dependencies. The entire agentic loop runs locally.
 
