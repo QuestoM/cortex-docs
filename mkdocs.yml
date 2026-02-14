@@ -85,6 +85,7 @@ nav:
   - Concepts:
     - concepts/index.md
     - Architecture Overview: concepts/architecture.md
+    - Engine v2 - Agentic Architecture: concepts/engine-v2.md
     - The Brain Engine:
       - concepts/brain/index.md
       - Synaptic Weights: concepts/brain/weights.md
