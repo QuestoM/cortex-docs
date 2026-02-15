@@ -402,6 +402,129 @@ response = self.llm_router.generate(
 
 ---
 
+## Wave 2: Advanced Cognitive Modules
+
+The cognitive context system includes seven specialized modules that extend the core pipeline with deeper intelligence.
+
+### EntanglementGraph
+
+**Prevents information loss by detecting co-dependent context items.**
+
+Two context items may each score low individually but become critical when present together. For example, a database schema definition and an error message referencing that schema are nearly useless alone but essential as a pair. The EntanglementGraph tracks these co-reference relationships and ensures entangled items are kept or removed together during context compression.
+
+```python
+import cortex
+
+engine = cortex.Engine()
+agent = engine.create_agent(name="developer", system_prompt="Build software.")
+session = agent.start_session(user_id="dev_1")
+
+# The entanglement graph works automatically during context assembly.
+# When the context window fills up, entangled items are preserved together:
+#
+#   Turn 15: "Database schema uses UUID primary keys"
+#     ↔ entangled with ↔
+#   Turn 47: "Error: column 'id' expected UUID, got integer"
+#
+# Both items survive compression because removing one makes the other meaningless.
+```
+
+### ContextPyramid
+
+**Multi-resolution context management for optimal token usage.**
+
+The ContextPyramid maintains the same information at four resolution levels -- from full verbatim content down to single-line fingerprints. It dynamically selects the resolution for each context item based on the available token budget and how relevant the item is to the current goal. The most important items get full resolution while less critical items are compressed.
+
+| Resolution | Token Cost | Content |
+|---|---|---|
+| **R0 Full** | 1x | Complete verbatim content |
+| **R1 Standard** | ~0.3x | Key sentences and structure |
+| **R2 Compact** | ~0.1x | Entity-relationship summary |
+| **R3 Micro** | ~0.02x | Single-line semantic fingerprint |
+
+No LLM calls are used for compression -- all resolution changes use deterministic text heuristics.
+
+### PredictivePreLoader
+
+**CPU-cache-inspired context prefetching for reduced latency.**
+
+The PredictivePreLoader predicts what context will be needed 2-3 turns ahead and pre-loads it into a prefetch buffer. When the prediction is correct, the next turn executes faster because context is already assembled. When wrong, the prefetched data is simply discarded.
+
+Prediction signals include:
+- **Entity co-occurrence**: If the agent just referenced "database," related items like "migrations" and "connection pool" are prefetched
+- **Plan lookahead**: If the goal tree shows the next step is "write tests," test-related context is prefetched
+- **Error patterns**: If a failure just occurred, recovery-related context is prefetched
+
+The system tracks hit/miss rates and self-tunes its prediction strategy over time.
+
+### MemoryCrystallizer
+
+**Extracts reusable cognitive patterns from successful task executions.**
+
+When an agent successfully completes a task, the MemoryCrystallizer extracts the generalizable pattern: what goal template was used, what decision chain led to success, what tools were called in what order, and what errors were encountered and resolved. These "crystals" are matched to future goals by keyword similarity and injected as few-shot guidance.
+
+```python
+import cortex
+
+engine = cortex.Engine()
+agent = engine.create_agent(
+    name="developer",
+    system_prompt="Build software.",
+    memory_crystallization=True
+)
+
+session = agent.start_session(user_id="dev_1")
+
+# After successfully building an API endpoint, a crystal is saved:
+# - Goal template: "Build [type] endpoint with [auth_method]"
+# - Decision chain: setup -> model -> routes -> tests
+# - Tool sequence: file_write -> run_tests -> file_write
+# - Error patterns: "import error" -> "add __init__.py"
+
+# On a future similar task, the crystal is matched and injected
+# as guidance, helping the agent avoid past mistakes and follow
+# proven patterns.
+```
+
+### ActiveForgettingEngine
+
+**Deliberate memory removal for improved agent reliability.**
+
+Not all forgetting is loss. The ActiveForgettingEngine identifies memories that actively harm agent performance and removes them with full provenance for potential reversal. This prevents the agent from being confused by outdated, contradictory, or error-inducing information.
+
+Five forgetting triggers:
+
+| Trigger | When It Fires | Example |
+|---|---|---|
+| **Contradiction** | New fact contradicts stored fact | "Use port 3000" vs. "Use port 8080" |
+| **Staleness** | Information is too old to be reliable | API docs from 6 months ago |
+| **Error Poisoning** | A memory caused repeated failures | Wrong syntax that was memorized |
+| **Redundancy** | Duplicate information wastes tokens | Same fact stored in 3 places |
+| **Goal Divergence** | Memory is irrelevant to current goal | Frontend CSS tips during backend work |
+
+Every forgetting event records what was removed and why, enabling reversal if the deletion was a mistake.
+
+### ContextVersioner
+
+**Context versioning with causal diff for failure diagnosis.**
+
+The ContextVersioner records the state of assembled context at each decision point. When a mistake occurs, it diffs the context between the failure and the last success to identify what information was missing or different. This enables precise root-cause analysis: "The agent failed because the database schema was compressed to R3 resolution, losing the column type information."
+
+### DensityOptimizer
+
+**Packs maximum semantic content per token using structured encoding.**
+
+The DensityOptimizer converts verbose content into dense, structured formats that preserve meaning while dramatically reducing token count. It achieves 3-5x density improvement without semantic information loss.
+
+| Input Format | Output Format | Compression |
+|---|---|---|
+| Prose descriptions | Key:value pairs | ~3x |
+| Narrative tool results | Structured tables | ~4x |
+| Full stack traces | Error class + message | ~5x |
+| Verbose conversation history | Decision-points only | ~3x |
+
+---
+
 ## When It Activates
 
 | Component | Activation Point |
@@ -409,6 +532,13 @@ response = self.llm_router.generate(
 | **StateFileManager** | Every 25 turns (save), after compression (save+load), on session start (load) |
 | **ContextQualityEngine** | Before compression (score), after compression (verify), every 100 turns (audit) |
 | **CognitiveContextPipeline** | Every LLM call in both `run()` and `run_agentic()` modes |
+| **EntanglementGraph** | During context compression (Phase 3 of pipeline) |
+| **ContextPyramid** | During context assembly when token budget is constrained |
+| **PredictivePreLoader** | After each turn, predicting next-turn context needs |
+| **MemoryCrystallizer** | After successful task completion |
+| **ActiveForgettingEngine** | When contradictions, staleness, or redundancy are detected |
+| **ContextVersioner** | At each decision point during agentic execution |
+| **DensityOptimizer** | During Phase 4 of the context pipeline |
 
 ---
 
@@ -476,3 +606,4 @@ See also:
 - [Goal Intelligence](goal-intelligence.md) - GoalDNA, GoalReminderInjector, GoalTree
 - [Anti-Drift](anti-drift.md) - LoopDetector, DriftEngine, AdaptiveBudget
 - [Architecture Overview](architecture.md) - Full 14-step pipeline
+- [Agent Intelligence](agent-intelligence.md) - ModelMosaic, SpeculativeExecutor, DecisionLog

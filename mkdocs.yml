@@ -104,9 +104,12 @@ nav:
       - Cross-Modal Association: concepts/context/cross-modal.md
     - Cognitive Systems:
       - Cognitive Context Pipeline: concepts/cognitive-context.md
+      - Agent Intelligence: concepts/agent-intelligence.md
       - Goal Intelligence: concepts/goal-intelligence.md
       - Intelligent Model Routing: concepts/model-routing.md
       - Anti-Drift System: concepts/anti-drift.md
+      - Security Framework: concepts/security.md
+      - Observability: concepts/observability.md
     - Advanced Subsystems:
       - concepts/advanced/index.md
       - Attention & Filtering: concepts/advanced/attention.md

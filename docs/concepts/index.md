@@ -81,8 +81,23 @@ Organized by priority tier. All components initialize when a session starts and 
 
 ---
 
+## Wave 2: Extended systems
+
+Beyond the 20 core brain components, corteX includes four additional systems that cover advanced cognition, agent intelligence, security, and observability.
+
+| System | Modules | Purpose |
+|---|---|---|
+| **[Cognitive Context](cognitive-context.md)** | EntanglementGraph, ContextPyramid, PredictivePreLoader, MemoryCrystallizer, ActiveForgettingEngine, ContextVersioner, DensityOptimizer | Advanced context quality, multi-resolution management, and memory crystallization. |
+| **[Agent Intelligence](agent-intelligence.md)** | ModelMosaic, SpeculativeExecutor, DecisionLog, ProgressEstimator, ABTestManager, ProviderHealthMonitor | Multi-model collaboration, speculation, progress tracking, and controlled experiments. |
+| **[Security Framework](security.md)** | KeyVault, CapabilitySet, RiskAttenuator, DataClassifier, ComplianceEngine | Defense-in-depth security with capability attenuation and compliance enforcement. |
+| **[Observability](observability.md)** | DecisionTracer, CostPredictor, MetricsCollector, TenantAuditStream | Decision tracing, cost prediction, metrics export, and tamper-evident audit logs. |
+
+---
+
 ## Learn more
 
 - [Architecture deep-dive](architecture.md) -- the 14-step `run()` pipeline in detail.
 - [Agentic Engine Architecture](engine-v2.md) -- multi-step goal-driven execution with planning, reflection, and recovery.
 - [LLM Routing](llm-routing.md) -- how the thalamus selects models.
+- [Security Framework](security.md) -- defense-in-depth security with compliance enforcement.
+- [Observability](observability.md) -- decision tracing, cost prediction, and audit logs.
