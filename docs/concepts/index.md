@@ -81,7 +81,7 @@ Organized by priority tier. All components initialize when a session starts and 
 
 ---
 
-## Wave 2: Extended systems
+## Extended systems
 
 Beyond the 20 core brain components, corteX includes four additional systems that cover advanced cognition, agent intelligence, security, and observability.
 

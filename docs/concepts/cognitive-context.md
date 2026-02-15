@@ -402,7 +402,7 @@ response = self.llm_router.generate(
 
 ---
 
-## Wave 2: Advanced Cognitive Modules
+## Advanced Cognitive Modules
 
 The cognitive context system includes seven specialized modules that extend the core pipeline with deeper intelligence.
 

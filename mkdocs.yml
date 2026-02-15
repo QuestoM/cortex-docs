@@ -170,35 +170,66 @@ nav:
       - reference/agent.md
       - reference/session.md
       - reference/response.md
+    - Core Modules:
+      - reference/core/events.md
+      - reference/core/contracts.md
+      - reference/core/registry.md
     - Engine Modules:
-      - reference/engine/weights.md
-      - reference/engine/goal-tracker.md
-      - reference/engine/feedback.md
-      - reference/engine/prediction.md
-      - reference/engine/plasticity.md
-      - reference/engine/adaptation.md
-      - reference/engine/game-theory.md
-      - reference/engine/context.md
-      - reference/engine/memory.md
-      - reference/engine/bayesian.md
-      - reference/engine/calibration.md
-      - reference/engine/columns.md
-      - reference/engine/concepts.md
-      - reference/engine/cross-modal.md
-      - reference/engine/attention.md
-      - reference/engine/resource-map.md
-      - reference/engine/modulator.md
-      - reference/engine/proactive.md
-      - reference/engine/reorganization.md
-      - reference/engine/population.md
-      - reference/engine/simulator.md
-      - reference/engine/brain-state-injector.md
-      - reference/engine/parameter-resolver.md
-      - reference/engine/inference-hooks.md
-      - reference/engine/structured-output.md
-      - reference/engine/content-prediction.md
-      - reference/engine/context-summarizer.md
-      - reference/engine/semantic-scorer.md
+      - Brain Core:
+        - reference/engine/weights.md
+        - reference/engine/goal-tracker.md
+        - reference/engine/feedback.md
+        - reference/engine/prediction.md
+        - reference/engine/plasticity.md
+        - reference/engine/adaptation.md
+        - reference/engine/game-theory.md
+        - reference/engine/context.md
+        - reference/engine/memory.md
+        - reference/engine/bayesian.md
+        - reference/engine/calibration.md
+        - reference/engine/columns.md
+        - reference/engine/concepts.md
+        - reference/engine/cross-modal.md
+        - reference/engine/attention.md
+        - reference/engine/resource-map.md
+        - reference/engine/proactive.md
+        - reference/engine/population.md
+      - Brain-LLM Bridge:
+        - reference/engine/brain-state-injector.md
+        - reference/engine/parameter-resolver.md
+        - reference/engine/inference-hooks.md
+        - reference/engine/context-summarizer.md
+      - Agent Intelligence:
+        - reference/engine/model-mosaic.md
+        - reference/engine/speculative-executor.md
+        - reference/engine/decision-log.md
+        - reference/engine/progress-estimator.md
+        - reference/engine/ab-test-manager.md
+        - reference/engine/provider-health.md
+      - Agentic Engine:
+        - reference/engine/agent-loop.md
+        - reference/engine/context-compiler.md
+        - reference/engine/planner.md
+        - reference/engine/reflection.md
+        - reference/engine/recovery.md
+        - reference/engine/interaction.md
+        - reference/engine/policy-engine.md
+        - reference/engine/sub-agent.md
+      - Goal System:
+        - reference/engine/goal-tree.md
+        - reference/engine/goal-dna.md
+        - reference/engine/goal-reminder.md
+      - Anti-Drift:
+        - reference/engine/drift-engine.md
+        - reference/engine/loop-detector.md
+        - reference/engine/adaptive-budget.md
+      - Advanced Engine:
+        - reference/engine/simulator.md
+        - reference/engine/reorganization.md
+        - reference/engine/modulator.md
+        - reference/engine/structured-output.md
+        - reference/engine/content-prediction.md
+        - reference/engine/semantic-scorer.md
     - NeuroLlama:
       - reference/neurollama/neurollama-model.md
     - Enterprise:
@@ -214,5 +245,35 @@ nav:
       - reference/llm/openai-client.md
       - reference/llm/gemini-client.md
       - reference/llm/anthropic-client.md
+      - reference/llm/classifier.md
+      - reference/llm/cost-tracker.md
+      - reference/llm/registry.md
+      - reference/llm/resilience.md
+    - Cognitive Context:
+      - Entanglement Graph: reference/cognitive/entanglement.md
+      - Context Pyramid: reference/cognitive/pyramid.md
+      - Predictive Pre-Loader: reference/cognitive/predictive-loader.md
+      - Memory Crystallizer: reference/cognitive/crystallizer.md
+      - Active Forgetting: reference/cognitive/active-forgetting.md
+      - Context Versioner: reference/cognitive/versioner.md
+      - Density Optimizer: reference/cognitive/density-optimizer.md
+      - Context Quality Engine: reference/cognitive/context-quality.md
+      - State File Manager: reference/cognitive/state-files.md
+      - Cognitive Pipeline: reference/cognitive/cognitive-pipeline.md
+    - Security:
+      - Key Vault: reference/security/vault.md
+      - Capability Set: reference/security/capabilities.md
+      - Risk Attenuator: reference/security/attenuation.md
+      - Data Classifier: reference/security/classification.md
+      - Compliance Engine: reference/security/compliance.md
+    - Tenancy:
+      - Tenant Manager: reference/tenancy/manager.md
+      - Tenant DNA: reference/tenancy/dna.md
+      - Quota Tracker: reference/tenancy/quota.md
+    - Observability:
+      - Decision Tracer: reference/observability/tracer.md
+      - Cost Predictor: reference/observability/cost-predictor.md
+      - Metrics Collector: reference/observability/metrics.md
+      - Audit Stream: reference/observability/audit-stream.md
 
   - Changelog: changelog.md
