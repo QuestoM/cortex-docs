@@ -331,7 +331,7 @@ For high-throughput production deployments, consider these tuning strategies.
 ```python title="performance_tips.py"
 # 1. Use the worker model for most traffic
 # The System 1/2 split naturally routes ~80% to the cheaper worker model.
-# Ensure your worker model is fast: gemini-2.0-flash, gpt-4o-mini, or a local 8B model.
+# Ensure your worker model is fast: gemini-3-flash-preview, gpt-4.1-mini, or a local 8B model.
 
 # 2. Tune the context budget for your model
 context_config = cortex.ContextManagementConfig(

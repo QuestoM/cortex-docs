@@ -104,7 +104,7 @@ engine = cortex.Engine(
         "local": {"base_url": "http://localhost:11434/v1"},
     },
     orchestrator_model="gpt-4o",       # Complex reasoning
-    worker_model="gemini-2.0-flash",   # Fast, simple tasks
+    worker_model="gemini-3-flash-preview",   # Fast, simple tasks
 )
 ```
 

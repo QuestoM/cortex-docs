@@ -47,6 +47,14 @@
     - 15.7: GitHub Repositories
     - 15.8: Current Build Status
 16. [Development Log](#16-development-log)
+17. [Custom Model Research](#17-custom-model-research-neuroscience-embedded-in-weights)
+18. [Deep Research: Wrapper vs Fine-Tuned Model](#18-deep-research-wrapper-vs-fine-tuned-model-february-11-2026)
+19. [Layer 2 & Layer 3: Model-Level Neuroscience](#19-layer-2--layer-3-model-level-neuroscience-implementation)
+20. [SDK Remaining Technical Items](#20-sdk-remaining-technical-items-all-6-improvements-implemented)
+21. [Agentic Engine Architecture](#21-agentic-engine-architecture-built-feb-14-2026)
+22. [Anthropic/Claude Provider Addition](#22-anthropicclaude-provider-addition-feb-14-2026)
+23. [Agentic Engine Gap Fixes](#23-agentic-engine-gap-fixes-session-5-feb-15-2026)
+24. [Second Gap Audit & Fixes](#24-second-gap-audit--fixes-session-5-continuation)
 
 ---
 
@@ -80,12 +88,13 @@ The SDK now combines three pillars of intelligence:
 - Cortical map reorganization with territory merging/splitting, co-occurrence tracking, and pressure-based scheduling
 - Optogenetics-inspired targeted modulation with enterprise policy overrides and conflict resolution
 - Digital twin simulation with Monte Carlo, A/B testing, what-if analysis, and sensitivity analysis
+- 4 LLM providers: OpenAI, Gemini, Anthropic/Claude, and local models (Ollama, vLLM)
 - 100% on-prem capable with BYOK (Bring Your Own Key)
 - Enterprise-ready: multi-tenant, safety policies, audit, licensing
 
-**Current state**: 21 engine modules, 3 enterprise modules, 32 test files, **3,324 tests passing** (including 30 integration tests with real Gemini API), ~28,300+ lines of engine + enterprise code. All P0-P3 neuroscience patterns from the Segev lecture analysis are now fully implemented and integrated into the SDK.
+**Current state**: 29 engine modules, 3 enterprise modules, 39+ test files, **6,200 tests passing** (including integration tests with real Gemini API), ~31,700+ lines of engine + enterprise code. All P0-P3 neuroscience patterns from the Segev lecture analysis are fully implemented. Agentic engine architecture (8 new modules, 991 new tests) adds goal-driven multi-step execution with planning, reflection, recovery, and sub-agents. Six critical wiring gaps closed in Session 5 (context compiler in chat mode, L2/L3 summarization execution, sub-agent delegation, memory retrieval injection, brain params consistency, streaming with tools).
 
-Full developer documentation: 78 pages across Getting Started, Concepts, Enterprise, and API Reference sections (MkDocs Material).
+Full developer documentation: 97 pages across Getting Started, Tutorials, How-To Guides, Concepts, Enterprise, and API Reference sections (MkDocs Material).
 
 ---
 
@@ -143,6 +152,7 @@ Developer's SaaS Application
     ├── cortex.Engine (multi-provider LLM routing)
     │   ├── OpenAI / Azure
     │   ├── Gemini / Google
+    │   ├── Anthropic / Claude
     │   └── Local (Ollama, vLLM)
     │
     ├── cortex.Agent (stateless template)
@@ -176,6 +186,7 @@ Developer's SaaS Application
     ├── cortex.Engine (multi-provider LLM routing)
     │   ├── OpenAI / Azure
     │   ├── Gemini / Google
+    │   ├── Anthropic / Claude
     │   └── Local (Ollama, vLLM)
     │
     ├── cortex.Agent (stateless template, ContextManagementConfig)
@@ -1767,7 +1778,7 @@ session = agent.start_session(user_id="dev_1")
 
 **Package structure**: Created proper Python package with `__init__.py` files, `pyproject.toml`, and pip-installable structure.
 
-**Multi-provider LLM abstraction**: Built `BaseLLMProvider` interface, `OpenAIClient` (supports OpenAI, Azure, any OpenAI-compatible API), `GeminiAdapter` (wraps existing Gemini client), and `LLMRouter` (routes between providers based on role: orchestrator/worker/background).
+**Multi-provider LLM abstraction**: Built `BaseLLMProvider` interface, `OpenAIClient` (supports OpenAI, Azure, any OpenAI-compatible API), `GeminiAdapter` (wraps existing Gemini client), `AnthropicProvider` (Claude models with extended thinking, vision, and streaming), and `LLMRouter` (routes between providers based on role: orchestrator/worker/background).
 
 **Key learning**: The existing Gemini client was tightly coupled to Google Cloud services. Rather than refactoring it, we created an adapter pattern (`GeminiAdapter`) that wraps it behind the standard `BaseLLMProvider` interface.
 
@@ -2290,30 +2301,30 @@ But the SYSTEM of weights + population coding + feedback + prediction + plastici
 
 | Module | Files | Lines | Description |
 |--------|-------|-------|-------------|
-| `engine/` | 21 | 23,442 | Brain-inspired core (weights, plasticity, prediction, feedback, adaptation, memory, population, goal tracker, bayesian, game_theory, context, proactive, cross_modal, calibration, columns, resource_map, attention, **concepts**, **reorganization**, **modulator**, **simulator**) |
+| `engine/` | 29 | ~25,800 | Brain-inspired core (weights, plasticity, prediction, feedback, adaptation, memory, population, goal tracker, bayesian, game_theory, context, proactive, cross_modal, calibration, columns, resource_map, attention, **concepts**, **reorganization**, **modulator**, **simulator**, structured_output, content_prediction, game_integration, context_summarizer, semantic_scorer) + **agentic** (context_compiler, planner, reflection, recovery, interaction, policy_engine, sub_agent, agent_loop) |
 | `core/llm/` | 5 | 1,198 | Multi-provider LLM abstraction |
 | `enterprise/` | 3 | 1,062 | Config, licensing, updates |
 | `runtime/` | 1 | 499 | Orchestrator |
-| `sdk.py` | 1 | 850 | SDK entry point (enhanced with game theory + CCE + P0-P3 neuroscience, 20 brain components) |
+| `sdk.py` | 1 | ~950 | SDK entry point (game theory + CCE + P0-P3 neuroscience + agentic loop, 20 brain components) |
 | `tools/` | 3 | 338 | Tool framework |
 | `core/` (other) | 4 | 328 | Contracts, events, lifecycle, registry |
 | `server/` | 2 | 125 | FastAPI server |
 | `plugins/` | 6 | ~1,161 | Legacy subsystems (agents, code interpreter, browser) |
 | `memory/` (legacy) | 3 | 484 | Legacy memory (Gemini-coupled) |
-| **TOTAL** | **~53** | **~29,437** | |
+| **TOTAL** | **~61** | **~31,945** | |
 
 ### Tests
 
 | Metric | Value |
 |--------|-------|
-| Total test files | 32 |
-| Total unit tests | 3,294 |
-| Total integration tests | 30 |
-| **Total tests** | **3,324** |
+| Total test files | 40+ |
+| Total unit tests | 5,820+ |
+| Total integration tests | 142+ |
+| **Total tests** | **5,962** |
 | Pass rate | 100% |
-| Lines of test code | ~20,000+ |
-| Documentation | 78+ pages (MkDocs Material) |
-| Engine modules | 21 |
+| Lines of test code | ~28,000+ |
+| Documentation | 97 pages (MkDocs Material) |
+| Engine modules | 29 |
 | Enterprise modules | 3 |
 | Brain components per session | 20 |
 
@@ -2917,6 +2928,1258 @@ Demo app feature-complete: FastAPI backend (17 endpoints), React frontend (3 pag
 - Researched 5 approaches (DB backup, API-level, module, migration, filestore)
 - Selected hybrid: API-level snapshot + DB duplicate for full restore
 - Implementation started
+
+### Phase 7: Verification & Baseline (2026-02-10)
+- **Baseline Snapshot**: Taken successfully - 704 records across 16 models (1.2MB JSON)
+  - Models: res.partner (120), helpdesk.ticket (200), knowledge.article (140), crm.lead (29), project.task (65), hr.employee (18), hr.job (17), hr.department (10), helpdesk.team (5), helpdesk.stage (10), crm.stage (10), helpdesk.tag (50), crm.tag (14), res.partner.category (7), project.project (9), sale.order (0)
+  - Snapshot ID: `snapshot_20260210_180918` (label: initial-baseline)
+- **Backend Verification**: FastAPI server starts cleanly with all 22 endpoints
+  - 17 REST endpoints + 5 snapshot endpoints + WebSocket
+  - Odoo connection: healthy (saas~19.1+e)
+  - Warning for missing Gemini API key (expected - user will provide later)
+- **Frontend Verification**: TypeScript `tsc --noEmit` passes with 0 errors
+  - Production build: 692KB JS + 24KB CSS (gzip: 215KB + 5KB)
+  - Built in 14.23 seconds with Vite 7.3
+- **SDK Integration**: All 5 corteX exports verified (Engine, Session, Agent, WeightConfig, EnterpriseConfig)
+- **Status**: Application is feature-complete and ready for bot testing (pending Gemini API key)
+
+### Session: Llama Neuroscience Architecture Research (February 11, 2026)
+
+**Date**: 2026-02-11
+
+Deep technical research on embedding neuroscience-inspired modifications directly into Meta's Llama transformer architecture. Full report saved to `docs/llama_neuroscience_architecture_research.md`.
+
+**Research Areas Covered:**
+1. **Llama Architecture Deep Dive**: Complete parameter tables for Llama 3.1 (8B/70B/405B) and Llama 4 (Scout/Maverick), including RoPE, GQA, SwiGLU, RMSNorm, KV cache mechanics, and iRoPE
+2. **7 Neuroscience-Inspired Modifications**: Synaptic weight modulation, cortical columns via GQA, dual process via early exit, prediction error signals, Hebbian attention, attention habituation, population coding -- each with detailed implementation code
+3. **Implementation Feasibility Matrix**: Categorized all 16+ modifications into: Inference-Time (4), Adapter/LoRA (7), Full Retrain (6), with parameter counts and cost estimates
+4. **30+ Research Papers**: Catalogued across biologically-inspired transformers, MoE as cortical columns, sparse attention, adaptive computation time, Hebbian learning, predictive coding, learned temperature
+5. **Custom Training Objectives**: Designed 6-component brain-like loss function (prediction + surprise + specialization + calibration + efficiency + coherence) with multi-phase training strategy and RLBF reward signals
+6. **Synthesis**: Proposed "NeuroLlama" architecture combining feasible modifications, mapped all corteX brain engine modules to their transformer-level equivalents
+
+**Key Finding**: corteX already implements neuroscience principles at the agent orchestration level. This research shows how the SAME principles can be embedded at the model architecture level, creating a doubly brain-inspired system. Several modifications (Hebbian accumulator, attention habituation, adaptive temperature) can be applied at inference time with zero training cost.
+
+**Output**: `docs/llama_neuroscience_architecture_research.md` (~850 lines, ~40,000 characters)
+
+---
+
+---
+
+## 17. Custom Model Research: Neuroscience Embedded in Weights
+
+**Date**: February 2026
+**Author**: AI Development Agent (Claude Opus 4.6)
+**Status**: Research Complete -- Strategic Decision Pending
+
+### 17.1 Executive Summary
+
+corteX currently implements 22 brain-inspired components (synaptic weights, plasticity, dual-process routing, prediction/surprise, cortical columns, attention filters, Bayesian inference, game theory, concept graphs, cortical map reorganization, targeted modulation, component simulation, etc.) as a **wrapper layer** around commercial LLMs (Gemini, OpenAI). This research investigates whether fine-tuning an open-source model with neuroscience concepts baked directly into the architecture or weights would be feasible, superior, and economically viable.
+
+**Bottom line**: A hybrid approach is recommended. The wrapper layer should remain the primary architecture for the next 12-18 months, while a parallel R&D track explores a fine-tuned "corteX-Brain" model based on Mistral Large 3 (675B MoE, Apache 2.0) or Qwen3-235B (Apache 2.0). The fine-tuned model would handle the "System 1" fast-path, while the wrapper continues to orchestrate "System 2" reasoning. Full custom model development becomes viable when corteX has 50+ enterprise deployments generating training signal.
+
+---
+
+### 17.2 Best Non-Chinese Open-Source Models (February 2026)
+
+#### 17.2.1 Model Comparison Table
+
+| Model | Total Params | Active Params | Architecture | Context Window | License | MMLU | HumanEval | MATH-500 | Best For |
+|-------|-------------|--------------|--------------|---------------|---------|------|-----------|----------|----------|
+| **Llama 4 Behemoth** | 2T | 288B | MoE (16E) | 128K | Llama Community | ~90%+ | ~85%+ | Beats GPT-4.5 | Maximum capability |
+| **Llama 4 Maverick** | 400B | 17B | MoE (128E) | 1M | Llama Community | ~85% | ~80% | Beats GPT-4o | Multimodal, long context |
+| **Llama 4 Scout** | 109B | 17B | MoE (16E) | 10M | Llama Community | ~82% | ~75% | Industry-leading context | Long-document analysis |
+| **Mistral Large 3** | 675B | 41B | MoE | 256K | **Apache 2.0** | ~87% | ~83% | Top OSS coding model | Code, reasoning, enterprise |
+| **Qwen3-235B** | 235B | 22B | MoE | 128K | **Apache 2.0** | ~87% | ~82% | 92.3% AIME25 | Math, reasoning, multilingual |
+| **Qwen3-32B** | 32B | 32B | Dense | 128K | **Apache 2.0** | ~83% | ~78% | Strong for size | Cost-efficient deployment |
+| **DeepSeek-V3** | 671B | 37B | MoE (MLA) | 128K | MIT | ~88% | ~84% | 97.3% MATH-500 | Math, code, reasoning |
+| **DeepSeek-R1** | 671B | 37B | MoE (MLA) | 128K | MIT | ~87% | ~82% | 79.8% AIME | Deep reasoning chains |
+| **Mistral Large 2** | 123B | 123B | Dense | 128K | Apache 2.0 | 84.0% | ~78% | Multilingual MMLU ~82% | Multilingual enterprise |
+
+*Note: DeepSeek models are Chinese-origin (excluded per research scope but included for completeness). Benchmark numbers are approximate aggregates from multiple sources; exact scores vary by evaluation methodology.*
+
+#### 17.2.2 Detailed Analysis of Top Candidates
+
+**Tier 1: Best Fine-Tuning Candidates for corteX**
+
+**1. Mistral Large 3 (675B total / 41B active) -- RECOMMENDED**
+- **Why**: Apache 2.0 license (fully permissive for commercial use), MoE architecture means only 41B active parameters during inference (manageable on single 8xH100 node), 256K context window, top-tier coding performance on LMArena, trained on 3,000 H200 GPUs by Mistral.
+- **Fine-tuning viability**: MoE architecture allows expert-level fine-tuning (modify specific experts without touching others). The 41B active parameter footprint means LoRA adapters are practical.
+- **Deployment**: Supports FP8 on H200/B200, NVFP4 on H100/A100. Single multi-GPU node deployment.
+- **Risk**: Keeping up with Mistral's release cadence; the model is new (Dec 2025).
+
+**2. Qwen3-235B (235B total / 22B active) -- STRONG ALTERNATIVE**
+- **Why**: Apache 2.0, trained on 36 trillion tokens in 119 languages, 22B active parameters (very efficient), built-in reasoning toggle (thinking mode on/off), ranked #8 on LMArena tied with Claude Opus 4.
+- **Fine-tuning viability**: Smaller active parameter count means faster training iterations. Dense+MoE hybrid.
+- **Deployment**: Lighter infrastructure requirements than Mistral Large 3.
+- **Risk**: Alibaba origin may concern some enterprise customers (though Apache 2.0 mitigates legal risk).
+
+**3. Llama 4 Scout (109B total / 17B active) -- MOST ACCESSIBLE**
+- **Why**: 17B active params (cheapest to fine-tune), 10M token context window (industry-leading), strong ecosystem support, Meta backing.
+- **Fine-tuning viability**: LoRA fine-tuning possible under 20GB VRAM. Massive community support.
+- **Deployment**: Lightest infrastructure requirements of all frontier models.
+- **Risk**: Llama Community License is NOT true open source (requires "Llama" branding on derivatives, Meta retains control). Less permissive than Apache 2.0.
+
+**Tier 2: Worth Monitoring**
+
+**4. Llama 4 Behemoth (2T params / 288B active)** -- Too large for practical fine-tuning by a startup, but if Meta releases open weights, it represents the ceiling of open-source capability.
+
+**5. Qwen3-32B Dense** -- Excellent for rapid prototyping. Dense architecture is simpler to modify. 32B parameters fit on a single H100 80GB. Apache 2.0.
+
+#### 17.2.3 Licensing Comparison (Critical for Enterprise)
+
+| License | Commercial Use | Derivative Branding | Patent Grant | True OSI Open Source |
+|---------|---------------|-------------------|-------------|---------------------|
+| Apache 2.0 (Mistral, Qwen) | Unrestricted | None required | Yes | Yes |
+| MIT (DeepSeek) | Unrestricted | None required | Implicit | Yes |
+| Llama Community (Meta) | Conditional (700M MAU limit) | Must include "Llama" | No explicit grant | **No** |
+
+**Recommendation**: For an enterprise SDK product like corteX, **Apache 2.0 models (Mistral Large 3 or Qwen3) are strongly preferred** over Llama's restrictive community license.
+
+---
+
+### 17.3 Fine-Tuning Techniques That Could Embed Neuroscience
+
+#### 17.3.1 Parameter-Efficient Fine-Tuning (PEFT)
+
+**LoRA (Low-Rank Adaptation)**
+- Freezes pretrained weights, injects trainable low-rank decomposition matrices into transformer layers
+- Trains only ~1-5% of original parameters
+- For a 41B active parameter model (Mistral Large 3): ~0.4B-2B trainable parameters
+- Memory: 2-4x less than full fine-tuning
+- Quality: Recovers 90-95% of full fine-tuning quality on most tasks
+- Best practice: alpha = 2x rank (confirmed by hundreds of experiments at Lightning AI)
+- **corteX application**: Train separate LoRA adapters for each brain subsystem (plasticity adapter, prediction adapter, attention filter adapter). Stack/merge them at inference.
+
+**QLoRA (Quantized LoRA)**
+- Base model stored in 4-bit precision, LoRA adapters train in higher precision (FP16/BF16)
+- Enables 70B model fine-tuning on a **single 24GB GPU** (RTX 4090)
+- Quality: 80-90% of full fine-tuning
+- Training speed: ~30% slower than LoRA due to quantization/dequantization overhead
+- **corteX application**: Rapid prototyping of neuroscience-embedded adapters on consumer hardware before committing to production-grade training.
+
+**Full Fine-Tuning**
+- Updates all parameters
+- For 41B active parameters: requires 8x H100 80GB minimum, ~$10,000-50,000 per training run
+- Training time: 1-2 weeks on 8x H100 cluster for 70B-class model
+- Quality: Maximum fidelity to training signal
+- **corteX application**: Final production model after LoRA experiments validate the approach.
+
+#### 17.3.2 Neuroscience-Specific Training Approaches
+
+**A. Custom Reward Functions for Brain-Like Behavior (RLHF/RLAIF)**
+
+Standard RLHF uses a reward model trained on human preferences. corteX could train a **neuroscience-aware reward model** that scores outputs based on:
+
+1. **Goal coherence** (does the response advance the original goal? Maps to corteX's GoalTracker)
+2. **Prediction accuracy** (did the model correctly predict what information it would need? Maps to PredictionEngine)
+3. **Confidence calibration** (is the model's expressed confidence aligned with actual accuracy? Maps to ContinuousCalibration)
+4. **Dual-process appropriateness** (did the model use fast/intuitive reasoning when appropriate and slow/analytical reasoning when needed? Maps to dual-process routing)
+5. **Loop avoidance** (did the model avoid repeating itself or getting stuck? Maps to state hashing + drift detection)
+
+The RL4LMs framework explicitly supports training on **arbitrary user-specified reward functions**, making this technically feasible today.
+
+**Implementation approach**:
+```
+reward = (
+    0.3 * goal_coherence_score +      # GoalTracker analog
+    0.2 * prediction_accuracy_score +   # PredictionEngine analog
+    0.2 * calibration_score +           # CalibrationEngine analog
+    0.15 * process_routing_score +      # Dual-process analog
+    0.15 * loop_avoidance_score         # StateHash analog
+)
+```
+
+**B. Constitutional AI with Neuroscience Principles**
+
+Instead of generic constitutional principles ("be helpful, harmless, honest"), embed corteX-specific principles:
+- "Before answering, predict what information you will need" (prediction principle)
+- "Assess your confidence on a 0-1 scale before each claim" (calibration principle)
+- "If you detect you are repeating a pattern, break the loop and try a different approach" (plasticity principle)
+- "Weight recent evidence more heavily than old evidence unless explicitly instructed otherwise" (recency-weighted synaptic principle)
+
+**C. Custom Attention Pattern Modification**
+
+This is the most architecturally ambitious approach. Modern transformers use standard scaled dot-product attention. corteX could modify this to implement:
+
+1. **Cortical Column Attention**: Group attention heads into "columns" where each column specializes in a domain (code, language, math, planning). This mirrors corteX's `columns.py` (Functional Columns) module. Recent research (Shah & Yamins, 2025) demonstrates that topographic Vision Transformers already reproduce V1- and VTC-like cortical topography.
+
+2. **Forgetting Attention**: The Forgetting Transformer (FoX, 2025) introduces a forget gate that down-weights unnormalized attention scores in a data-dependent way. This directly parallels corteX's synaptic weight decay. FoX outperforms standard Transformers on long-context language modeling and length extrapolation.
+
+3. **STDP-Based Attention**: A 2025 paper introduces a Spiking Neuromorphic Transformer where attention emerges entirely from spike-timing-dependent plasticity (STDP). This eliminates softmax entirely and encodes attention weights directly within synaptic connections. This is the most direct analog to corteX's plasticity and weight systems.
+
+4. **Scalable Softmax**: Dynamically adjusts temperature based on sequence length, preventing attention degradation on long sequences. Maps to corteX's attention filter adaptation.
+
+**Technical implementation**: Using PyTorch's FlexAttention API or JAX flexible attention masks, custom attention patterns can be compiled into single fused CUDA kernels without performance penalty.
+
+#### 17.3.3 Training Data Strategy
+
+To embed neuroscience behavior, the training data must demonstrate these behaviors:
+
+| Data Type | Volume Needed | Source | Maps to corteX Component |
+|-----------|--------------|--------|-------------------------|
+| Goal-tracking conversations | 50K+ examples | Synthetic generation from corteX wrapper outputs | GoalTracker |
+| Prediction-before-action traces | 30K+ examples | corteX PredictionEngine logs | PredictionEngine |
+| Confidence-calibrated responses | 40K+ examples | corteX CalibrationEngine outputs | ContinuousCalibration |
+| Multi-expert routing decisions | 20K+ examples | corteX dual-process routing logs | Modulator/Columns |
+| Loop-breaking behavior | 10K+ examples | corteX state hash collision logs | StateHash/DriftDetection |
+| Weight adaptation traces | 20K+ examples | corteX SynapticWeights histories | Weights/Plasticity |
+| **Total minimum** | **170K+ examples** | | |
+
+**Key insight**: corteX's current wrapper architecture can **generate the training data** for its own fine-tuned model. Every production deployment produces logs that show the brain-like reasoning patterns. This creates a virtuous cycle: more wrapper deployments --> more training data --> better fine-tuned model --> better deployments.
+
+---
+
+### 17.4 What Becomes Possible with a Custom Model
+
+#### 17.4.1 Capabilities ONLY Available with Model-Level Access
+
+| Capability | Wrapper Layer (Current) | Custom Fine-Tuned Model | Impact |
+|-----------|------------------------|------------------------|--------|
+| **Per-token temperature control** | Impossible (API returns finished tokens) | Full control via custom LogitsProcessor in vLLM | Simulate variable confidence per-concept |
+| **Custom attention masks** | Impossible | Implement cortical column attention patterns | Domain-specialized processing paths |
+| **Modified softmax** | Impossible | Replace with STDP-based or forgetting attention | True synaptic weight simulation at attention level |
+| **Custom decoding strategies** | Limited (top-p/top-k only) | Arbitrary decoding: dual-process at token level | System 1/System 2 at generation time |
+| **Internal state inspection** | Black box (only see outputs) | Full neuron activation visibility via TransformerLens | Real-time brain state monitoring |
+| **Gradient-based adaptation** | Impossible | Online LoRA adaptation during inference | True real-time plasticity |
+| **Expert routing control** | Impossible | Control which MoE experts activate per token | Map experts to brain regions |
+| **Training data embedding** | N/A | Domain patterns baked into weights | Implicit knowledge vs. explicit prompting |
+
+#### 17.4.2 Deep Dive: Per-Token Temperature and Sampling
+
+With a custom model served through vLLM, corteX could implement a `NeuroscienceLogitsProcessor` that:
+
+```python
+class NeuroscienceLogitsProcessor(LogitsProcessor):
+    """Per-token manipulation implementing brain-like sampling."""
+
+    def __call__(self, logits: torch.Tensor, tokens: torch.Tensor) -> torch.Tensor:
+        # 1. Confidence-based temperature: high confidence = low temp (decisive)
+        confidence = self.calibration_engine.get_confidence(tokens)
+        temperature = 1.0 / (1.0 + confidence)  # Range: 0.5 to 1.0
+
+        # 2. Apply synaptic weight bias to domain-specific tokens
+        domain_weights = self.weight_engine.get_token_weights(tokens)
+        logits = logits + domain_weights  # Bias toward domain vocabulary
+
+        # 3. Dual-process gate: suppress analytical tokens in System 1 mode
+        if self.modulator.is_system1_mode():
+            logits = self.suppress_analytical_tokens(logits)
+
+        # 4. Apply temperature
+        logits = logits / temperature
+
+        return logits
+```
+
+This is **completely impossible** with API-based LLMs. It requires model-level access.
+
+#### 17.4.3 Deep Dive: Custom Attention as Cortical Columns
+
+With access to the model's attention mechanism, corteX could partition attention heads into functional groups:
+
+- **Heads 0-7**: Language processing column (natural language understanding)
+- **Heads 8-15**: Code processing column (syntax, logic, algorithms)
+- **Heads 16-23**: Planning column (goal decomposition, step sequencing)
+- **Heads 24-31**: Memory column (context retrieval, episodic recall)
+
+Each "column" could have independent:
+- Learning rates (plasticity per domain)
+- Attention masks (what each column can "see")
+- Weight decay rates (forgetting curves per domain)
+
+This mirrors the biological cortical column organization that corteX's `columns.py` currently simulates at the prompt level.
+
+#### 17.4.4 Deep Dive: Mechanistic Interpretability for Brain State
+
+Using TransformerLens and sparse autoencoders (SAEs), corteX could:
+
+1. **Map model neurons to brain components**: Identify which neurons activate for goal-tracking, prediction, confidence assessment
+2. **Real-time brain state dashboard**: Show activation patterns in a UI that mirrors a brain scan
+3. **Causal intervention**: Ablate specific neurons to test which components are critical for a given task
+4. **Feature steering**: Amplify or suppress specific features to control behavior without retraining
+
+DeepMind's GemmaScope project (2025) trained hundreds of SAEs on every layer of a 2B-parameter LLM, yielding tens of millions of candidate features. This approach scales to larger models.
+
+---
+
+### 17.5 Costs and Infrastructure
+
+#### 17.5.1 Fine-Tuning Cost Estimates
+
+**Target model: Mistral Large 3 (675B total / 41B active)**
+
+| Approach | GPUs Required | Training Time | Cost per Run | Quality vs Full FT |
+|----------|-------------|--------------|-------------|-------------------|
+| **QLoRA** (prototyping) | 1x H100 80GB | 3-5 days | $1,000-2,500 | 80-90% |
+| **LoRA** (r=64) | 4x H100 80GB | 3-5 days | $4,000-10,000 | 90-95% |
+| **LoRA** (r=128) | 8x H100 80GB | 5-7 days | $8,000-20,000 | 93-97% |
+| **Full fine-tuning** | 32x H100 80GB | 1-2 weeks | $30,000-80,000 | 100% (baseline) |
+| **RLHF/reward training** | 16x H100 80GB | 1-2 weeks | $20,000-50,000 | Behavioral alignment |
+
+**Target model: Qwen3-235B (22B active)**
+
+| Approach | GPUs Required | Training Time | Cost per Run | Quality vs Full FT |
+|----------|-------------|--------------|-------------|-------------------|
+| **QLoRA** (prototyping) | 1x RTX 4090 24GB | 2-4 days | $200-500 | 80-90% |
+| **LoRA** (r=64) | 2x H100 80GB | 2-4 days | $2,000-5,000 | 90-95% |
+| **Full fine-tuning** | 16x H100 80GB | 1 week | $15,000-40,000 | 100% |
+
+**Target model: Llama 4 Scout (17B active) -- cheapest option**
+
+| Approach | GPUs Required | Training Time | Cost per Run | Quality vs Full FT |
+|----------|-------------|--------------|-------------|-------------------|
+| **QLoRA** (prototyping) | 1x RTX 4090 24GB | 1-2 days | $100-300 | 80-90% |
+| **LoRA** (r=64) | 1x H100 80GB | 1-3 days | $1,000-3,000 | 90-95% |
+| **Full fine-tuning** | 8x H100 80GB | 3-5 days | $8,000-20,000 | 100% |
+
+#### 17.5.2 GPU Hardware Pricing (February 2026)
+
+| GPU | VRAM | Purchase Price | Cloud Price/hr (spot) | Cloud Price/hr (on-demand) | Best For |
+|-----|------|---------------|----------------------|--------------------------|----------|
+| **NVIDIA B200** | 192GB HBM3e | $45,000-50,000 | $2.47-4.99 | $5-8 | Serving 400B+ models on single card |
+| **NVIDIA H200** | 141GB HBM3e | $30,000-35,000 | $2.00-3.50 | $4-6 | High-throughput training + inference |
+| **NVIDIA H100 80GB** | 80GB HBM3 | $25,000-31,000 | $1.50-2.99 | $3.50-5 | Standard for fine-tuning |
+| **NVIDIA A100 80GB** | 80GB HBM2e | $15,000-17,000 | $1.29-2.29 | $2-3.50 | Budget training, still capable |
+| **RTX 4090** | 24GB GDDR6X | $1,500-2,000 | $0.40-0.80 | $0.75-1.50 | QLoRA prototyping only |
+
+**Complete server systems:**
+- 8x H100 DGX system: ~$300,000-400,000
+- 8x B200 DGX system: ~$400,000-500,000
+- 8x A100 system: ~$150,000-200,000
+
+#### 17.5.3 On-Premise Inference Economics
+
+**Scenario: corteX deploys a fine-tuned Mistral Large 3 for enterprise customers**
+
+| Metric | Cloud API (Gemini) | On-Prem H100 Cluster | On-Prem B200 |
+|--------|-------------------|---------------------|--------------|
+| Cost per 1M tokens | $0.50-2.00 | ~$0.01-0.05 | ~$0.005-0.02 |
+| Monthly cost (10M tokens/day) | $15,000-60,000 | $3,000-5,000 (amortized) | $2,000-3,000 (amortized) |
+| Annual cost | $180,000-720,000 | $36,000-60,000 + hardware | $24,000-36,000 + hardware |
+| Hardware amortized (5yr) | N/A | $60,000-80,000/yr | $80,000-100,000/yr |
+| **Total annual** | **$180K-720K** | **$96K-140K** | **$104K-136K** |
+| Break-even vs API | N/A | 3-8 months | 4-10 months |
+| Latency | 200-500ms (network) | 50-100ms (local) | 30-60ms (local) |
+| Data sovereignty | Cloud provider | Full control | Full control |
+
+**Key finding**: On-premise breaks even with cloud APIs in under 4 months for high-utilization workloads, and yields up to **18x cost advantage** per million tokens over a 5-year lifecycle (per 2025 peer-reviewed analysis).
+
+#### 17.5.4 Total Cost of Ownership: Year 1 Budget
+
+| Line Item | Low Estimate | High Estimate | Notes |
+|-----------|-------------|--------------|-------|
+| GPU cluster (8x H100, leased) | $120,000 | $200,000 | 1-year cloud commitment |
+| Fine-tuning experiments (10 runs) | $15,000 | $50,000 | LoRA + QLoRA iterations |
+| RLHF reward model training | $20,000 | $50,000 | Custom neuroscience rewards |
+| Training data curation | $10,000 | $30,000 | Human annotation + synthetic |
+| ML engineering (1 FTE) | $120,000 | $180,000 | Specialized in fine-tuning |
+| Inference serving (vLLM setup) | $5,000 | $15,000 | Infrastructure + monitoring |
+| **Total Year 1** | **$290,000** | **$525,000** | |
+
+---
+
+### 17.6 Risks and Challenges
+
+#### 17.6.1 Catastrophic Forgetting
+
+**The core risk**: Fine-tuning on neuroscience-specific behavior can degrade general capabilities.
+
+**Severity**: HIGH. Research (ICLR 2025) shows that model forgetting is linked to shifts in latent concept variables. LoRA does NOT mitigate catastrophic forgetting in continual learning contexts, contrary to common expectations.
+
+**Mitigations**:
+1. **Elastic Weight Consolidation (EWC)**: Regularize weight updates to protect crucial parameters
+2. **Sharpness-Aware Minimization (SAM)**: Flatten the loss landscape to reduce forgetting
+3. **Parameter isolation**: Separate LoRA adapters per brain subsystem, keeping base model frozen
+4. **Gradient Episodic Memory (GEM)**: Store and replay examples from general tasks during fine-tuning
+5. **Function vector regularization**: New technique (ICLR 2025) that integrates a regularization term with KL divergence loss
+6. **Continuous benchmarking**: Run MMLU, HumanEval, MATH-500 after every training run; reject any run that degrades benchmarks by >2%
+
+#### 17.6.2 Benchmark Regression
+
+**Risk**: A model fine-tuned for brain-like behavior may score lower on standard benchmarks.
+
+**Mitigation**: Maintain a "base capability" test suite. Any fine-tuned model must pass:
+- MMLU >= 95% of base model score
+- HumanEval >= 95% of base model score
+- MATH-500 >= 90% of base model score
+- Plus new corteX-specific benchmarks (goal coherence, prediction accuracy, calibration quality)
+
+#### 17.6.3 Keeping Up with Frontier Models
+
+**Risk**: Gemini 3 Pro, GPT-5.x, Claude Opus 4+ will continue to improve. A fine-tuned open-source model from February 2026 may be obsolete by August 2026.
+
+**Mitigation**:
+1. **Modular LoRA architecture**: When a new base model releases (e.g., Mistral Large 4), retrain only the LoRA adapters (~$5K-20K), not the full model
+2. **Dual-track strategy**: Keep the wrapper layer as primary (always uses latest frontier model), fine-tuned model as System 1 fast-path
+3. **Adapter portability**: Research into cross-model adapter transfer (early but promising results with LoRAFusion, 2025)
+
+#### 17.6.4 Regulatory Considerations
+
+**EU AI Act (effective August 2025+)**:
+- Fine-tuning creates a "modified GPAI model" which triggers ALL obligations that apply to original GPAI developers
+- Requires: technical documentation, transparency obligations, copyright compliance
+- If the fine-tuned model is classified as "systemic risk" (>10^25 FLOPs training compute), additional obligations apply
+- **Mistral Large 3 and Qwen3 likely exceed this threshold** in their base training; fine-tuning adds to it
+- A federated compliance structure is recommended: joint testing of base + modified models
+
+**Data rights**: Training data must respect machine-readable rights reservations. Synthetic data generated by corteX from customer deployments requires explicit consent in enterprise agreements.
+
+**Mitigation**:
+- Embed compliance tracking in the fine-tuning pipeline from day one
+- Use only Apache 2.0 / MIT licensed base models
+- Document all training data provenance
+- Implement model cards and transparency reports per EU AI Act Article 53
+
+#### 17.6.5 Engineering Complexity
+
+**Risk**: Maintaining a custom model doubles the engineering surface area.
+
+**Mitigation**:
+- Phase the approach (see roadmap below)
+- Start with LoRA adapters (minimal divergence from base model)
+- Use established tooling (Axolotl, LLaMA-Factory, Hugging Face PEFT, vLLM)
+- Hire/contract one specialized ML engineer (not a team)
+
+---
+
+### 17.7 Strategic Recommendation: The Hybrid Path
+
+#### 17.7.1 Why Not Full Custom Model (Yet)
+
+1. **corteX's wrapper already works**: 3,355 tests passing, 22 brain components, production-ready
+2. **Training data chicken-and-egg**: Need production deployments to generate the training signal for neuroscience behaviors
+3. **Cost**: $290K-525K Year 1 is significant for a startup
+4. **Frontier models keep improving**: The wrapper approach automatically benefits from Gemini/OpenAI improvements
+
+#### 17.7.2 Why Not Wrapper Only (Forever)
+
+1. **Ceiling on brain-like behavior**: Cannot modify attention, sampling, or internal state through an API
+2. **Latency**: Every brain component adds prompt tokens, increasing cost and latency
+3. **Vendor lock-in**: Dependent on Gemini/OpenAI pricing and availability
+4. **Differentiation**: Every competitor can wrap the same APIs; a custom model is a true moat
+
+#### 17.7.3 The Recommended Hybrid Roadmap
+
+**Phase 1: Data Collection (Now - Month 6)**
+- Continue wrapper-based architecture as primary product
+- Instrument all 22 brain components to log their decisions in structured format
+- Target: 170K+ training examples from real deployments
+- Cost: $0 incremental (logging infrastructure only)
+- Deliverable: Curated training dataset
+
+**Phase 2: Proof of Concept (Month 6 - Month 9)**
+- QLoRA fine-tune Qwen3-32B (cheapest: single RTX 4090) with collected data
+- Focus on 3 brain components only: GoalTracker, PredictionEngine, CalibrationEngine
+- Train custom reward model for RLHF
+- Run benchmarks: compare fine-tuned model vs. wrapper on corteX-specific tasks
+- Cost: $2,000-5,000
+- Deliverable: Benchmark report, go/no-go decision
+
+**Phase 3: Production Model (Month 9 - Month 15)**
+- If Phase 2 shows >15% improvement on corteX tasks without >5% benchmark regression:
+  - LoRA fine-tune Mistral Large 3 (Apache 2.0, production-grade)
+  - Implement custom NeuroscienceLogitsProcessor in vLLM
+  - Implement cortical column attention patterns
+  - RLHF with full 5-component reward function
+- Cost: $50,000-100,000
+- Deliverable: "corteX-Brain v1" model
+
+**Phase 4: Full Integration (Month 15 - Month 18)**
+- Deploy corteX-Brain as System 1 fast-path (90% of requests)
+- Wrapper + frontier model as System 2 slow-path (10% of hard requests)
+- Enterprise customers choose: cloud API, on-prem corteX-Brain, or hybrid
+- Cost: On-prem infrastructure per customer
+- Deliverable: Complete on-prem AI agent stack with zero external dependencies
+
+#### 17.7.4 The Ultimate Vision
+
+```
+Enterprise Request
+       |
+       v
+  [corteX-Brain Model]  <-- Fine-tuned Mistral Large 3 with neuroscience in weights
+       |
+   [Fast enough?]
+      / \
+    Yes   No
+     |     |
+     v     v
+  System 1    [corteX Wrapper + Frontier Model]
+  (80ms)      System 2 (500ms)
+     |              |
+     v              v
+  [Merged Response with Brain State Telemetry]
+```
+
+This gives corteX a **unique competitive advantage**: the only AI agent SDK that has neuroscience baked into the model weights, not just wrapped around an API. Combined with on-prem capability, this is a true enterprise moat.
+
+---
+
+### 17.8 Key Research Sources
+
+1. Meta Llama 4 Models: https://www.llama.com/models/llama-4/
+2. Mistral Large 3 on Hugging Face: https://huggingface.co/mistralai/Mistral-Large-3-675B-Instruct-2512
+3. Qwen3 Release: https://qwenlm.github.io/blog/qwen3/
+4. DeepSeek-V3 Technical Report: https://arxiv.org/html/2412.19437v1
+5. LoRA vs QLoRA Comparison (2026): https://www.index.dev/blog/top-ai-fine-tuning-tools-lora-vs-qlora-vs-full
+6. Spiking Neuromorphic Transformer (STDP Attention): https://arxiv.org/html/2511.14691
+7. Forgetting Transformer (FoX): https://openreview.net/forum?id=q2Lnyegkr8
+8. TransformerLens (Mechanistic Interpretability): https://github.com/TransformerLensOrg/TransformerLens
+9. vLLM Custom Logits Processors: https://docs.vllm.ai/en/latest/design/logits_processors/
+10. EU AI Act for OSS Developers: https://huggingface.co/blog/eu-ai-act-for-oss-developers
+11. Catastrophic Forgetting Mitigation (ICLR 2025): https://proceedings.iclr.cc/paper_files/paper/2025/file/74fc5575632191d96881d8015f79dde3-Paper-Conference.pdf
+12. On-Premise vs Cloud TCO (2026 Edition): https://lenovopress.lenovo.com/lp2368-on-premise-vs-cloud-generative-ai-total-cost-of-ownership-2026-edition
+13. GPU Pricing Guide (2026): https://docs.jarvislabs.ai/blog/h100-price
+14. NVIDIA B200 Pricing: https://modal.com/blog/nvidia-b200-pricing
+15. Fine-Tuning LLMs with Hugging Face (2025): https://www.philschmid.de/fine-tune-llms-in-2025
+16. Topographic Vision Transformers (Cortical Organization): https://2025.ccneuro.org/abstract_pdf/Shah_2025_Topographic_Vision_Transformers.pdf
+17. Building Transformers from Neurons and Astrocytes (PNAS): https://www.pnas.org/doi/10.1073/pnas.2219150120
+
+---
+
+## 18. Deep Research: Wrapper vs Fine-Tuned Model (February 11, 2026)
+
+### 18.1 Research Question
+
+How does corteX's current brain-inspired wrapper architecture compare to building/fine-tuning our own open-source model (e.g., Meta Llama) with neuroscience directly embedded in the transformer weights?
+
+### 18.2 Research Methodology
+
+Four parallel research agents conducted deep technical analysis:
+1. **Brain Integration Analysis** (`docs/brain_integration_analysis.md`) - Component-by-component analysis of all 20 brain components: what works as wrapper, what is limited, what are quick wins
+2. **Llama Neuroscience Architecture Research** (`docs/llama_neuroscience_architecture_research.md`) - Deep technical analysis of Llama 3.1/4 architecture, proposed "NeuroLlama" architecture with 7 specific neuroscience modifications
+3. **Temperature & Sampling Control** (`docs/temperature_guide.md`) - How brain state can control LLM parameters (temperature, top_p, top_k, max_tokens)
+4. **Current Implementation Gap Analysis** - What exactly the brain computes vs what reaches the LLM
+
+### 18.3 Key Finding: "The Prompt Gap"
+
+**The most critical finding**: corteX's brain computes extensive state (behavioral weights, column mode, attention classification, change highlights, goal progress, calibration status) but **this state is not passed to the LLM**. The brain operates in a parallel universe from the LLM.
+
+In `sdk.py`, the `router.generate()` call receives: messages, tools, role, system_instruction. What is **missing**:
+1. Behavioral weight vector (verbosity, formality, creativity, etc.)
+2. Active column name and specialization mode
+3. Attention change highlights
+4. Goal state and progress percentage
+5. Calibration warnings
+6. Prediction context
+7. User insight summary
+
+### 18.4 Four Categories of Brain Components
+
+| Category | Description | Components |
+|----------|-------------|------------|
+| **A: Perfect Wrapper Fit** | Inherently orchestration-level, no fine-tuning benefit | Enterprise Weights, Resource Homunculus, Reputation, Nash Routing, Minimax Safety, Calibration |
+| **B: Good Fit, Needs Prompt Integration** | Works but needs brain state communicated to LLM | Behavioral Weights, Functional Columns, Attention System, Goal Tracker, Context Compressor |
+| **C: Limited but Improvable** | Wrapper creates real limitations, partially fixable with structured output | Prediction Engine, Dual-Process Router, Feedback Engine, Population Estimator |
+| **D: Fundamentally Limited** | Only fine-tuning can fully solve | Content-level Hebbian learning, mid-generation quality control, genuine System 1, internal confidence calibration |
+
+### 18.5 The "NeuroLlama" Architecture (Proposed)
+
+Seven neuroscience-inspired modifications to standard Llama architecture:
+
+1. **Synaptic Weight Modulation** - Per-head learnable scale factors (alpha_h) + context-dependent neuromodulation
+2. **Cortical Columns via GQA** - Per-group specialization loss + lateral inhibition between GQA groups
+3. **Dual Process via Early Exit** - System 1 exits at layer 8/16, System 2 uses all 32 layers, confidence estimators at exit points
+4. **Prediction Error Signal** - Each layer predicts its own input from the layer above (predictive coding)
+5. **Hebbian Attention** - Running co-activation matrix that biases attention based on successful patterns
+6. **Habituation in Attention** - Exponential decay for repeated patterns, freeing resources for novelty
+7. **Population Coding in Output** - Confidence-weighted head voting instead of simple concatenation
+
+### 18.6 Feasibility Matrix Summary
+
+| What Can Be Done | Compute Required | Timeline |
+|-------------------|-----------------|----------|
+| **Inference-Time (FREE, no training)**: Hebbian accumulator, attention habituation, adaptive per-head temperature, population-style output weighting | 0 (runtime only) | Days |
+| **Adapter/LoRA (moderate)**: Synaptic scaling, lateral inhibition, early exit classifiers, prediction heads, confidence-weighted voting | 8 GPUs × few days | Weeks |
+| **Full Retrain (expensive)**: Full predictive coding, Mixture of Depths, Hebbian attention, multi-objective pretraining | 64+ GPUs × weeks | Months |
+
+### 18.7 Priority Quick Wins (Implementable NOW in corteX)
+
+**Priority 1 - Bridge the Prompt Gap (HIGH impact, LOW effort):**
+Create a `BrainStateInjector` that compiles brain state into the system prompt:
+- Inject behavioral weights as structured context
+- Inject active column mode and specialization
+- Inject goal progress and drift
+- Inject attention change highlights
+
+**Priority 2 - Dynamic API Parameters (HIGH impact, LOW effort):**
+- Map `creativity` weight → temperature (higher creativity = higher T)
+- Map `speed_vs_quality` weight → temperature (higher quality = lower T)
+- Map `verbosity` weight → max_tokens scaling
+- Map attention priority SUBCONSCIOUS → max_tokens cap
+
+**Priority 3 - Structured Output for Better Signals (MEDIUM impact, MEDIUM effort):**
+- Request self-assessed confidence scores from LLM
+- Request task difficulty estimation
+- Request escalation signals (LLM can say "I need System 2")
+
+**Priority 4 - Content-Aware Predictions (MEDIUM impact, HIGHER effort):**
+- Ask LLM for tool call confidence before execution
+- Run parallel LLM evaluations for CRITICAL turns
+- Use LLM for sentiment classification instead of regex
+
+### 18.8 Strategic Recommendation: Two-Level Brain Architecture
+
+```
+Level 1: Model Level (inside the transformer)
+  - Inference-time Hebbian accumulation
+  - Inference-time habituation
+  - Adapter-trained early exit (System 1/2)
+  - Adapter-trained prediction heads
+
+Level 2: Orchestration Level (corteX engine - what we have today)
+  - WeightEngine modulating tool/LLM selection
+  - GoalTracker maintaining task coherence
+  - PredictionEngine anticipating next steps
+  - FeedbackEngine learning from outcomes
+  - PlasticityEngine adapting over time
+```
+
+This creates a **doubly brain-inspired system**: the model itself has brain-like properties, and the orchestration layer adds metacognitive coordination. Analogous to how the brain operates at both the neural circuit level and the brain network level.
+
+### 18.9 Research Documents Produced
+
+| Document | Lines | Content |
+|----------|-------|---------|
+| `docs/brain_integration_analysis.md` | 431 | Component-by-component wrapper analysis, 12 components analyzed, priority matrix |
+| `docs/llama_neuroscience_architecture_research.md` | 1344 | Full Llama architecture deep dive, 7 neuro modifications, implementation code, 40+ papers |
+| `docs/temperature_guide.md` | 408 | Temperature math, per-task recommendations, model-specific overrides, integration architecture |
+
+---
+
+## 19. Layer 2 & Layer 3: Model-Level Neuroscience Implementation
+
+**Date: February 13, 2026**
+
+### 19.1 Overview
+
+Layer 2 and Layer 3 implement neuroscience-inspired modifications at the MODEL level (inside the transformer), complementing Layer 1's ORCHESTRATION-level modifications (system prompt + API parameters).
+
+### 19.2 Layer 2: Adapter/LoRA Infrastructure (4 modules)
+
+**inference_hooks.py** (296 lines, 109 tests):
+- HebbianAccumulator: Within-sequence co-activation matrix that biases attention
+- AttentionHabituation: Exponential decay for repeated attention patterns (SSA)
+- AdaptiveHeadTemperature: Per-head temperature from entropy z-scores
+- PopulationWeightedVoting: Confidence-weighted head output aggregation
+- InferenceHookPipeline: Orchestrates all hooks in sequence
+- These work at INFERENCE TIME with NO training needed
+
+**neuro_adapter.py** (300 lines, 64 tests):
+- LoRAConfig + NeuroAdapterConfig for fine-tuning configuration
+- LoRAWeight: A/B matrix decomposition with apply/merge/save/load
+- AdapterManager: Multi-adapter management with weighted merging
+- NeuroscienceAdapterSpec: Specs for synaptic scaling, early exit, prediction heads, lateral inhibition
+
+**training_collector.py** (300 lines, 90 tests):
+- TrainingExample dataclass with full brain state capture
+- TrainingCollector: Buffered JSONL collection with auto-flush
+- BrainStateSerializer: Captures weight engine, columns, predictions
+- TrainingDataPipeline: Creates SFT, DPO, and brain-conditioned training pairs
+
+**early_exit.py** (298 lines, 158 tests):
+- ExitClassifier: Lightweight MLP at configurable exit layers
+- ConfidenceCalibrator: Platt scaling for exit confidence
+- DualProcessInference: System 1 (early exit) vs System 2 (full layers)
+- AdaptiveComputationController: Dynamic threshold based on task complexity/stakes
+
+### 19.3 Layer 3: NeuroLlama Architecture (10 modules)
+
+Full neuroscience-enhanced transformer architecture in `corteX/neurollama/`:
+
+**config.py** (207 lines):
+- NeuroLlamaConfig: 9 architecture + 13 neuroscience + 5 training objective fields
+- Factory methods: from_llama_config, presets for 8B/70B/405B
+
+**synaptic_attention.py** (216 lines):
+- SynapticScaling: Per-head alpha (like synaptic strength)
+- NeuromodulatedAttention: Context-dependent gating (like dopamine/serotonin)
+- SynapticModulationMatrix: Full pairwise modulation for local windows
+
+**cortical_columns.py** (271 lines):
+- CorticalColumnAttention: GQA groups as functional cortical columns with JS divergence
+- LateralInhibition: Anti-Hebbian cross-column suppression
+- HierarchicalColumnOrganizer: Layer-depth tiers (syntactic/semantic/abstract)
+
+**predictive_coding.py** (272 lines):
+- PredictionHead + PredictiveCodingLayer: Top-down prediction with error signals
+- ContrastivePredictiveCoding: InfoNCE/CPC loss with bilinear scoring
+- PredictionErrorSignal: Per-layer surprise aggregation
+
+**hebbian_attention.py** (291 lines):
+- HebbianAttention: Within-sequence co-activation matrix in attention
+- RewardModulatedHebbian: Three-factor STDP (pre * post * reward)
+- HebbianFastWeights: Fast weight learning in FFN layers
+
+**habituation_layer.py** (279 lines):
+- HabituatingAttention: Stimulus-specific adaptation with pattern counting
+- AttentionDecay: Cross-layer cumulative decay
+- NoveltyDetector: Identifies novel tokens for dishabituation
+
+**population_output.py** (263 lines):
+- PopulationCodedAttention: Gaussian tuning curves with preferred directions
+- ConfidenceWeightedVoting: Learned per-head confidence estimators
+- EntropyBasedVoting: Parameter-free entropy-based weighting
+- PopulationVectorDecoder: Replaces standard lm_head
+
+**training_objectives.py** (279 lines):
+- SurpriseLoss, SpecializationLoss (JS divergence), CalibrationLoss (ECE)
+- EfficiencyLoss (metabolic cost), CoherenceLoss (goal alignment)
+- NeuroCompositeLoss: Multi-objective with phase-based curriculum
+- BrainInspiredReward: RLBF reward shaping
+
+**model.py** (282 lines):
+- RMSNorm, RotaryPositionEmbedding (RoPE), SwiGLU
+- NeuroLlamaBlock: Single block with all 7 modifications
+- NeuroLlamaModel: Full model with early exit, population output
+- create_neurollama() factory with "8B"/"70B"/"405B" presets
+
+### 19.4 Test Coverage
+
+- Layer 2: 421 new tests (109 + 64 + 90 + 158)
+- Layer 3: 393 new tests (152 + 72 + 97 + 72)
+- Total new: 814 tests
+- Grand total: 4,372 tests (100% passing)
+
+### 19.5 Architecture Summary
+
+```
+Level 1 (Orchestration - Layer 1):
+  BrainStateInjector → System prompt enrichment
+  BrainParameterResolver → API parameter mapping
+
+Level 2 (Inference-Time - Layer 2):
+  InferenceHookPipeline → Hebbian + Habituation + Temperature + Population
+  LoRA Adapter Framework → Fine-tuning infrastructure
+  Training Collector → Data pipeline for future training
+  Early Exit → System 1/2 at model level
+
+Level 3 (Architecture - Layer 3):
+  NeuroLlama → Full neuroscience-enhanced transformer
+  7 modifications: Synaptic, Columns, Predictive, Hebbian, Habituation, Population, Early Exit
+  6 training objectives: Surprise, Specialization, Calibration, Efficiency, Coherence, Composite
+```
+
+### 19.6 Design Decisions
+
+- All Layer 2 & 3 code uses NumPy (PyTorch is optional dependency)
+- Every file under 300 lines (project rule)
+- Layer 2 inference hooks work NOW without any training
+- Layer 3 NeuroLlama is complete architecture ready for training when compute is available
+
+## 20. SDK Remaining Technical Items: All 6 Improvements Implemented
+
+**Date: February 13, 2026**
+
+### 20.1 Overview
+
+All 6 remaining technical items identified in Section 13 have been implemented, bringing the SDK to completion. Each item was built as an independent module under 300 lines, with comprehensive test suites.
+
+### 20.2 Item 1: Structured Output for Better Signals (Priority 3)
+
+**`engine/structured_output.py`** (291 lines):
+- `DifficultyLevel` enum: TRIVIAL, EASY, MEDIUM, HARD, EXTREME with fuzzy string matching
+- `StructuredSignals` dataclass: confidence (0-1), difficulty, escalation_needed, escalation_reason, reasoning_steps, tools_confidence
+- `StructuredOutputInjector`: Generates instruction text for LLM system prompts requesting self-assessment signals in `cortex-signals` JSON blocks
+- `StructuredOutputParser`: Multi-strategy extraction (cortex-block → generic JSON → keyword scan → defaults)
+- `SignalAggregator`: Combines LLM signals with brain signals (surprise, ECE, population) into unified quality assessment with recommended actions
+- Integrated into Session.run(): injected into system prompt, parsed from response, stripped from user-facing content
+
+### 20.3 Item 2: Content-Aware Predictions (Priority 4)
+
+**`engine/content_prediction.py`** (265 lines):
+- `ContentPredictor`: Generates prompts for LLM-powered predictions (does NOT call LLM directly -- keeps module testable)
+  - `build_tool_prediction_prompt()`: Mental rehearsal -- asks LLM to evaluate tool call success likelihood
+  - `parse_tool_prediction_response()`: Extracts ContentAwarePrediction from LLM response
+  - `build_evaluation_prompt()`: Parallel quality evaluation of response against goal
+  - `build_sentiment_prompt()` / `parse_sentiment_response()`: LLM-based sentiment classification
+- `PredictionCache`: TTL-based cache to avoid redundant prediction calls
+- `ContentPredictionConfig`: Feature flags for each prediction type
+
+### 20.4 Item 3: Nash Routing + Shapley Attribution Integration
+
+**`engine/game_integration.py`** (266 lines):
+- `NashRoutingBridge`: Wraps NashRoutingOptimizer for SDK pipeline
+  - `should_optimize()`: Periodic trigger (every N turns)
+  - `optimize_routing()`: Runs Nash equilibrium, returns model/tool scores
+  - `apply_nash_scores()`: Applies as soft biases to weight engine
+- `ShapleyAttributionBridge`: Wraps ShapleyAttributor for multi-tool credit
+  - `should_attribute()`: Only when 2+ unique tools used
+  - `compute_attribution()`: Builds coalition values, computes Shapley values
+  - `apply_attribution()`: Proportional tool weight updates
+- `GameTheoryIntegrationConfig`: nash_interval=10, shapley_min_tools=2
+- Both fully wired into Session.run() pipeline (Nash at consolidation, Shapley after quality estimation)
+
+### 20.5 Item 4: L2/L3 LLM Summarization
+
+**`engine/context_summarizer.py`** (270 lines):
+- `SummarizationLevel` enum: L0_RAW, L1_KEYWORDS, L2_SUMMARY, L3_DIGEST
+- `L2Summarizer`: Generates prompts for LLM-based context summarization, batch processing
+- `L3DigestBuilder`: Generates structured JSON digests (key_decisions, tools_used, errors, progress, questions)
+- `SummarizationPipeline`: Orchestrates L2/L3 with configurable thresholds
+- Pure logic module -- generates prompts, parses responses, no LLM calls
+- Integrated into Session.run() periodic maintenance (L2 threshold check)
+
+### 20.6 Item 5: pyproject.toml Packaging
+
+**`pyproject.toml`** (292 lines):
+- Package name: `cortex-ai`, version 1.0.0
+- Python >= 3.10
+- Core dependencies: numpy, pydantic (minimal footprint)
+- Optional dependency groups: `server` (FastAPI), `gemini` (google-genai), `openai`, `dev` (pytest), `neurollama` (torch), `all`
+- Tool configurations: pytest, ruff, mypy
+- Entry points: `cortex-server` CLI command
+- Proper package discovery excluding tests/docs/demo_app
+
+### 20.7 Item 6: Vector Embedding Importance Scoring
+
+**`engine/semantic_scorer.py`** (298 lines):
+- `EmbeddingBackend` protocol: embed(), embed_batch(), similarity(), dimension
+- `TFIDFBackend`: Pure numpy TF-IDF implementation (NO scikit-learn dependency)
+  - Incremental vocabulary via fit_partial()
+  - Vocabulary cap (5000) with LRU eviction of rare terms
+  - Cosine similarity via numpy dot product
+  - Built-in stop words filtering
+- `SemanticImportanceScorer`: relevance (0.6) + novelty (0.3) + length (0.1) scoring
+  - `score_relevance()`: Cosine similarity to goal + context
+  - `score_novelty()`: 1 - max_similarity to seen texts
+  - `find_most_relevant()`: Top-k retrieval
+- `create_scorer()` factory with pluggable backend architecture
+- Integrated into Session.run() for vocabulary building
+
+### 20.8 Test Coverage
+
+| Module | Tests | Lines |
+|--------|-------|-------|
+| structured_output.py | ~100 | 783 |
+| content_prediction.py | ~100 | 813 |
+| game_integration.py | ~80 | 806 |
+| context_summarizer.py | ~150 | 1151 |
+| semantic_scorer.py | ~80 | 919 |
+| **Total new** | **~584** | **4,472** |
+
+Grand total: **4,971 tests** (100% passing, up from 4,387)
+
+### 20.9 SDK Pipeline Integration
+
+All 5 new engine modules integrated into `sdk.py` Session.run():
+
+```
+Step 7b2: Structured output instruction injected into system prompt
+Step 11c: Structured signals parsed from LLM response, aggregated with brain signals
+Step 11d: Shapley attribution for multi-tool turns
+Step 14l: Nash routing optimization (periodic) + model utility recording
+Step 14m: Semantic scorer vocabulary building
+Step 14n: L2/L3 summarization threshold check
+```
+
+Session.close() collects stats from all new components.
+New public methods: get_nash_routing_stats(), get_shapley_stats(), get_summarization_stats()
+
+### 20.10 Remaining Technical Items Status Update
+
+| Item | Status |
+|------|--------|
+| Structured Output for Better Signals | **[DONE]** |
+| Content-Aware Predictions | **[DONE]** |
+| Nash Routing integration into SDK | **[DONE]** |
+| Shapley Attribution integration | **[DONE]** |
+| L2/L3 LLM summarization | **[DONE]** |
+| pyproject.toml polish | **[DONE]** |
+| Vector embedding for importance scoring | **[DONE]** |
+
+All items from Section 13 "Remaining Technical Items" are now complete.
+
+---
+
+## 21. Agentic Engine Architecture (Built Feb 14, 2026)
+
+### 21.1 Overview
+
+Implemented the complete Agentic Engine based on research from Claude Code, OpenClaw, CUGA, Cursor, and Manus patterns. The architecture follows the "simple loop + rich context" principle -- a single deterministic loop that yields actions to the caller, with all intelligence concentrated in context assembly and post-generation reflection rather than complex branching logic.
+
+### 21.2 New Modules (8 files, all under 300 lines)
+
+#### 1. `engine/context_compiler.py` (299 lines)
+4-Zone Context Window Assembly:
+- **System zone** (12%): System prompt, persona, tool definitions
+- **Persistent zone** (8%): CLAUDE.md-style instructions, policies
+- **Working zone** (40%): Current plan, tool results, observations
+- **Recent zone** (40%): Recent conversation turns
+
+KV-cache aware, append-only design. Goal placed at both start and end of context (lost-in-the-middle mitigation). Automatic compaction at 80%/90%/95% thresholds with progressive summarization.
+
+#### 2. `engine/planner.py` (293 lines)
+Goal decomposition via LLM prompt/parse:
+- Multi-step plans with dependency tracking between steps
+- Replanning on failure with context from previous attempt
+- Complexity estimation (0.0-1.0 scale)
+- Auto-detect when planning is needed (complexity threshold 0.3)
+- Plan step lifecycle: pending -> in_progress -> completed/failed/skipped
+
+#### 3. `engine/reflection.py` (288 lines)
+Post-generation quality verification:
+- 6 trigger types: low confidence, high risk, goal drift, tool failure, user critical, periodic
+- Lesson bank with effectiveness tracking (lessons that improve quality are reinforced)
+- Improvement prompt generation for retry attempts
+- Configurable trigger thresholds and periodic interval
+
+#### 4. `engine/recovery.py` (300 lines)
+Error classification and recovery:
+- 4 error classes: transient, permanent, context_overflow, fatal
+- Exponential backoff with jitter for transient errors
+- Pattern-based + isinstance classification (regex on error messages + exception type hierarchy)
+- Consecutive error abort threshold (default: 3)
+- Tool failure pattern detection with blacklisting of persistently failing tools
+
+#### 5. `engine/interaction.py` (256 lines)
+Human-in-the-loop with 5-level autonomy (Sheridan & Verplank L1-L5):
+- L1: Human decides everything
+- L2: Agent suggests, human approves
+- L3: Agent decides, human can veto
+- L4: Agent decides, informs human
+- L5: Full autonomy
+- Smart timeout with risk-adjusted duration
+- Auto-decide prompt building for ambiguous situations
+- Max questions per task limit to prevent excessive interruption
+- Decision history for learning user preferences
+
+#### 6. `engine/policy_engine.py` (255 lines)
+5 guardrail types:
+- **IntentGuard**: Block/allow based on intent classification
+- **Playbook**: Multi-step instruction sequences for specific scenarios
+- **ToolApproval**: Per-tool approval requirements based on autonomy level
+- **ToolGuide**: Parameter defaults and constraints for tool calls
+- **OutputFormatter**: Response formatting rules (length, tone, structure)
+
+Pattern matching supports exact, glob (fnmatch), and regex (`re:` prefix). Priority-ordered evaluation with first-match semantics.
+
+#### 7. `engine/sub_agent.py` (249 lines)
+Isolated context windows for delegated work:
+- Token budget allocation per sub-agent (fraction of parent budget)
+- Concurrent sub-agent limits (default: 3)
+- Summary prompt for result compaction before returning to parent
+- Task lifecycle: pending -> running -> completed/failed/cancelled
+- Isolated context prevents sub-agent work from polluting parent context
+
+#### 8. `engine/agent_loop.py` (294 lines)
+Core agentic loop using Python generator-send protocol:
+- Yields `LoopAction` objects to caller (LLM call, tool execution, user interaction, context compaction)
+- Caller executes actions and sends results back via `generator.send()`
+- Orchestrates all 7 other modules in sequence: Planning -> Execution -> Reflection -> Recovery
+- Never calls LLM directly -- pure coordination logic
+- Step budget enforcement with graceful termination
+- Loop detection via state hashing (delegates to existing brain engine)
+
+### 21.3 SDK Integration (sdk.py)
+
+- All 8 modules imported with `try/except` for graceful degradation (SDK works even if individual agentic modules fail to import)
+- New `run_agentic(goal, max_steps)` method for goal-driven multi-step execution
+- Fixed 3 critical gaps discovered during integration:
+  1. Brain params (surprise, ECE, population confidence) missing from follow-up LLM calls
+  2. GoalTracker action handling for add/decompose/verify actions from LLM
+  3. L2 summarization execution path was generating prompts but never calling LLM
+- Dual execution path: AgentLoop generator (preferred) + planning-based fallback
+
+### 21.4 Test Results
+
+| Test File | Tests | Description |
+|-----------|-------|-------------|
+| test_context_compiler.py | ~130 | 4-zone assembly, compaction, KV-cache |
+| test_planner.py | ~120 | Plan generation, dependencies, replanning |
+| test_reflection.py | ~115 | Triggers, lesson bank, improvement prompts |
+| test_recovery.py | ~130 | Error classification, backoff, patterns |
+| test_interaction.py | ~105 | Autonomy levels, timeouts, decision history |
+| test_policy_engine.py | ~100 | All 5 guardrail types, pattern matching |
+| test_sub_agent.py | ~67 | Isolation, budgets, lifecycle |
+| test_engine_v2_integration.py | 112 | Cross-module integration scenarios |
+| **Total new** | **~991** | **7 unit + 1 integration test files** |
+
+Grand total: **5,962 tests** (100% passing, up from 4,971)
+
+### 21.5 Architecture Diagram
+
+```
+Developer Code
+     |
+     v
+Session.run_agentic(goal)
+     |
+     v
+AgentLoop (generator) -----> LoopActions -----> Session executes
+     |                                                |
+     |-- ContextCompiler (4-zone)                     |-- LLM calls
+     |-- PlanningEngine                               |-- Tool execution
+     |-- ReflectionEngine                             |-- User interaction
+     |-- RecoveryEngine                               |-- Context compaction
+     |-- InteractionManager
+     |-- PolicyEngine
+     +-- SubAgentManager
+```
+
+### 21.6 Design Principles Applied
+
+1. **Simple loop, rich context**: All intelligence lives in what goes INTO the LLM (context compilation) and what happens AFTER (reflection), not in complex branching control flow.
+2. **Generator-send protocol**: The agent loop never calls LLM or tools directly. It yields actions and receives results, keeping the loop testable and the caller in control.
+3. **Graceful degradation**: Every module is optional. If reflection fails to import, the loop runs without reflection. If planning is unavailable, direct execution proceeds.
+4. **Under 300 lines per file**: All 8 modules comply with the project's strict file size limit, maintaining readability and single-responsibility.
+5. **No external dependencies**: All modules use only Python stdlib + existing corteX infrastructure. Zero new pip dependencies.
+
+---
+
+---
+
+## 22. Anthropic/Claude Provider Addition (Feb 14, 2026)
+
+### 22.1 Overview
+
+Added full Anthropic Claude support as the fourth LLM provider in corteX, alongside OpenAI, Gemini, and local models. The `AnthropicProvider` (251 lines, `corteX/core/llm/anthropic_client.py`) implements the complete `BaseLLMProvider` interface with Claude-specific adaptations.
+
+### 22.2 Supported Models
+
+| Model | Best For | Context Window |
+|-------|----------|---------------|
+| `claude-opus-4-6` | Highest-accuracy orchestration, complex reasoning | 200k tokens |
+| `claude-sonnet-4-5` | Balanced quality and speed (recommended default) | 200k tokens |
+| `claude-haiku-4-5` | Fast, cost-effective worker tasks | 200k tokens |
+
+### 22.3 Feature Support
+
+- **Streaming**: Full SSE streaming with `stream()` method, handles Claude's `content_block_delta` events
+- **Tool/Function calling**: Automatic conversion from OpenAI-style tool definitions to Claude's tool format
+- **Extended Thinking**: Support for Claude's extended thinking mode (`thinking` parameter with `budget_tokens`)
+- **Vision**: Multi-modal support for image inputs (base64 and URL-based)
+- **Message format adapter**: Handles all Claude-specific message format differences (system message extraction, role merging for consecutive same-role messages, content block structure)
+- **Temperature auto-tuning**: Per-task-type temperature configuration (e.g., lower for coding, higher for creative tasks), with Claude-specific defaults
+
+### 22.4 Architecture Decisions
+
+1. **Message format adapter pattern**: Claude requires system messages as a separate parameter (not in the messages array), consecutive same-role messages must be merged, and content uses a block structure (`[{"type": "text", "text": "..."}]`). The adapter handles all conversions transparently.
+2. **Extended thinking integration**: When the brain engine signals high uncertainty or the task is complex, the provider can enable extended thinking mode to let Claude reason step-by-step before responding.
+3. **Graceful degradation**: The `anthropic` pip package is optional. If not installed, the provider raises a clear import error. The rest of the SDK continues to work with other providers.
+
+### 22.5 V2 to Agentic Engine Rename
+
+All references to "Engine v2" across the codebase (~11 files) were renamed to "Agentic Engine" to better reflect the architecture's purpose. The term "v2" was a development artifact; "Agentic Engine" communicates the goal-driven, multi-step nature of the component. File names (`test_engine_v2_integration.py` -> `test_agentic_engine_integration.py`) and internal references were updated accordingly.
+
+### 22.6 LLM Providers Summary (Current State)
+
+| Provider | File | Models | Key Features |
+|----------|------|--------|-------------|
+| **OpenAI** | `openai_client.py` | GPT-4o, GPT-4o-mini, o1, o3 | Azure support, OpenAI-compatible endpoints |
+| **Gemini** | `gemini_adapter.py` | Gemini 3 Pro/Flash, 2.5 Pro/Flash | 1M context, Vertex AI support |
+| **Anthropic** | `anthropic_client.py` | Opus 4.6, Sonnet 4.5, Haiku 4.5 | Extended thinking, vision, 200k context |
+| **Local** | via OpenAI client | Any OpenAI-compatible | Ollama, vLLM, fully on-prem |
+
+---
+
+## 23. Agentic Engine Gap Fixes (Session 5, Feb 15, 2026)
+
+### 23.1 Overview
+
+Six critical wiring gaps were identified and fixed in the agentic engine. These gaps represented cases where modules existed and were tested individually but were not properly wired into the runtime execution paths. The fixes bring the SDK from "modules exist" to "modules actually execute in production."
+
+**Test count after fixes: 6,200 tests passing** (up from 6,110; +90 new tests). Only 1 pre-existing failure remains (Gemini rate limit integration test).
+
+### 23.2 Gap 1: ContextCompiler Not Wired into Chat Mode
+
+**Before:** `ContextCompiler` (4-zone context assembly) was only used inside `run_agentic()`. When developers called `Session.run()` (the standard chat mode), the context compiler was bypassed entirely -- messages went directly to the LLM without zone-based assembly.
+
+**After:** `Session.run()` now calls `ContextCompiler.compile()` to assemble the context window using the 4-zone architecture (System 12%, Persistent 8%, Working 40%, Recent 40%). Both chat and agentic modes benefit from KV-cache-aware context assembly, goal placement at both extremes, and automatic compaction.
+
+### 23.3 Gap 2: L2/L3 Summarization Pipeline Not Executing
+
+**Before:** The `SummarizationPipeline` generated L2 summary prompts and L3 digest prompts correctly, but the generated prompts were never sent to the LLM for actual summarization. The pipeline produced prompt strings that were discarded.
+
+**After:** The L2 summarization pipeline now fully executes: when the summarization threshold is reached, L2 prompts are sent to the LLM, responses are parsed, and summaries are stored back in the context engine. L3 structured digests (key_decisions, tools_used, errors, progress, questions) are generated from the L2 summaries.
+
+### 23.4 Gap 3: Sub-Agent Delegation Not Wired into Agentic Loop
+
+**Before:** `SubAgentManager` existed as a standalone module with full lifecycle management (create, run, complete, cancel tasks), but the agentic loop never actually delegated work to sub-agents. The LLM could not request sub-agent spawning.
+
+**After:** The agentic loop now checks LLM responses for delegation signals. When the LLM requests task delegation, `SubAgentManager.create_task()` is called, the sub-agent receives an isolated context window with its own token budget, and results are summarized back into the parent context.
+
+### 23.5 Gap 4: Memory Retrieval Not Injected into LLM Context
+
+**Before:** `MemoryFabric` stored working, episodic, and semantic memories correctly, but `get_relevant_context()` was never called before LLM generation. The LLM had no access to previously stored memories.
+
+**After:** Before each LLM call, `MemoryFabric.get_relevant_context(current_message)` is called. Relevant working memory items, similar episodic experiences, and matching semantic knowledge are injected into the context window. The LLM can now reference past experiences and domain knowledge stored in memory.
+
+### 23.6 Gap 5: Brain Parameters Consistency
+
+**Before:** The `router.generate()` call accepts 7 brain parameters (surprise, ECE, population_confidence, column_mode, attention_priority, resource_tier, concept_recommendations). However, only 3 of 14 `generate()` call sites in `sdk.py` passed the full parameter bundle. The remaining 11 call sites (tool follow-up calls, retry calls, streaming calls, sub-agent calls) passed partial or no brain parameters.
+
+**After:** All 14 `generate()` call sites now pass the complete 7-parameter brain state bundle. This ensures that brain-informed temperature, model selection, and prompt enrichment are consistent across all LLM interactions within a session, not just the first call.
+
+### 23.7 Gap 6: Streaming with Tool Support
+
+**Before:** `run_stream()` was a lightweight path that only streamed text tokens. If the LLM returned tool calls during streaming, they were silently ignored. The documentation correctly noted: "skips tool execution."
+
+**After:** `run_stream()` now supports a tool execution loop (up to 5 rounds). When the streamed response contains tool calls, `run_stream()` pauses streaming, executes the tools, feeds results back to the LLM, and resumes streaming the follow-up response. The `StreamChunk` dataclass in `base.py` now includes `model` (which model generated the chunk) and `chunk_type` (text, tool_call, tool_result, error) fields.
+
+### 23.8 StreamChunk Schema Update
+
+The `StreamChunk` dataclass in `corteX/core/llm/base.py` now includes:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `content` | `str` | Text fragment |
+| `is_final` | `bool` | True for last chunk |
+| `model` | `str` | Model that generated this chunk |
+| `chunk_type` | `str` | One of: `text`, `tool_call`, `tool_result`, `error` |
+
+### 23.9 Files Modified
+
+| File | Changes |
+|------|---------|
+| `corteX/sdk.py` | Wired ContextCompiler into `run()`, L2/L3 execution, SubAgent delegation, MemoryFabric injection, brain params on all 14 generate() calls, streaming tool loop |
+| `corteX/core/llm/base.py` | Added `model` and `chunk_type` fields to `StreamChunk` |
+| `corteX/engine/context.py` | Minor fixes for chat-mode integration |
+| `tests/test_context_compiler.py` | New tests for chat-mode context compilation |
+| `tests/test_context_summarizer.py` | New tests for L2/L3 execution pipeline |
+| `tests/test_sub_agent.py` | New tests for delegation wiring |
+| `tests/test_memory_fabric.py` | New tests for context injection |
+| `tests/test_sdk_integration.py` | New tests for brain params consistency |
+| `tests/test_engine_v2_integration.py` | New integration tests for all 6 gaps |
+
+### 23.10 Impact
+
+These fixes transform the agentic engine from a collection of independently-tested modules into a fully-wired production system. Every brain component now participates in every execution path:
+
+- **Chat mode** (`run()`): Full context compilation + memory injection + consistent brain params
+- **Agentic mode** (`run_agentic()`): All of the above + sub-agent delegation + L2/L3 summarization
+- **Streaming mode** (`run_stream()`): Tool execution + brain params + model identification per chunk
+
+---
+
+## 24. Second Gap Audit & Fixes (Session 5 Continuation)
+
+### 24.1 Overview
+
+Following the initial 6-gap audit (Section 23), a second comprehensive gap audit identified **17 additional gaps** across the agentic engine. Five parallel teams were deployed to close all gaps simultaneously. The gaps were categorized as 8 HIGH, 6 MEDIUM, and 3 LOW severity.
+
+**Test count after fixes: 6,333 tests passing** (up from 6,110 at session start; +223 new tests). Only 1 pre-existing failure remains (Gemini rate limit integration test).
+
+### 24.2 Team A: Shared Pre-Processing (`_prepare_turn()`)
+
+**Problem:** Multiple execution paths (chat, agentic, streaming) each had their own copy of turn pre-processing logic -- memory retrieval, context compilation, brain parameter assembly, and goal injection. Changes to one path were not reflected in others.
+
+**Fix:** Extracted a new `_prepare_turn()` method in `sdk.py` that consolidates all shared pre-processing into a single reusable method. All three execution paths (`run()`, `run_agentic()`, `run_stream()`) now call `_prepare_turn()` before invoking the LLM. This ensures consistent behavior regardless of which execution mode the developer chooses.
+
+### 24.3 Team B: Shared Post-Processing (`_post_turn_learning()`)
+
+**Problem:** Post-turn learning steps (weight updates, plasticity adjustments, episodic memory storage, feedback collection) were only executed in the agentic loop. Chat mode and streaming mode skipped all learning, meaning the brain never improved from non-agentic interactions.
+
+**Fix:** Extracted a new `_post_turn_learning()` method that encapsulates all post-turn brain updates. All execution paths now call this method after receiving an LLM response. The brain learns from every interaction, not just agentic tasks.
+
+### 24.4 Team C: Shared Tool Execution (`_execute_tool_with_learning()`)
+
+**Problem:** Tool execution in the agentic loop did not feed results back into the brain's learning systems. Tool success/failure was not recorded for weight adjustment, and tool execution patterns were not stored in episodic memory.
+
+**Fix:** Extracted `_execute_tool_with_learning()` which wraps tool execution with brain feedback. After each tool call, the method records execution time, success/failure, and result quality. This data flows into the weight system (adjusting tool selection preferences) and episodic memory (enabling the agent to recall which tools worked for similar tasks).
+
+### 24.5 Team D: Standalone Gap Fixes
+
+Multiple standalone gaps were identified and fixed:
+
+- **`get_worker_model()` in Router:** The `ModelRouter` was missing a `get_worker_model()` method. Sub-agents and parallel tasks defaulted to the orchestrator model instead of using the cheaper/faster worker model. Added `get_worker_model()` that returns the configured worker model (e.g., `gemini-3-flash-preview`) for delegated tasks.
+- **`ContentPredictor` Wiring:** The `ContentPredictor` module was instantiated but never called during response generation. Now wired into the pre-turn pipeline so the brain can predict expected response patterns and measure surprise when actuals differ.
+- **Additional wiring fixes** for edge cases in error recovery paths, retry logic, and session cleanup.
+
+### 24.6 Team E: Simulator Recording + Agentic Learning
+
+**Problem:** The `ComponentSimulator` (P3 brain module) could simulate component behavior but never recorded real execution data to improve its simulations. Agentic loop executions were not feeding back into the simulator.
+
+**Fix:** Wired the simulator's `record_observation()` method into the agentic loop. After each turn, real execution metrics (latency, token usage, tool results, goal progress) are recorded. The simulator uses this data to improve its predictions of component behavior, enabling better resource allocation and pre-emptive error detection.
+
+### 24.7 Barvaz Odoo Demo Application Updates
+
+Significant progress on the Barvaz Security demo application running on Odoo Enterprise:
+
+- **415 new employees seeded** into the Odoo instance (total: 433 employees across the organization)
+- **51 departments** created reflecting Barvaz Security's organizational structure
+- **213 job positions** defined across all departments
+- **Bug fix:** `OdooClient.create()` was returning a list instead of an int when creating single records. Fixed to properly unwrap the Odoo XML-RPC response and return the created record ID as an integer.
+
+### 24.8 Documentation Fixes
+
+- **180 broken `.md` links fixed** in the `cortexwebsite` documentation site (`data/docContent.ts`). Internal links were using `.md` suffixes which caused 404 errors in the web-based documentation viewer. All links updated to use clean paths without file extensions.
+
+### 24.9 Files Modified
+
+| File | Changes |
+|------|---------|
+| `corteX/sdk.py` | Extracted `_prepare_turn()`, `_post_turn_learning()`, `_execute_tool_with_learning()` shared methods; grew to 3,369 lines |
+| `corteX/core/llm/router.py` | Added `get_worker_model()` method, `ContentPredictor` wiring |
+| `demo/backend/odoo_client.py` | Fixed `create()` return type (list -> int) |
+| `tests/test_sdk_integration.py` | Extended with tests for shared methods and new wiring |
+| `tests/test_prepare_turn.py` | New: tests for `_prepare_turn()` method |
+| `tests/test_execute_tool_with_learning.py` | New: tests for `_execute_tool_with_learning()` method |
+| `tests/test_session_recording_integration.py` | New: tests for simulator recording integration |
+| `tests/test_gap_fixes.py` | New: tests for standalone gap fixes |
+| `docs/architecture_diagram.md` | Updated architecture diagram reflecting new shared methods |
+
+### 24.10 Impact
+
+These 17 fixes complete the wiring of the agentic engine. Combined with the 6 fixes from Section 23, the SDK now has **zero known unwired modules**. Key improvements:
+
+- **Code organization:** Three shared methods eliminate code duplication across execution paths
+- **Brain learning:** Every interaction (chat, agentic, streaming) now contributes to brain improvement
+- **Tool intelligence:** Tool execution patterns feed back into weight adjustments
+- **Simulator accuracy:** Real execution data improves simulation predictions over time
+- **Demo readiness:** Barvaz Odoo instance populated with realistic organizational data (433 employees, 51 departments, 213 positions)
+
+---
+
+## 25. 18-Gap Deep Fix Campaign (Session 6, Feb 15, 2026)
+
+### 25.1 Summary
+
+- 18 gaps identified by 5 deep research teams across pipeline, brain, context, LLM, and security domains
+- Fixed by 9 parallel teams (6 Wave 1 + 3 Wave 2 combined)
+- 451 new tests added, total now 6,784 (up from 6,333)
+- 0 regressions
+
+### 25.2 P0 Ship-Blockers Fixed
+
+1. **run_agentic() brain pipeline** - `_prepare_turn()` and `_post_turn_learning()` now called in agentic loop
+2. **SafetyPolicy.check_output()** - Now called on all LLM responses before returning to user
+3. **Gemini tool call ID collision** - Unique IDs generated per call to prevent conflicts
+4. **Memory consolidation** - Tags now properly set to trigger periodic consolidation
+5. **Dev signing key removed** - Replaced with environment variable loading
+
+### 25.3 P1 Production Gaps Fixed
+
+6. **Sub-agent learning** - Tool results now flow through learning pipeline
+7. **Cold storage retrieval** - Semantic search + keyword retrieval from cold storage
+8. **Disk persistence** - JSON-based persistence with auto-save, crash survival
+9. **Streaming consistency** - Tool calls work across all 4 providers
+10. **Plugin Registry isolation** - Per-session plugin instances, no global state leakage
+
+### 25.4 P2 Quality Improvements
+
+11. **GoalTracker action** - Drift detection triggers refocus messages + weight adjustment
+12. **Attention budget enforcement** - Resource budgets checked and enforced per step
+13. **Feedback regex** - Context-aware patterns with confidence thresholds
+14. **Circuit breaker + rate limiter** - Exponential backoff, per-provider rate limiting
+15. **Tool framework types** - Proper type coercion for tool arguments and returns
+16. **L2 summarization limits** - Rate limiting + graceful degradation to truncation
+17. **Audit logging** - Structured JSON logging for tools, LLM calls, policy decisions
+18. **run_stream() params** - Full post-turn processing including quality scoring
+
+### 25.5 New Files Created
+
+| File | Purpose |
+|------|---------|
+| `corteX/engine/circuit_breaker.py` | Circuit breaker + rate limiter |
+| `corteX/engine/audit_logger.py` | Structured audit logging |
+| `corteX/memory/persistence.py` | Disk persistence layer |
+| `corteX/memory/cold_retrieval.py` | Cold storage retrieval |
+| Multiple `test_*_gaps*.py`, `test_*_improvements*.py` | 451 new tests covering all 18 fixes |
+
+### 25.6 Impact
+
+This campaign closes all known production gaps in the SDK. The codebase now has **6,784 passing tests** with zero regressions. All P0 ship-blockers are resolved, meaning the SDK is safe for production deployment. The brain pipeline is fully wired in all execution modes (chat, agentic, streaming), safety enforcement is comprehensive, and enterprise features (licensing, audit logging, persistence) are production-hardened.
 
 ---
 

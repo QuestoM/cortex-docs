@@ -50,8 +50,8 @@ async def main():
             },
         },
         orchestrator_model="gpt-4o",              # (1)!
-        worker_model="gemini-2.0-flash",           # (2)!
-        fallback_models=["gemini-2.0-flash"],      # (3)!
+        worker_model="gemini-3-flash-preview",           # (2)!
+        fallback_models=["gemini-3-flash-preview"],      # (3)!
     )
 ```
 
@@ -98,7 +98,7 @@ Expected output:
 ```text
 --- System 1: Simple Question ---
 Response: 2 + 2 = 4.
-Model used: gemini-2.0-flash
+Model used: gemini-3-flash-preview
 Latency: 312ms
 ```
 
@@ -176,7 +176,7 @@ To test failover, send a request that simulates the primary provider being unava
     print("\n--- Failover Demonstration ---")
     print("If OpenAI were unavailable, corteX would automatically route to Gemini.")
     print("The fallback is transparent -- same API, same response format.")
-    print(f"Configured fallback models: {['gemini-2.0-flash']}")
+    print(f"Configured fallback models: {['gemini-3-flash-preview']}")
 
     # Send another complex question to show the system handles it gracefully
     r3 = await session.run(
@@ -197,8 +197,8 @@ To test failover, send a request that simulates the primary provider being unava
             "gemini": {"api_key": os.environ["GEMINI_API_KEY"]},
         },
         orchestrator_model="gpt-4o",
-        worker_model="gemini-2.0-flash",
-        fallback_models=["gemini-2.0-flash"],
+        worker_model="gemini-3-flash-preview",
+        fallback_models=["gemini-3-flash-preview"],
     )
     ```
 
@@ -242,8 +242,8 @@ async def main():
             "gemini": {"api_key": os.environ.get("GEMINI_API_KEY", "AIza...")},
         },
         orchestrator_model="gpt-4o",
-        worker_model="gemini-2.0-flash",
-        fallback_models=["gemini-2.0-flash"],
+        worker_model="gemini-3-flash-preview",
+        fallback_models=["gemini-3-flash-preview"],
     )
 
     agent = engine.create_agent(

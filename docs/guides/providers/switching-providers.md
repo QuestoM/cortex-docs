@@ -92,7 +92,7 @@ engine = cortex.Engine(
         "gemini": {"api_key": "AIza..."},
     },
     orchestrator_model="gpt-4o",
-    worker_model="gemini-2.0-flash",
+    worker_model="gemini-3-flash-preview",
 )
 
 agent = engine.create_agent(

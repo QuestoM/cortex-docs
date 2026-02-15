@@ -34,21 +34,22 @@ Gemini offers models optimized for different cost and capability trade-offs:
 ```python
 engine = cortex.Engine(
     providers={"gemini": {"api_key": "AIza..."}},
-    orchestrator_model="gemini-2.5-pro",     # (1)!
-    worker_model="gemini-2.5-flash",         # (2)!
+    orchestrator_model="gemini-3-pro-preview",   # (1)!
+    worker_model="gemini-3-flash-preview",       # (2)!
 )
 ```
 
-1. Best reasoning capability in the Gemini family. Ideal for orchestration and complex planning.
-2. Optimized for speed and cost. Excellent for tool calls and simple completions.
+1. State-of-the-art reasoning in the Gemini family. Ideal for orchestration, agentic tasks, and complex planning.
+2. Pro-level intelligence at Flash speed. Excellent for tool calls and simple completions.
 
 Common Gemini model choices:
 
 | Model | Best for | Context window |
 |---|---|---|
-| `gemini-2.5-pro` | High-accuracy orchestration and reasoning | 1M tokens |
-| `gemini-2.5-flash` | Fast, cost-effective worker tasks | 1M tokens |
-| `gemini-2.0-flash` | Balanced speed and quality | 1M tokens |
+| `gemini-3-pro-preview` | State-of-the-art reasoning, agentic tasks, and coding | 1M tokens |
+| `gemini-3-flash-preview` | Pro-level intelligence at Flash speed and pricing | 1M tokens |
+| `gemini-2.5-pro` | Stable production fallback with strong reasoning | 1M tokens |
+| `gemini-2.5-flash` | Stable, fast, cost-effective worker tasks | 1M tokens |
 
 !!! tip
     Gemini models support up to 1 million tokens of context. This pairs well with the `research` context profile, which allocates larger token budgets. See [Configure Context Profiles](../config/context-profiles.md).
@@ -63,8 +64,8 @@ import cortex
 async def main():
     engine = cortex.Engine(
         providers={"gemini": {"api_key": "AIza..."}},
-        orchestrator_model="gemini-2.5-pro",
-        worker_model="gemini-2.5-flash",
+        orchestrator_model="gemini-3-pro-preview",
+        worker_model="gemini-3-flash-preview",
     )
 
     agent = engine.create_agent(
@@ -106,7 +107,7 @@ engine = cortex.Engine(
             "location": "us-central1",
         },
     },
-    orchestrator_model="gemini-2.5-pro",
+    orchestrator_model="gemini-3-pro-preview",
 )
 ```
 
@@ -124,7 +125,7 @@ engine = cortex.Engine(
         "gemini": {"api_key": "AIza..."},
     },
     orchestrator_model="gpt-4o",
-    worker_model="gemini-2.5-flash",
+    worker_model="gemini-3-flash-preview",
 )
 ```
 

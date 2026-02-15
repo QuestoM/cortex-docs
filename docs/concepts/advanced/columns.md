@@ -42,7 +42,7 @@ column = FunctionalColumn(
     name="coding",
     specialization="coding",
     preferred_tools=["code_interpreter", "shell_exec"],
-    preferred_model="gemini-2.0-flash",
+    preferred_model="gemini-3-flash-preview",
     weight_overrides={"code_density": 0.9, "detail_level": 0.7},
     competence=BetaDistribution(alpha=10.0, beta=2.0),  # ~83% success rate
 )

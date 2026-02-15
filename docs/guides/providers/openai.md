@@ -34,21 +34,25 @@ Pass the model name to `orchestrator_model` and/or `worker_model`:
 ```python
 engine = cortex.Engine(
     providers={"openai": {"api_key": "sk-..."}},
-    orchestrator_model="gpt-4o",       # (1)!
-    worker_model="gpt-4o-mini",        # (2)!
+    orchestrator_model="gpt-4.1",          # (1)!
+    worker_model="gpt-4.1-mini",           # (2)!
 )
 ```
 
-1. The orchestrator handles planning, goal tracking, and multi-step reasoning.
-2. The worker handles simple completions and tool calls -- a smaller model keeps costs down.
+1. The orchestrator handles planning, goal tracking, and multi-step reasoning. GPT-4.1 excels at coding and instruction following with a 1M token context.
+2. The worker handles simple completions and tool calls -- a smaller model keeps costs down while maintaining strong performance.
 
 Common OpenAI model choices:
 
 | Model | Best for | Context window |
 |---|---|---|
-| `gpt-4o` | High-accuracy orchestration | 128k tokens |
-| `gpt-4o-mini` | Cost-effective worker tasks | 128k tokens |
-| `o3-mini` | Reasoning-heavy problems | 200k tokens |
+| `gpt-4.1` | High-accuracy orchestration, coding, instruction following | 1M tokens |
+| `gpt-4.1-mini` | Cost-effective worker tasks with strong performance | 1M tokens |
+| `gpt-4.1-nano` | Ultra-fast, lightweight tasks | 1M tokens |
+| `o3` | Complex reasoning and multi-step problems | 200k tokens |
+| `o4-mini` | Cost-efficient reasoning tasks | 200k tokens |
+| `gpt-4o` | General-purpose orchestration (legacy) | 128k tokens |
+| `gpt-4o-mini` | Lightweight worker tasks (legacy) | 128k tokens |
 
 ## Use Azure OpenAI
 

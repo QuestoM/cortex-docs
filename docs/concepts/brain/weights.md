@@ -100,11 +100,11 @@ engine.models._weights.keys()
 #  "conversation", "tool_use", "reasoning"]
 
 # Update after generation
-engine.models.update("coding", "gemini-2.0-flash", delta=0.3, lr=0.04)
+engine.models.update("coding", "gemini-3-flash-preview", delta=0.3, lr=0.04)
 
 # Get scores for routing
 scores = engine.models.get_scores("coding")
-# {"gemini-2.0-flash": 0.72, "claude-sonnet": 0.65, ...}
+# {"gemini-3-flash-preview": 0.72, "claude-sonnet": 0.65, ...}
 ```
 
 ### Enterprise Weights

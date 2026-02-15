@@ -18,7 +18,7 @@ config = TenantConfig(
     tenant_name="Acme Corporation",
     safety=SafetyPolicy(level=SafetyLevel.STRICT),
     models=ModelPolicy(
-        allowed_models=["claude-opus-4-20250514", "gemini-2.0-flash"],
+        allowed_models=["claude-opus-4-6", "gemini-3-flash-preview"],
         max_tokens_per_request=32000,
         max_tokens_per_session=500000,
     ),
