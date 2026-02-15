@@ -102,6 +102,11 @@ nav:
       - Cortical Context Engine: concepts/context/context-engine.md
       - Memory Fabric: concepts/context/memory.md
       - Cross-Modal Association: concepts/context/cross-modal.md
+    - Cognitive Systems:
+      - Cognitive Context Pipeline: concepts/cognitive-context.md
+      - Goal Intelligence: concepts/goal-intelligence.md
+      - Intelligent Model Routing: concepts/model-routing.md
+      - Anti-Drift System: concepts/anti-drift.md
     - Advanced Subsystems:
       - concepts/advanced/index.md
       - Attention & Filtering: concepts/advanced/attention.md

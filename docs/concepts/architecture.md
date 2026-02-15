@@ -186,3 +186,61 @@ corteX has three learning loops operating at different timescales:
 | **Cross-session** | Hours/days | Memory consolidation moves important patterns to long-term storage. Map reorganization redistributes territory. |
 
 Each loop feeds into the next. A tool that fails within a turn reduces its reputation. Repeated failures across turns trigger quarantine. Cross-session consolidation can permanently reassign a tool's territory to a more reliable alternative.
+
+---
+
+## Wave 1 Enhancements (2026)
+
+corteX Wave 1 introduced four major subsystems that enhance the agent's ability to maintain context, stay goal-aligned, route intelligently, and avoid drift across ultra-long workflows:
+
+### Cognitive Context System
+
+Three modules work together to preserve context quality across unlimited compaction cycles:
+
+- **StateFileManager**: Externalizes state into 3 layers (crystallized/fluid/insights) that survive all compressions
+- **ContextQualityEngine**: 6-dimensional quality scoring (goal retention, information density, entanglement, temporal coherence, decision preservation, anti-hallucination)
+- **CognitiveContextPipeline**: Unified 8-phase pipeline (score → resolve → entangle → optimize → assemble → quality gate → prefetch → version)
+
+See [Cognitive Context Pipeline](cognitive-context.md) for details.
+
+### Goal Intelligence System
+
+Three modules ensure agents stay aligned with objectives:
+
+- **GoalDNA**: O(1) drift detection using token-set fingerprinting (no LLM calls needed)
+- **GoalReminderInjector**: Adaptive reminders that evolve from verbose (turns 1-5) to compact (6-15) to ultra-compact (16+)
+- **GoalTree**: Hierarchical goal decomposition with weighted progress, stuck detection, and dependency tracking
+
+See [Goal Intelligence](goal-intelligence.md) for details.
+
+### Intelligent Model Routing
+
+Three modules optimize model selection:
+
+- **ModelRegistry**: External YAML-based model catalog with 8 roles, hot-reload, and tenant overrides
+- **CognitiveClassifier**: Zero-LLM heuristic task classification (10 types × 5 tiers, <1ms latency)
+- **CostTracker**: Real-time cost tracking with budget enforcement and anomaly detection
+
+See [Intelligent Model Routing](model-routing.md) for details.
+
+### Anti-Drift System
+
+Three modules prevent loops and wasted resources:
+
+- **MultiResolutionLoopDetector**: 4 parallel detectors (exact hash, semantic Jaccard, oscillation, dead-end)
+- **DriftEngine**: 5-signal drift scoring with 4 graduated responses (nudge → replan → checkpoint → stop)
+- **AdaptiveBudget**: Dynamic step/token budgets that expand/contract based on velocity
+
+See [Anti-Drift System](anti-drift.md) for details.
+
+### Enterprise Isolation Enhancements
+
+Five critical fixes ensure complete tenant isolation:
+
+- **TenantContext**: Python contextvars for automatic async tenant propagation
+- **EventBus**: Instance-level subscribers (was class-level, leaked across tenants)
+- **ContextBroker**: Lazy initialization + deprecation (was eager global singleton)
+- **ToolRegistry**: Per-session tool registry (was global)
+- **API Keys**: Explicit configuration required (no env fallback in multi-tenant mode)
+
+See [Multi-Tenant Setup](../enterprise/multi-tenant.md) for details.
