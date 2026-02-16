@@ -159,6 +159,7 @@ nav:
     - Safety Controls: enterprise/safety.md
     - Audit Logging: enterprise/audit.md
     - Compliance: enterprise/compliance.md
+    - Compliance Overview (SOC 2 + GDPR): enterprise/compliance-overview.md
     - Licensing: enterprise/licensing.md
     - On-Premises Deployment: enterprise/on-prem.md
     - Updates & Versioning: enterprise/updates.md
@@ -236,6 +237,12 @@ nav:
       - reference/enterprise/config.md
       - reference/enterprise/licensing.md
       - reference/enterprise/updates.md
+      - Consent Manager: reference/enterprise/consent.md
+      - GDPR Manager: reference/enterprise/gdpr.md
+      - Retention Manager: reference/enterprise/retention.md
+      - Profiling Manager: reference/enterprise/profiling.md
+      - Explainability Engine: reference/enterprise/explainability.md
+      - Data Residency: reference/enterprise/data-residency.md
     - Tools:
       - reference/tools/decorator.md
       - reference/tools/executor.md
@@ -266,6 +273,9 @@ nav:
       - Risk Attenuator: reference/security/attenuation.md
       - Data Classifier: reference/security/classification.md
       - Compliance Engine: reference/security/compliance.md
+      - Audit Logger: reference/security/audit-logger.md
+      - PII Tokenizer: reference/security/pii-tokenizer.md
+      - Tenant Encryption: reference/security/tenant-encryption.md
     - Tenancy:
       - Tenant Manager: reference/tenancy/manager.md
       - Tenant DNA: reference/tenancy/dna.md
