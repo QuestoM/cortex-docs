@@ -126,6 +126,10 @@ nav:
       - Game Theory Integration: concepts/advanced/game-integration.md
       - Context Summarization: concepts/advanced/context-summarizer.md
       - Semantic Scoring: concepts/advanced/semantic-scorer.md
+    - Interoperability:
+      - concepts/interop/index.md
+      - MCP - Model Context Protocol: concepts/interop/mcp.md
+      - A2A - Agent-to-Agent Protocol: concepts/interop/a2a.md
     - LLM Routing: concepts/llm-routing.md
     - Tool Reputation: concepts/tool-reputation.md
 
@@ -146,6 +150,9 @@ nav:
     - Tools:
       - guides/tools/custom-tools.md
       - guides/tools/tool-reputation.md
+    - Interop:
+      - Connect to MCP Servers: guides/interop/mcp-servers.md
+      - Delegate Tasks to A2A Agents: guides/interop/a2a-agents.md
     - Advanced:
       - guides/advanced/what-if-simulation.md
       - guides/advanced/modulation-overrides.md
@@ -285,5 +292,15 @@ nav:
       - Cost Predictor: reference/observability/cost-predictor.md
       - Metrics Collector: reference/observability/metrics.md
       - Audit Stream: reference/observability/audit-stream.md
+    - Interop:
+      - reference/interop/index.md
+      - Types: reference/interop/types.md
+      - MCP Client: reference/interop/mcp-client.md
+      - MCP Tool Bridge: reference/interop/mcp-tool-bridge.md
+      - MCP Transport: reference/interop/mcp-transport.md
+      - MCP Resource Bridge: reference/interop/mcp-resource-bridge.md
+      - A2A Client: reference/interop/a2a-client.md
+      - A2A Agent Card: reference/interop/a2a-agent-card.md
+      - A2A Task Bridge: reference/interop/a2a-task-bridge.md
 
   - Changelog: changelog.md
