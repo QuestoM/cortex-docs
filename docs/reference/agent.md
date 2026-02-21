@@ -26,6 +26,8 @@ Agent(
     enterprise_config: Optional[EnterpriseConfig] = None,
     context_config: Optional[ContextManagementConfig] = None,
     enable_session_recording: bool = False,
+    mcp_servers: Optional[List] = None,
+    a2a_agents: Optional[List] = None,
 )
 ```
 
@@ -46,6 +48,8 @@ Agent(
 | `enterprise_config` | `Optional[EnterpriseConfig]` | `None` | Enterprise settings (safety, audit, compliance). |
 | `context_config` | `Optional[ContextManagementConfig]` | `None` | Cortical Context Engine configuration (token budgets, profiles). |
 | `enable_session_recording` | `bool` | `False` | Enable digital twin session recording for replay and what-if. |
+| `mcp_servers` | `Optional[List]` | `None` | List of MCP (Model Context Protocol) server configurations for external tool integration. Each entry is an `MCPServerConfig` specifying the server endpoint and capabilities. |
+| `a2a_agents` | `Optional[List]` | `None` | List of A2A (Agent-to-Agent) agent configurations for inter-agent communication. Each entry is an `A2AAgentConfig` specifying the remote agent endpoint and protocol. |
 
 ---
 
@@ -63,6 +67,8 @@ Agent(
 | `enterprise_config` | `Optional[EnterpriseConfig]` | Enterprise configuration. |
 | `context_config` | `Optional[ContextManagementConfig]` | Context management configuration. |
 | `enable_session_recording` | `bool` | Whether session recording is enabled. |
+| `mcp_servers` | `List` | MCP server configurations (empty list if none). |
+| `a2a_agents` | `List` | A2A agent configurations (empty list if none). |
 
 ---
 

@@ -80,6 +80,10 @@ Reasons for the most recent escalation (empty if System 1 was chosen).
 
 Returns: `system1_count`, `system2_count`, `system2_ratio`, `total_decisions`.
 
+#### `to_dict() -> Dict[str, Any]`
+
+Returns serialized state including thresholds and stats.
+
 ---
 
 ## ReputationSystem
@@ -122,6 +126,14 @@ Ranks available tools by trust, highest first.
 #### `forgive(tool: str) -> None`
 
 Manually ends quarantine and resets trust to `0.3` (human override).
+
+#### `get_stats() -> Dict[str, Any]`
+
+Returns `trust_scores`, `consistency_scores`, `quarantined` tools list, and `total_interactions` per tool.
+
+#### `to_dict() -> Dict[str, Any]`
+
+Returns serialized state including trust, consistency, history, and total interactions.
 
 #### `from_dict(data: Dict[str, Any]) -> ReputationSystem` (classmethod)
 
@@ -230,6 +242,10 @@ Allocates total reward among players based on Shapley values. Ensures allocation
 
 Updates running (incremental) Shapley estimate via EMA.
 
+#### `get_running_shapley() -> Dict[str, float]`
+
+Returns the running (incremental) Shapley estimates for all tools. These are EMA-smoothed marginal contribution values updated via `update_running()`.
+
 ---
 
 ## TruthfulScoringMechanism
@@ -254,6 +270,10 @@ Returns how well declared capabilities match observed performance. `1.0` = perfe
 
 Adjusts a raw score by credibility: `raw_score * credibility`.
 
+#### `get_all_credibilities() -> Dict[str, float]`
+
+Returns credibility scores for all known tools (both declared and observed). Useful for dashboard views and auditing which tools are reporting honestly.
+
 ### Example
 
 ```python
@@ -269,6 +289,7 @@ process = router.route(EscalationContext(
     task_novelty=0.3,
 ))
 # process == ProcessType.SYSTEM2
+print(router.to_dict())  # serialized state with thresholds and stats
 
 # Reputation tracking
 reputation = ReputationSystem()
@@ -278,6 +299,7 @@ reputation.record("flaky_tool", success=False)
 reputation.record("flaky_tool", success=False)
 reputation.record("flaky_tool", success=False)
 # flaky_tool is now quarantined
+print(reputation.get_stats())  # trust scores, consistency, quarantined list
 
 # Shapley attribution
 shapley = ShapleyAttributor()
@@ -285,5 +307,10 @@ shapley.record_coalition_value({"tool_a"}, 0.6)
 shapley.record_coalition_value({"tool_b"}, 0.4)
 shapley.record_coalition_value({"tool_a", "tool_b"}, 0.9)
 credits = shapley.compute({"tool_a", "tool_b"})
-# credits ≈ {"tool_a": 0.55, "tool_b": 0.35}
+# credits ~ {"tool_a": 0.55, "tool_b": 0.35}
+
+# Running Shapley estimates
+shapley.update_running("tool_a", 0.6)
+shapley.update_running("tool_b", 0.3)
+print(shapley.get_running_shapley())  # {"tool_a": 0.06, "tool_b": 0.03}
 ```

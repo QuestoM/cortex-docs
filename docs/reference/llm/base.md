@@ -247,11 +247,12 @@ All LLM provider errors inherit from `LLMError`. The hierarchy determines retry 
 
 ```
 LLMError (base)
-  |-- RateLimitError        (429 - retryable with backoff)
-  |-- ServiceUnavailableError (503 - retryable with backoff)
-  |-- AuthenticationError   (401/403 - fail fast, no retry)
+  |-- RateLimitError            (429 - retryable with backoff)
+  |-- ServiceUnavailableError   (503 - retryable with backoff)
+  |-- AuthenticationError       (401/403 - fail fast, no retry)
   |-- ContextLengthExceededError (input too long - fail fast)
-  |-- InvalidRequestError   (400 - fail fast, no retry)
+  |-- InvalidRequestError       (400 - fail fast, no retry)
+  |-- DataClassificationError   (data too sensitive for target model - fail fast)
 ```
 
 ### `RateLimitError`
@@ -261,6 +262,33 @@ RateLimitError(message: str = "Rate limit exceeded", retry_after: Optional[float
 ```
 
 Has an optional `retry_after` attribute (seconds) extracted from provider response headers.
+
+### `DataClassificationError`
+
+```python
+DataClassificationError(message: str, data_level: str = "", target_model: str = "")
+```
+
+Raised when the data classifier determines that the content sensitivity level (e.g., CONFIDENTIAL, RESTRICTED) is too high for the target model's deployment type (e.g., cloud). Fail fast -- the user must change the model or redact the data. Do not retry.
+
+#### Attributes
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `data_level` | `str` | The classified data sensitivity level (e.g., `"CONFIDENTIAL"`, `"RESTRICTED"`) |
+| `target_model` | `str` | The model that was blocked (e.g., `"gpt-4o"`) |
+
+**Example**:
+
+```python
+from corteX.core.llm.base import DataClassificationError
+
+try:
+    response = await router.generate(messages=messages)
+except DataClassificationError as e:
+    print(f"Blocked: {e}")
+    print(f"Data level: {e.data_level}, Target: {e.target_model}")
+```
 
 ---
 

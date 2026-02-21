@@ -96,6 +96,14 @@ def should_allow_call(self, provider: str) -> bool
 
 Check if circuit breaker allows a call. Uses exponential backoff with `base_s * 2^(trips-1)` for recovery probing.
 
+##### `is_healthy`
+
+```python
+def is_healthy(self, provider: str) -> bool
+```
+
+Quick health check for a provider. Returns the `is_healthy` field from `get_health()`.
+
 ##### `get_failover_order`
 
 ```python
@@ -103,6 +111,14 @@ def get_failover_order(self, providers: Optional[List[str]] = None) -> List[str]
 ```
 
 Get providers ordered by health (healthiest first). Sorts by: is_healthy (desc), success_rate_1m (desc), latency_p50_ms (asc).
+
+##### `get_stats`
+
+```python
+def get_stats(self) -> Dict[str, Any]
+```
+
+Get monitor-level statistics. Returns dict with keys: `known_providers` (list of provider names), `total_calls` (dict of provider -> call count), `circuit_states` (dict of provider -> circuit state value).
 
 ---
 

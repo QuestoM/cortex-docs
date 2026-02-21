@@ -10,13 +10,15 @@ Brain-inspired self-monitoring: the system tracks HOW WELL it is tracking realit
 adjusts its own confidence accordingly. Based on Prof. Idan Segev's insight that "the brain
 needs to re-learn itself -- this is REAL-TIME learning."
 
-The calibration system has six components:
+The calibration system has seven components:
 
 - **CalibrationDomain** -- Enum of independently tracked domains
 - **CalibrationBin** -- Probability bins for predicted vs actual frequency
 - **CalibrationTracker** -- Multi-domain Expected Calibration Error (ECE) tracking
 - **ConfidenceAdjuster** -- Platt scaling to correct over/under-confidence
+- **MetaCognitionAlert** -- Alert dataclass from MetaCognitionMonitor
 - **MetaCognitionMonitor** -- Meta-level "am I learning correctly?" monitoring
+- **CalibrationReport** -- Human-readable, JSON-serializable calibration report
 - **ContinuousCalibrationEngine** -- Coordinator wrapping all components
 
 Constants: `NUM_BINS=10`, `MIN_OBS_PER_BIN=5`, `ECE_ALARM_THRESHOLD=0.15`, `MAX_BIN_HISTORY=2000`.
@@ -111,6 +113,23 @@ domain via gradient descent on calibration bin summaries.
 
 ---
 
+## Dataclass: MetaCognitionAlert
+
+Alert from `MetaCognitionMonitor`: oscillation, stagnation, or degradation.
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `alert_type` | `str` | *(required)* | `"oscillation"`, `"stagnation"`, or `"degradation"`. |
+| `domain` | `CalibrationDomain` | *(required)* | Affected domain. |
+| `severity` | `float` | *(required)* | 0.0 to 1.0. |
+| `message` | `str` | *(required)* | Human-readable explanation. |
+| `recommended_lr_factor` | `float` | *(required)* | Suggested LR multiplier. |
+| `timestamp` | `float` | `time.time()` | When the alert was created. Auto-set on creation. |
+
+**Methods**: `to_dict() -> Dict[str, Any]`
+
+---
+
 ## Class: MetaCognitionMonitor
 
 Meta-level "am I learning correctly?" monitor. Produces `MetaCognitionAlert` instances.
@@ -135,16 +154,40 @@ MetaCognitionMonitor(
 | `check_calibration_degradation` | `(tracker, domain) -> Optional[MetaCognitionAlert]` | Detect upward ECE trend. |
 | `run_full_check` | `(tracker) -> List[MetaCognitionAlert]` | All checks across all domains. |
 | `get_recommended_lr_factor` | `(domain) -> float` | LR multiplier from most recent alert. |
+| `get_recent_alerts` | `(n: int = 10) -> List[MetaCognitionAlert]` | Get the N most recent alerts. |
+| `to_dict` / `from_dict` | | Serialization. |
 
-### Dataclass: MetaCognitionAlert
+---
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `alert_type` | `str` | `"oscillation"`, `"stagnation"`, or `"degradation"`. |
-| `domain` | `CalibrationDomain` | Affected domain. |
-| `severity` | `float` | 0.0 to 1.0. |
-| `message` | `str` | Human-readable explanation. |
-| `recommended_lr_factor` | `float` | Suggested LR multiplier. |
+## Class: CalibrationReport
+
+Generates human-readable, JSON-serializable calibration reports. Aggregates data from the tracker, adjuster, and monitor into a unified health assessment.
+
+### Constructor
+
+```python
+CalibrationReport(
+    tracker: CalibrationTracker,
+    adjuster: ConfidenceAdjuster,
+    monitor: MetaCognitionMonitor,
+)
+```
+
+### Methods
+
+| Method | Signature | Description |
+|--------|-----------|-------------|
+| `generate` | `() -> Dict[str, Any]` | Full JSON calibration report with `overall_health` (`"healthy"`, `"caution"`, `"warning"`, `"critical"`), `overall_ece`, `alarming_domains`, per-domain stats, and recent alerts. |
+| `generate_text` | `() -> str` | Human-readable text report. |
+
+The `overall_health` classification:
+
+| Health | Condition |
+|--------|-----------|
+| `"critical"` | 3+ domains in alarm |
+| `"warning"` | Any domain in alarm |
+| `"caution"` | Average ECE > 70% of alarm threshold |
+| `"healthy"` | All clear |
 
 ---
 
@@ -173,6 +216,7 @@ ContinuousCalibrationEngine(calibration_interval: int = 20)
 | `record_outcome` | `(domain, predicted_probability, actual_outcome) -> None` | Record a pair. Auto-triggers calibration cycle. |
 | `adjust_confidence` | `(domain, raw_confidence) -> float` | Platt-scaled confidence. |
 | `calibration_cycle` | `() -> List[MetaCognitionAlert]` | Update ECE, refit Platt, run meta-cognition. |
+| `get_alarming_domains` | `() -> List[CalibrationDomain]` | Delegates to `tracker.get_alarming_domains()`. Returns all domains where ECE exceeds the alarm threshold. |
 | `get_lr_factor` | `(domain) -> float` | Recommended LR multiplier. |
 | `report` | `() -> Dict[str, Any]` | Full JSON calibration report with health status. |
 | `report_text` | `() -> str` | Human-readable text report. |
@@ -201,6 +245,10 @@ print(f"Raw: 0.85 -> Adjusted: {adjusted:.3f}")
 alerts = cal.calibration_cycle()
 for alert in alerts:
     print(f"[{alert.alert_type}] {alert.domain.value}: {alert.message}")
+
+# Check alarming domains
+alarming = cal.get_alarming_domains()
+print(f"Alarming domains: {[d.value for d in alarming]}")
 
 # Generate a report
 print(cal.report_text())

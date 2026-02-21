@@ -48,18 +48,20 @@ A single action yielded by the loop for external execution.
 
 Snapshot of current loop state for persistence and monitoring.
 
-| Attribute | Type | Description |
-|-----------|------|-------------|
-| `goal` | `str` | Current goal |
-| `step_count` | `int` | Steps executed so far |
-| `max_steps` | `int` | Maximum allowed steps |
-| `plan` | `Optional[ExecutionPlan]` | Current execution plan |
-| `current_step` | `Optional[PlanStep]` | Step being executed |
-| `last_response` | `str` | Most recent LLM response |
-| `status` | `str` | `"running"`, `"completed"`, `"aborted"`, `"idle"` |
-| `drift_score` | `float` | Current GoalDNA drift score |
-| `drift_events` | `int` | Total drift events detected |
-| `is_drifting` | `bool` | Whether sustained drift is active |
+| Attribute | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `goal` | `str` | *(required)* | Current goal |
+| `step_count` | `int` | `0` | Steps executed so far |
+| `max_steps` | `int` | `100` | Maximum allowed steps |
+| `plan` | `Optional[ExecutionPlan]` | `None` | Current execution plan |
+| `current_step` | `Optional[PlanStep]` | `None` | Step being executed |
+| `last_response` | `str` | `""` | Most recent LLM response |
+| `status` | `str` | `"running"` | `"running"`, `"completed"`, `"aborted"`, `"idle"` |
+| `retry_count` | `int` | `0` | Number of consecutive retries for the current step. Reset to 0 after a successful step. Incremented by `handle_error()`. |
+| `started_at` | `float` | `time.time()` | Timestamp when the loop was started. Auto-set on `LoopState` creation. |
+| `drift_score` | `float` | `0.0` | Current GoalDNA drift score |
+| `drift_events` | `int` | `0` | Total drift events detected |
+| `is_drifting` | `bool` | `False` | Whether sustained drift is active |
 
 ---
 
@@ -122,7 +124,7 @@ def handle_error(
 ) -> LoopAction
 ```
 
-Use recovery engine to determine next action after an error. Returns a `LoopAction` with the appropriate recovery strategy (retry, escalate, or abort).
+Use recovery engine to determine next action after an error. Increments `LoopState.retry_count`. Returns a `LoopAction` with the appropriate recovery strategy (retry, escalate, or abort).
 
 ##### `get_state`
 
@@ -131,6 +133,22 @@ def get_state(self) -> LoopState
 ```
 
 Get current loop state snapshot.
+
+##### `get_goal_dna`
+
+```python
+def get_goal_dna(self) -> Optional[GoalDNA]
+```
+
+Get the current GoalDNA instance. Returns the GoalDNA used for drift detection, or `None` if goal intelligence is not active.
+
+##### `get_goal_reminder`
+
+```python
+def get_goal_reminder(self) -> Optional[GoalReminderInjector]
+```
+
+Get the current GoalReminderInjector instance. Returns the injector used for goal reminder context injection, or `None` if goal intelligence is not active.
 
 ##### `get_stats`
 

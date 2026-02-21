@@ -36,6 +36,7 @@ Brain analogy: Metacognition (prefrontal cortex), error monitoring (ACC), episod
 | `suggested_fix` | `Optional[str]` | How to fix issues |
 | `should_retry` | `bool` | Whether to retry with improvements |
 | `retry_guidance` | `str` | Guidance for retry |
+| `reflection_time_ms` | `float` | Time taken for the reflection parse in milliseconds. Measured during `parse_reflection()`. |
 
 ### `ReflectionLesson`
 
@@ -43,13 +44,16 @@ Brain analogy: Metacognition (prefrontal cortex), error monitoring (ACC), episod
 
 A learned lesson from past mistakes, with effectiveness tracking.
 
-| Attribute | Type | Description |
-|-----------|------|-------------|
-| `lesson_id` | `str` | Unique identifier |
-| `task_type` | `str` | Task category |
-| `mistake` | `str` | What went wrong |
-| `correction` | `str` | How to fix it |
-| `effectiveness` | `float` | Learned effectiveness [0.0, 1.0] |
+| Attribute | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `lesson_id` | `str` | *(required)* | Unique identifier |
+| `task_type` | `str` | *(required)* | Task category |
+| `mistake` | `str` | *(required)* | What went wrong |
+| `correction` | `str` | *(required)* | How to fix it |
+| `context_hash` | `str` | *(required)* | SHA-256 hash (first 16 chars) of the context string. Used for context-similarity matching when retrieving relevant lessons. |
+| `created_at` | `float` | `time.time()` | Creation timestamp. Auto-set when the lesson is stored. |
+| `times_applied` | `int` | `0` | Number of times this lesson has been retrieved and applied. Incremented by `get_relevant_lessons()`. |
+| `effectiveness` | `float` | `0.5` | Learned effectiveness [0.0, 1.0]. Updated by `record_lesson_outcome()` via EMA. |
 
 ---
 
@@ -98,7 +102,7 @@ Build prompt for LLM quality verification. Requests JSON output with `quality_sc
 def parse_reflection(self, llm_response: str, trigger: ReflectionTrigger) -> ReflectionResult
 ```
 
-Parse LLM reflection response. Tries JSON parsing first, then keyword-based text fallback.
+Parse LLM reflection response. Tries JSON parsing first, then keyword-based text fallback. Sets `reflection_time_ms` on the returned `ReflectionResult`.
 
 ##### `build_improvement_prompt`
 
@@ -111,6 +115,22 @@ Build prompt to improve a response based on identified issues.
 ##### `store_lesson` / `get_relevant_lessons` / `record_lesson_outcome`
 
 Lesson management: store mistakes and corrections, retrieve relevant lessons ranked by task_type and effectiveness, update effectiveness based on outcomes.
+
+##### `get_stats`
+
+```python
+def get_stats(self) -> Dict[str, Any]
+```
+
+Return reflection statistics including `total_reflections`, `retries_triggered`, `improvements_made`, `lessons_stored`, `bank_capacity`, `average_lesson_effectiveness`, and `quality_threshold`.
+
+##### `reset_step_counts`
+
+```python
+def reset_step_counts(self) -> None
+```
+
+Reset per-step reflection counts for a new task. Should be called at the start of each new task to allow fresh reflection budgets per step. Called automatically by `AgentLoop.start()`.
 
 ---
 
@@ -129,6 +149,7 @@ if should:
     )
     llm_response = await llm.generate(prompt)
     result = reflector.parse_reflection(llm_response, trigger)
+    print(f"Reflection took {result.reflection_time_ms:.1f}ms")
 
     if not result.passes_quality_gate:
         fix_prompt = reflector.build_improvement_prompt(
@@ -138,6 +159,12 @@ if should:
 
     # Store lesson for future reference
     reflector.store_lesson("api_design", "forgot auth", "always add auth middleware")
+
+# Check stats
+print(reflector.get_stats())
+
+# Reset for new task
+reflector.reset_step_counts()
 ```
 
 ---

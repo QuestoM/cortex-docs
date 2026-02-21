@@ -28,18 +28,20 @@ Brain analogy: Prefrontal cortex (decomposition), basal ganglia (sequencing), an
 
 A single executable step within an execution plan.
 
-| Attribute | Type | Description |
-|-----------|------|-------------|
-| `step_id` | `str` | Unique step identifier |
-| `description` | `str` | What this step does |
-| `expected_outcome` | `str` | Expected result |
-| `tools_needed` | `List[str]` | Tools required for this step |
-| `dependencies` | `List[str]` | Step IDs that must complete first |
-| `status` | `PlanStepStatus` | Current status |
-| `retry_count` | `int` | How many times this step has been retried |
-| `max_retries` | `int` | Maximum retry attempts (default: 2) |
-| `result` | `Optional[str]` | Execution result |
-| `error` | `Optional[str]` | Error message if failed |
+| Attribute | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `step_id` | `str` | *(required)* | Unique step identifier |
+| `description` | `str` | *(required)* | What this step does |
+| `expected_outcome` | `str` | *(required)* | Expected result |
+| `tools_needed` | `List[str]` | `[]` | Tools required for this step |
+| `dependencies` | `List[str]` | `[]` | Step IDs that must complete first |
+| `status` | `PlanStepStatus` | `PENDING` | Current status |
+| `retry_count` | `int` | `0` | How many times this step has been retried |
+| `max_retries` | `int` | `2` | Maximum retry attempts |
+| `result` | `Optional[str]` | `None` | Execution result |
+| `error` | `Optional[str]` | `None` | Error message if failed |
+| `started_at` | `Optional[float]` | `None` | Timestamp when the step started running. Set by `mark_step_running()`. |
+| `completed_at` | `Optional[float]` | `None` | Timestamp when the step completed or failed. Set by `mark_step_completed()` and `mark_step_failed()`. |
 
 ### `ExecutionPlan`
 
@@ -73,8 +75,8 @@ PlanningEngine(max_steps: int = 20, min_steps: int = 1)
 
 **Parameters**:
 
-- `max_steps` (int): Maximum steps in a plan. Default: 20
-- `min_steps` (int): Minimum steps in a plan. Default: 1
+- `max_steps` (int): Maximum steps in a plan. Must be >= 1. Default: 20
+- `min_steps` (int): Minimum steps in a plan. Must be >= 1 and <= max_steps. Default: 1
 
 #### Methods
 
@@ -129,7 +131,23 @@ Get next executable step respecting dependencies. Returns `None` if all steps ar
 
 ##### `mark_step_running` / `mark_step_completed` / `mark_step_failed`
 
-State transition methods for plan steps.
+State transition methods for plan steps. `mark_step_running` sets `started_at` to the current time. `mark_step_completed` and `mark_step_failed` set `completed_at` to the current time.
+
+##### `can_retry`
+
+```python
+def can_retry(self, step: PlanStep) -> bool
+```
+
+Check whether a step can be retried. Returns `True` if `step.retry_count < step.max_retries`.
+
+##### `get_plan`
+
+```python
+def get_plan(self, plan_id: str) -> Optional[ExecutionPlan]
+```
+
+Retrieve a stored plan by ID. Returns `None` if the plan does not exist.
 
 ##### `create_single_step_plan`
 
@@ -156,10 +174,23 @@ if planner.should_plan("Build a REST API with auth and testing"):
     llm_response = await llm.generate(prompt)
     plan = planner.parse_plan("Build a REST API", llm_response)
 
+    # Retrieve the plan later by ID
+    stored = planner.get_plan(plan.plan_id)
+
     while step := planner.get_next_step(plan):
         planner.mark_step_running(plan, step.step_id)
-        result = await execute_step(step)
-        planner.mark_step_completed(plan, step.step_id, result)
+        try:
+            result = await execute_step(step)
+            planner.mark_step_completed(plan, step.step_id, result)
+        except Exception as e:
+            planner.mark_step_failed(plan, step.step_id, str(e))
+            if planner.can_retry(step):
+                # Reset status and try again
+                step.status = PlanStepStatus.PENDING
+            else:
+                # Trigger replanning
+                replan_prompt = planner.build_replan_prompt(plan, str(e))
+                ...
 
     print(f"Plan complete: {plan.progress:.0%}")
 ```

@@ -143,9 +143,21 @@ def estimate_budget(cls, task_type: str, default_steps: int = 50) -> int
 
 Estimate initial budget from historical data. Requires 3+ samples. Returns `avg_completion_steps * 1.3`.
 
-##### `get_stats` / `reset`
+##### `get_stats`
 
-Statistics and state reset methods.
+```python
+def get_stats(self) -> Dict[str, Any]
+```
+
+Get budget statistics. Returns dict with keys: `step_budget`, `initial_step_budget`, `token_budget`, `steps_taken`, `tokens_consumed`, `progress`, `current_velocity`, `zero_velocity_streak`, `budget_utilization`, `decision_history` (last 10), `task_type`, `task_profile_exists`.
+
+##### `reset`
+
+```python
+def reset(self) -> None
+```
+
+Reset budget state for a new task. Restores initial step and token budgets, clears all counters, velocities, and decision history.
 
 ---
 

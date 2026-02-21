@@ -118,6 +118,8 @@ def create_agent(
     enterprise_config: Optional[EnterpriseConfig] = None,
     context_config: Optional[ContextManagementConfig] = None,
     enable_session_recording: bool = False,
+    mcp_servers: Optional[List] = None,
+    a2a_agents: Optional[List] = None,
 ) -> Agent
 ```
 
@@ -136,6 +138,8 @@ Create a new agent template bound to this engine.
 | `enterprise_config` | `Optional[EnterpriseConfig]` | `None` | Agent-level enterprise config. Overrides the engine-level config if provided. |
 | `context_config` | `Optional[ContextManagementConfig]` | `None` | Configuration for the Cortical Context Engine (token budgets, summarization intervals). |
 | `enable_session_recording` | `bool` | `False` | Enable session recording for digital twin replay and what-if simulation. |
+| `mcp_servers` | `Optional[List]` | `None` | List of MCP (Model Context Protocol) server configurations for external tool integration. Each entry is an `MCPServerConfig` specifying the server endpoint and capabilities. |
+| `a2a_agents` | `Optional[List]` | `None` | List of A2A (Agent-to-Agent) agent configurations for inter-agent communication. Each entry is an `A2AAgentConfig` specifying the remote agent endpoint and protocol. |
 
 **Returns**: `Agent` - A configured agent template ready to start sessions.
 

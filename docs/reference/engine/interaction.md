@@ -166,6 +166,14 @@ Parse LLM auto-decision. Matches against options (case-insensitive), falls back 
 
 Resolution methods for the three sources: timeout default, actual user input, and LLM auto-decision.
 
+##### `record_decision`
+
+```python
+def record_decision(self, request: InteractionRequest, result: InteractionResult) -> None
+```
+
+Record a decision for learning and prompt building. Stores the question, interaction type, choice, source, risk level, and timestamp. Keeps the last 100 decisions. Called automatically by all `resolve_with_*` methods, but can also be called directly.
+
 ##### `set_user_callback` / `reset_task` / `get_stats`
 
 Register user callback, reset per-task counters, and get interaction statistics.

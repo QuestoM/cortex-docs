@@ -76,7 +76,7 @@ InteropConfig
   |
   +-- MCPServerConfig[] -----> MCPClientManager
   |                              |-- StdioTransport / SSETransport
-  |                              |-- MCPToolBridge (tool conversion)
+  |                              |-- tool_bridge module (tool conversion)
   |                              +-- MCPResourceBridge (resource context)
   |
   +-- A2AAgentConfig[] ------> A2AClientManager
@@ -89,5 +89,5 @@ InteropConfig
 ## See Also
 
 - [Interop Concepts Guide](../../concepts/interop/index.md) -- Conceptual overview of MCP and A2A
-- [MCP Integration How-To](../../guides/interop/mcp-setup.md) -- Step-by-step setup guide
-- [A2A Delegation How-To](../../guides/interop/a2a-delegation.md) -- Agent delegation guide
+- [MCP Integration How-To](../../guides/interop/mcp-servers.md) -- Step-by-step setup guide
+- [A2A Delegation How-To](../../guides/interop/a2a-agents.md) -- Agent delegation guide

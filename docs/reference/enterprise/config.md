@@ -234,7 +234,17 @@ Per-seat licensing configuration embedded in tenant config.
 | `max_seats` | `int` | `1` | Maximum developer seats |
 | `max_agents` | `int` | `3` | Agents per seat |
 | `max_sessions_per_day` | `int` | `100` | Daily session limit |
-| `features` | `List[str]` | `[...]` | Enabled features |
+| `features` | `List[str]` | `[...]` | Enabled features for this tenant |
+| `allowed_features` | `Dict[str, List[str]]` | `{...}` | Per-plan feature gates (see below) |
+
+**Per-Plan Feature Gates** (`allowed_features` default):
+
+| Plan | Features |
+|------|----------|
+| `starter` | `basic_agents`, `weight_system`, `goal_tracking` |
+| `professional` | starter + `multi_model`, `tool_framework`, `streaming`, `enterprise_config` |
+| `enterprise` | professional + `audit_logging`, `compliance`, `custom_models`, `priority_support` |
+| `unlimited` | `"*"` (all features) |
 
 #### Methods
 
@@ -267,6 +277,8 @@ Complete per-tenant configuration. One instance per customer deployment.
 | `license` | `LicenseConfig` | Licensing configuration |
 | `data_retention` | `DataRetention` | Data retention policy |
 | `compliance` | `List[ComplianceFramework]` | Active compliance frameworks |
+| `data_classification_enabled` | `bool` | Pre-call data classification check (default: `True`) |
+| `pii_protection_enabled` | `bool` | PII tokenization before LLM calls (default: `False`) |
 | `custom_settings` | `Dict[str, Any]` | Custom key-value settings |
 | `user_overridable` | `Set[str]` | Settings users can override |
 | `created_at` | `float` | Creation timestamp |

@@ -57,6 +57,14 @@ Session(
 | `attention` | `AttentionSystem` | Subconscious filtering and change detection. |
 | `concepts` | `ConceptGraphManager` | Distributed concept representation and co-occurrence learning. |
 | `audit` | `AuditLogger` | Enterprise audit trail logger. |
+| `proactive` | `ProactivePredictionEngine` | Next-action prediction engine (P0). |
+| `cross_modal` | `ContextEnricher` | Cross-modal association enricher (P1). |
+| `resource_map` | `ResourceHomunculus` | Non-uniform resource allocation map (P2). |
+| `reorganizer` | `CorticalMapReorganizer` | Cortical territory redistribution (P3). |
+| `modulator` | `TargetedModulator` | Optogenetic-inspired activation/silencing (P3). |
+| `simulator` | `ComponentSimulator` | Digital twin and what-if analysis (P3). |
+| `adaptation` | `AdaptationFilter` | Sensory adaptation filtering. |
+| `quality_estimator` | `PopulationQualityEstimator` | Multi-response quality estimation. |
 
 ---
 
@@ -306,6 +314,102 @@ def get_concept_recommendations(self, items: List[str]) -> Dict[str, Any]
 
 Get concept-based recommendations for given items based on learned co-occurrence patterns.
 
+### `get_proactive_stats`
+
+```python
+def get_proactive_stats(self) -> Dict[str, Any]
+```
+
+Get proactive prediction statistics (P0). Returns metrics on next-action predictions including hit rate and prediction counts.
+
+### `get_cross_modal_stats`
+
+```python
+def get_cross_modal_stats(self) -> Dict[str, Any]
+```
+
+Get cross-modal association statistics (P1). Returns metrics on context enrichment from cross-modal associations.
+
+### `get_resource_map`
+
+```python
+def get_resource_map(self) -> Dict[str, Any]
+```
+
+Get resource allocation map statistics (P2). Returns the current non-uniform resource allocation across domains.
+
+### `get_attention_stats`
+
+```python
+def get_attention_stats(self) -> Dict[str, Any]
+```
+
+Get attentional filter statistics (P2). Returns metrics on subconscious filtering and change detection.
+
+### `get_territory_map`
+
+```python
+def get_territory_map(self) -> Dict[str, Any]
+```
+
+Get cortical map reorganizer territory map (P3). Returns the current territory distribution across specialized regions.
+
+### `get_active_modulations`
+
+```python
+def get_active_modulations(self) -> List[Dict[str, Any]]
+```
+
+Get all active modulations (P3). Returns a list of currently active tool activation/silencing modulations.
+
+### `get_decision_log`
+
+```python
+def get_decision_log(self) -> Any
+```
+
+Get the decision log for audit and compliance. Returns the `DecisionLog` instance containing all recorded decisions from the session.
+
+### `get_goal_tree`
+
+```python
+def get_goal_tree(self) -> Any
+```
+
+Get the goal tree for hierarchical progress tracking. Returns the `GoalTree` instance showing goal decomposition and sub-goal status.
+
+### `get_nash_routing_stats`
+
+```python
+def get_nash_routing_stats(self) -> Dict[str, Any]
+```
+
+Get Nash routing optimizer statistics. Returns game-theoretic routing metrics including equilibrium convergence data.
+
+### `get_shapley_stats`
+
+```python
+def get_shapley_stats(self) -> Dict[str, Any]
+```
+
+Get Shapley attribution statistics. Returns fair contribution attribution across tools and components.
+
+### `get_summarization_stats`
+
+```python
+def get_summarization_stats(self) -> Dict[str, Any]
+```
+
+Get L2/L3 summarization pipeline statistics. Returns metrics on context summarization including compression ratios and summary counts.
+
+### `get_simulator`
+
+```python
+def get_simulator(self) -> ComponentSimulator
+```
+
+Get the component simulator for what-if analysis (P3). Returns the `ComponentSimulator` instance which supports forking state, running simulations, and session recording/replay.
+
 ### `get_progress_estimate`
 
 ```python
@@ -369,6 +473,36 @@ print(f"Predicted impact: {result}")
 
 ---
 
+## GDPR Property
+
+### `gdpr`
+
+```python
+@property
+def gdpr(self) -> GDPRManager
+```
+
+Lazy-initialized GDPR DSAR (Data Subject Access Request) manager. Provides access to GDPR Articles 15-22 operations: export, rectify, erase, restrict, port, object, and transparency.
+
+The `GDPRManager` is only instantiated on first access, keeping session initialization lightweight when GDPR features are not needed.
+
+**Returns**: `GDPRManager` - The GDPR operations manager bound to this session's memory, weights, and audit logger.
+
+**Example**:
+
+```python
+# Export all personal data (Article 15)
+data = session.gdpr.export(user_id="user_123")
+
+# Erase personal data (Article 17 - Right to Erasure)
+result = session.gdpr.erase(user_id="user_123")
+
+# Data portability (Article 20)
+portable = session.gdpr.port(user_id="user_123", format="json")
+```
+
+---
+
 ## Lifecycle Methods
 
 ### `close`
@@ -385,7 +519,7 @@ Close the session and perform final consolidation:
 4. Persist state files
 5. Collect comprehensive statistics from all 30+ brain components
 
-**Returns**: `Dict[str, Any]` - Comprehensive session statistics including:
+**Returns**: `Dict[str, Any]` - Comprehensive session statistics with 40+ keys from all brain components:
 
 | Key | Type | Description |
 |-----|------|-------------|
@@ -393,11 +527,51 @@ Close the session and perform final consolidation:
 | `"turns"` | `int` | Total conversation turns. |
 | `"total_tokens"` | `int` | Total tokens consumed. |
 | `"duration_seconds"` | `float` | Session wall-clock duration. |
-| `"final_weights"` | `Dict` | Final weight state. |
+| `"final_weights"` | `Dict` | Final weight state snapshot. |
 | `"memory_stats"` | `Dict` | Memory layer statistics. |
 | `"context_stats"` | `Dict` | Context engine statistics. |
+| `"dual_process_stats"` | `Dict` | System 1/2 routing statistics. |
+| `"reputation_stats"` | `Dict` | Tool reputation and trust scores. |
+| `"proactive_stats"` | `Dict` | Proactive prediction statistics. |
+| `"cross_modal_stats"` | `Dict` | Cross-modal association statistics. |
 | `"calibration_stats"` | `Dict` | Calibration health report. |
-| ... | ... | Stats from all 30+ brain components. |
+| `"column_stats"` | `Dict` | Functional column statistics. |
+| `"resource_map_stats"` | `Dict` | Resource allocation statistics. |
+| `"attention_stats"` | `Dict` | Attentional filter statistics. |
+| `"concept_graph_stats"` | `Dict` | Concept graph statistics. |
+| `"reorganizer_stats"` | `Dict` | Cortical map reorganizer statistics. |
+| `"modulator_stats"` | `Dict` | Targeted modulator statistics. |
+| `"simulator_stats"` | `Dict` | Component simulator statistics. |
+| `"feedback_stats"` | `Dict` | Feedback signal summary. |
+| `"goal_tracker_stats"` | `Dict` | Goal tracking summary. |
+| `"plasticity_stats"` | `Dict` | Plasticity manager statistics. |
+| `"prediction_stats"` | `Dict` | Prediction engine statistics. |
+| `"adaptation_stats"` | `Dict` | Adaptation filter statistics. |
+| `"quality_estimator_stats"` | `Dict` | Quality estimator last agreement. |
+| `"param_resolver_stats"` | `Dict` | Brain parameter resolver statistics. |
+| `"nash_routing_stats"` | `Dict` | Nash routing optimizer statistics. |
+| `"shapley_attribution_stats"` | `Dict` | Shapley attribution statistics. |
+| `"summarization_stats"` | `Dict` | L2/L3 summarization pipeline statistics. |
+| `"semantic_scorer_stats"` | `Dict` | Semantic importance scorer statistics. |
+| `"context_compiler_stats"` | `Dict` | Context compiler statistics. |
+| `"planner_stats"` | `Dict` | Planning engine availability. |
+| `"reflector_stats"` | `Dict` | Reflection engine statistics. |
+| `"recovery_stats"` | `Dict` | Recovery engine statistics. |
+| `"interaction_stats"` | `Dict` | Interaction manager statistics. |
+| `"policy_stats"` | `Dict` | Policy engine statistics. |
+| `"sub_agent_stats"` | `Dict` | Sub-agent manager statistics. |
+| `"decision_log_stats"` | `Dict` | Decision log pattern analysis. |
+| `"progress_estimator_stats"` | `Dict` | Progress estimator statistics. |
+| `"speculative_executor_stats"` | `Dict` | Speculative executor statistics. |
+| `"model_mosaic_stats"` | `Dict` | Model mosaic statistics. |
+| `"provider_health_stats"` | `Dict` | Provider health monitor statistics. |
+| `"decision_tracer_stats"` | `Dict` | Decision tracer statistics. |
+| `"goal_tree_stats"` | `Dict` | Goal tree summary. |
+| `"active_forgetting_stats"` | `Dict` | Active forgetting statistics. |
+| `"tenant_dna_stats"` | `Dict` | Tenant DNA profile statistics. |
+| `"quota_tracker_stats"` | `Dict` | Quota usage statistics. |
+| `"audit_stream_stats"` | `Dict` | Audit stream statistics. |
+| `"metrics_collector_stats"` | `Dict` | Metrics collector statistics. |
 
 **Example**:
 

@@ -37,6 +37,39 @@ Graduated response actions mapped to severity levels.
 | `CHECKPOINT_RESET` | CRITICAL | Checkpoint and reset to known good state |
 | `ASK_USER` | EMERGENCY | Ask user for direction |
 
+### `GoalDNA` (local dataclass)
+
+**Type**: `@dataclass`
+
+Compact token-set fingerprint for ultra-fast drift detection. This is a **local** `GoalDNA` defined within `drift_engine.py`, distinct from the standalone `corteX.engine.goal_dna.GoalDNA` class which provides a more comprehensive goal intelligence system with drift event tracking, consecutive drift counting, and drift history.
+
+This local version is a lightweight dataclass used internally by `DriftEngine` for Jaccard similarity calculations.
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `goal_text` | `str` | The original goal text. |
+| `tokens` | `frozenset` | Significant words extracted from the goal (lowercased, stop words removed, length > 2). |
+| `trigrams` | `frozenset` | Character trigrams from the goal text. |
+
+#### Methods
+
+##### `from_goal` (classmethod)
+
+```python
+@classmethod
+def from_goal(cls, goal: str) -> GoalDNA
+```
+
+Create a GoalDNA fingerprint from a goal string. Extracts significant tokens and character trigrams.
+
+##### `similarity`
+
+```python
+def similarity(self, action_text: str) -> float
+```
+
+Compute Jaccard similarity between goal DNA tokens and action text tokens. Returns a float between 0.0 (completely disjoint) and 1.0 (identical token sets). Returns 0.5 if either token set is empty.
+
 ### `DriftSignals`
 
 **Type**: `@dataclass`
@@ -86,10 +119,16 @@ DriftEngine(
 
 **Parameters**:
 
-- `goal` (str): The goal text (used to create GoalDNA fingerprint)
+- `goal` (str): The goal text (used to create a local GoalDNA fingerprint)
 - `token_budget` (int): Total token budget for the task. Default: 50000
 - `history_window` (int): Steps to retain in history. Default: 20
 - `consecutive_drift_threshold` (int): Consecutive low-similarity steps to boost score. Default: 3
+
+#### Properties
+
+##### `goal_dna -> GoalDNA`
+
+Returns the local `GoalDNA` instance created from the goal text.
 
 #### Methods
 
@@ -126,6 +165,22 @@ Returns: step_number, tokens_consumed, token_budget, current_drift_trend, consec
 
 ---
 
+## GoalDNA: Local vs Standalone
+
+The `drift_engine.py` module defines its own local `GoalDNA` dataclass. This is **separate** from the standalone `corteX.engine.goal_dna.GoalDNA` class:
+
+| Feature | Local GoalDNA (drift_engine) | Standalone GoalDNA (goal_dna) |
+|---------|------------------------------|-------------------------------|
+| **Type** | `@dataclass` | Class with full API |
+| **Purpose** | Lightweight fingerprint for Jaccard similarity | Full goal intelligence with drift events |
+| **Drift tracking** | No (handled by DriftEngine) | Yes (consecutive drift count, drift events) |
+| **Fields** | `goal_text`, `tokens`, `trigrams` | Goal text, keywords, drift history, thresholds |
+| **Used by** | `DriftEngine` internally | `AgentLoop` for goal intelligence |
+
+When `DriftEngine` is constructed, it creates a local `GoalDNA` via `GoalDNA.from_goal(goal)`. The `AgentLoop` uses the standalone `GoalDNA` from `corteX.engine.goal_dna` for its goal intelligence features.
+
+---
+
 ## Signal Weights
 
 | Signal | Weight | Description |
@@ -146,6 +201,9 @@ Returns: step_number, tokens_consumed, token_budget, current_drift_trend, consec
 from corteX.engine.drift_engine import DriftEngine
 
 engine = DriftEngine("Build a REST API for user management", token_budget=50000)
+
+# Access the local GoalDNA
+print(engine.goal_dna.tokens)  # frozenset of significant words
 
 # Assess each step
 assessment = engine.assess_step(
