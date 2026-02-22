@@ -74,6 +74,26 @@ engine = cortex.Engine(
 !!! note
     The `base_url` must point to the full deployment URL including `/openai/deployments/<deployment-name>`. The model name you pass to `orchestrator_model` should match your Azure deployment name.
 
+## Use OpenRouter
+
+[OpenRouter](https://openrouter.ai/) aggregates hundreds of models behind a single OpenAI-compatible API. Because corteX uses the standard OpenAI client under the hood, connecting to OpenRouter only requires changing the `base_url`:
+
+```python
+engine = cortex.Engine(
+    providers={
+        "openai": {
+            "api_key": "sk-or-v1-...",                # Your OpenRouter API key
+            "base_url": "https://openrouter.ai/api/v1",
+        },
+    },
+    orchestrator_model="anthropic/claude-sonnet-4-5",  # Any model on OpenRouter
+    worker_model="google/gemini-2.5-flash",
+)
+```
+
+!!! tip
+    OpenRouter lets you access models from many providers through a single API key. This is useful when you want to experiment with different models without managing multiple provider credentials. Model names follow the `provider/model` format -- check the OpenRouter docs for the full list.
+
 ## Create an agent and run a message
 
 Once the engine is configured, everything else works the same regardless of provider:

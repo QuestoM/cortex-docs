@@ -97,22 +97,58 @@ async for chunk in session.run_stream("List five applications of reinforcement l
 
 ## Use Gemini with Vertex AI
 
-For Google Cloud deployments using Vertex AI, supply your project and location:
+For production workloads that exceed the free-tier rate limits (25 RPM / 250 RPD on Tier-1 API keys), use Vertex AI for pay-as-you-go access with significantly higher throughput, SLA guarantees, and enterprise features like VPC Service Controls and data residency.
+
+### Set up authentication
+
+Vertex AI uses Google's Application Default Credentials (ADC). No API keys are needed -- the SDK discovers credentials automatically from your environment.
+
+=== "Local development"
+
+    ```bash
+    gcloud auth application-default login
+    ```
+
+=== "Production (GKE, Cloud Run, Compute Engine)"
+
+    Attach a service account to your workload. ADC discovers it automatically -- no code changes needed.
+
+=== "CI/CD"
+
+    Set the `GOOGLE_APPLICATION_CREDENTIALS` environment variable to point to a service account key file, or use workload identity federation for keyless auth.
+
+### Configure the engine
+
+Pass `vertex_ai=True` along with your GCP project ID:
 
 ```python
 engine = cortex.Engine(
     providers={
         "gemini": {
-            "project": "my-gcp-project",
-            "location": "us-central1",
+            "vertex_ai": True,
+            "project": "your-project-id",
+            "location": "us-central1",   # optional, defaults to us-central1
         },
     },
     orchestrator_model="gemini-3-pro-preview",
+    worker_model="gemini-3-flash-preview",
 )
 ```
 
-!!! note
-    Vertex AI authentication uses Application Default Credentials (ADC). Run `gcloud auth application-default login` locally, or attach a service account in production.
+Everything else -- agents, sessions, tools, streaming -- works identically to API key mode. The same `google-genai` package handles both modes.
+
+### When to use Vertex AI vs API key
+
+| | API Key | Vertex AI |
+|---|---|---|
+| **Rate limits** | 25 RPM / 250 RPD (Tier-1) | Pay-as-you-go, much higher |
+| **Billing** | Free tier, then per-request | GCP billing account |
+| **Auth setup** | Copy-paste API key | `gcloud auth` or service account |
+| **Enterprise features** | None | VPC-SC, CMEK, audit logs, data residency |
+| **Best for** | Prototyping, demos, low-volume | Production, enterprise, high-volume |
+
+!!! tip
+    You can start with an API key for development and switch to Vertex AI for production by changing only the provider config -- no other code changes required.
 
 ## Multi-provider setup with OpenAI
 

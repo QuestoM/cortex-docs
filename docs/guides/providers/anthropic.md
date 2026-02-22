@@ -114,6 +114,117 @@ async for chunk in session.run_stream("Explain quantum computing in simple terms
     print(chunk.content, end="")
 ```
 
+## Use Claude via Amazon Bedrock
+
+For production workloads on AWS, you can access Claude through [Amazon Bedrock](https://aws.amazon.com/bedrock/). Bedrock uses your existing AWS IAM credentials -- no Anthropic API key is needed.
+
+### Set up authentication
+
+Bedrock uses the standard AWS credential chain. The SDK discovers credentials automatically from your environment.
+
+=== "Local development"
+
+    ```bash
+    aws configure
+    # or
+    export AWS_ACCESS_KEY_ID="..."
+    export AWS_SECRET_ACCESS_KEY="..."
+    ```
+
+=== "Production (ECS, EKS, Lambda)"
+
+    Attach an IAM role to your workload. The AWS SDK discovers it automatically -- no code changes needed.
+
+=== "CI/CD"
+
+    Use IAM roles with OIDC federation, or set `AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY` environment variables.
+
+### Configure the engine
+
+Pass `bedrock=True` along with your preferred AWS region:
+
+```python
+engine = cortex.Engine(
+    providers={
+        "anthropic": {
+            "bedrock": True,
+            "aws_region": "us-west-2",   # optional, defaults to us-east-1
+            "default_model": "anthropic.claude-sonnet-4-5-20250514-v1:0",
+        },
+    },
+    orchestrator_model="anthropic.claude-sonnet-4-5-20250514-v1:0",
+)
+```
+
+!!! note
+    Bedrock model IDs follow the `anthropic.claude-*` naming convention and include a version suffix. Check the [AWS Bedrock documentation](https://docs.aws.amazon.com/bedrock/latest/userguide/models-supported.html) for current model IDs.
+
+### Install the Bedrock extra
+
+```bash
+pip install 'anthropic[bedrock]'
+```
+
+## Use Claude via Google Vertex AI
+
+You can also access Claude through [Google Vertex AI](https://cloud.google.com/vertex-ai), which provides enterprise features like VPC Service Controls, CMEK, and data residency. Authentication uses Google's Application Default Credentials (ADC).
+
+### Set up authentication
+
+=== "Local development"
+
+    ```bash
+    gcloud auth application-default login
+    ```
+
+=== "Production (GKE, Cloud Run, Compute Engine)"
+
+    Attach a service account to your workload. ADC discovers it automatically -- no code changes needed.
+
+=== "CI/CD"
+
+    Set the `GOOGLE_APPLICATION_CREDENTIALS` environment variable to point to a service account key file, or use workload identity federation for keyless auth.
+
+### Configure the engine
+
+Pass `vertex_ai=True` along with your GCP project ID:
+
+```python
+engine = cortex.Engine(
+    providers={
+        "anthropic": {
+            "vertex_ai": True,
+            "project": "your-project-id",
+            "location": "us-east5",   # optional, defaults to us-east5
+            "default_model": "claude-sonnet-4-5@20250514",
+        },
+    },
+    orchestrator_model="claude-sonnet-4-5@20250514",
+)
+```
+
+!!! note
+    Vertex AI model IDs use the `model@date` format. Check the [Vertex AI Model Garden](https://cloud.google.com/vertex-ai/generative-ai/docs/partner-models/use-claude) for current model names and supported regions.
+
+### Install the Vertex extra
+
+```bash
+pip install 'anthropic[vertex]'
+```
+
+### When to use API key vs Bedrock vs Vertex AI
+
+| | API Key | Amazon Bedrock | Google Vertex AI |
+|---|---|---|---|
+| **Auth** | API key | AWS IAM | Google ADC |
+| **Rate limits** | Per-tier (Anthropic) | AWS account limits | GCP quota |
+| **Billing** | Anthropic billing | AWS billing | GCP billing |
+| **Enterprise features** | Limited | VPC, CloudTrail, KMS | VPC-SC, CMEK, audit logs |
+| **Best for** | Prototyping, direct usage | AWS-native deployments | GCP-native deployments |
+
+!!! tip
+    You can start with an API key for development and switch to Bedrock or Vertex AI for production by changing only the provider config -- no other code changes required.
+
 ## Multi-provider setup
 
 You can register Claude alongside other providers and route each role to a different backend:
