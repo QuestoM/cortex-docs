@@ -190,7 +190,7 @@ modulator.silence(
 Amplify a target's weight by multiplying it by `factor` (>= 1.0).
 
 ```python
-modulator.amplify("claude-3-opus", factor=1.5, scope=ModulationScope.GOAL)
+modulator.amplify("claude-opus-4-6", factor=1.5, scope=ModulationScope.GOAL)
 ```
 
 ##### `dampen(target, factor, scope, reason, priority, scope_param) -> Modulation`
@@ -346,7 +346,7 @@ modulator.silence(
 
 # Amplify a preferred model for the current goal
 modulator.amplify(
-    "claude-3-opus",
+    "claude-opus-4-6",
     factor=1.5,
     scope=ModulationScope.GOAL,
     reason="complex reasoning task",
@@ -371,9 +371,9 @@ modulator.register_condition(
 modulator.update_condition_context("error_rate", 0.45)
 
 # Apply modulations to weights from the weight engine
-raw_weights = {"claude-3-opus": 0.6, "rm_rf": 0.8, "safety_checker": 0.5}
+raw_weights = {"claude-opus-4-6": 0.6, "rm_rf": 0.8, "safety_checker": 0.5}
 modulated = modulator.apply_modulations(raw_weights)
-# modulated["claude-3-opus"] = 0.9  (0.6 * 1.5)
+# modulated["claude-opus-4-6"] = 0.9  (0.6 * 1.5)
 # modulated["rm_rf"] = 0.0          (SILENCE -> 0.0)
 # modulated["safety_checker"] = 0.95 (CLAMP -> 0.95)
 

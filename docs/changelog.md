@@ -76,8 +76,8 @@ All notable changes to corteX are documented here.
 
 ### LLM providers
 
-- OpenAI (GPT-4o, GPT-4o-mini, and compatible models).
-- Google Gemini (Gemini 2.0 Flash, Gemini 2.5 Pro).
+- OpenAI (GPT-5, GPT-5 mini, and compatible models).
+- Google Gemini (Gemini 3 Flash, Gemini 2.5 Pro).
 - Local models via OpenAI-compatible API (Ollama, vLLM).
 - Multi-provider LLM Router with role-based routing and failover.
 

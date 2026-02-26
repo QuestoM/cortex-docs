@@ -135,7 +135,7 @@ Google's official documentation strongly recommends keeping temperature at the d
 
 **Source:** [Gemini 3 Developer Guide](https://ai.google.dev/gemini-api/docs/gemini-3), [Gemini 3 Prompting Guide (Vertex AI)](https://docs.cloud.google.com/vertex-ai/generative-ai/docs/start/gemini-3-prompting-guide)
 
-### 3.2 OpenAI GPT-4o / GPT-4o-mini
+### 3.2 OpenAI GPT-5 / GPT-5 mini
 
 **Default temperature:** 1.0 (API default, not published in ChatGPT UI)
 
@@ -152,7 +152,7 @@ Google's official documentation strongly recommends keeping temperature at the d
 
 **Source:** [OpenAI API Reference](https://platform.openai.com/docs/api-reference/chat), [OpenAI Community: Temperature in GPT-5 models](https://community.openai.com/t/temperature-in-gpt-5-models/1337133)
 
-### 3.3 Anthropic Claude (Opus 4, Sonnet 4, Haiku 4)
+### 3.3 Anthropic Claude (Opus 4.6, Sonnet 4.6, Haiku 4.5)
 
 **Default temperature:** 1.0
 
@@ -163,7 +163,7 @@ Google's official documentation strongly recommends keeping temperature at the d
 - Temperature is usually the only sampling parameter you need to adjust
 
 **Notes:**
-- Newer Claude models (Opus 4, etc.) do NOT allow both `temperature` and `top_p` to be specified simultaneously -- the API will reject the request.
+- Newer Claude models (Opus 4.6, etc.) do NOT allow both `temperature` and `top_p` to be specified simultaneously -- the API will reject the request.
 - Even at T=0.0, results are not fully deterministic.
 - Claude's extended thinking features operate independently of temperature settings.
 
@@ -176,8 +176,8 @@ Google's official documentation strongly recommends keeping temperature at the d
 | Gemini 3 (all) | 1.0 | **1.0** (do not change) | **1.0** (do not change) | Changing T causes looping/degradation |
 | GPT-4o | 1.0 | 0.0-0.2 | 0.7-1.0 | Use JSON schema enforcement alongside |
 | GPT-4o-mini | 1.0 | 0.0-0.2 | 0.7-1.0 | Same as GPT-4o |
-| Claude Opus 4 | 1.0 | 0.0-0.2 | 0.7-1.0 | Cannot set both T and top_p |
-| Claude Sonnet 4 | 1.0 | 0.0-0.2 | 0.7-1.0 | Cannot set both T and top_p |
+| Claude Opus 4.6 | 1.0 | 0.0-0.2 | 0.7-1.0 | Cannot set both T and top_p |
+| Claude Sonnet 4.6 | 1.0 | 0.0-0.2 | 0.7-1.0 | Cannot set both T and top_p |
 
 ---
 
