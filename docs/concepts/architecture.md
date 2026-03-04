@@ -175,6 +175,20 @@ engine = cortex.Engine(
 
 ---
 
+## Memory management
+
+Long-running sessions accumulate conversation history that can exhaust provider context windows. The memory management system prevents this with three cooperating components:
+
+- **`ContextBudgetEnforcer`** (`corteX.engine.context_budget`) tracks message count and estimated token usage per session, emitting `BudgetStatus` signals (`OK`, `WARNING`, `CRITICAL`, `EXCEEDED`).
+- **`ConversationCompactor`** (`corteX.memory.compactor`) compresses history on demand using one of three strategies: `SUMMARIZE`, `SLIDING_WINDOW`, or `DROP_OLDEST`.
+- **`AgentPoolMemoryMonitor`** (`corteX.runtime.memory_monitor`) monitors process-level RAM across all agents and recommends which lower-priority agents to suspend when memory pressure is detected.
+
+The `MemoryManagementMixin` (`corteX.session.memory_mixin`) wires the enforcer and compactor into any Session subclass so compaction happens automatically before each turn.
+
+[:octicons-arrow-right-24: Memory Management guide](../guides/advanced/memory-management.md)
+
+---
+
 ## Learning loops
 
 corteX has three learning loops operating at different timescales:

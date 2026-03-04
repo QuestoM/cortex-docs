@@ -158,6 +158,7 @@ nav:
       - guides/advanced/modulation-overrides.md
       - guides/advanced/weight-persistence.md
       - guides/advanced/observability.md
+      - Memory Management: guides/advanced/memory-management.md
 
   - Enterprise:
     - enterprise/index.md
