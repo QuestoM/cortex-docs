@@ -47,6 +47,7 @@ User Interaction
 | [Feedback Engine](feedback.md) | Amygdala + Hippocampus | Detects implicit user signals across 4 tiers |
 | [Plasticity Manager](plasticity.md) | Synaptic plasticity | Implements LTP, LTD, homeostasis, and critical periods |
 | [Adaptation Filter](adaptation.md) | Sensory receptors | Filters repetitive signals, amplifies novel changes |
+| [Behavior Loop](behavior-loop.md) | Closed-loop motor control | Every brain computation drives real agent decisions |
 
 ## Quick Start
 

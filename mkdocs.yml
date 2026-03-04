@@ -96,6 +96,7 @@ nav:
       - Plasticity & Learning: concepts/brain/plasticity.md
       - Sensory Adaptation: concepts/brain/adaptation.md
       - Brain-LLM Bridge: concepts/brain/brain-llm-bridge.md
+      - Behavior Loop: concepts/brain/behavior-loop.md
       - NeuroLlama Architecture: concepts/brain/neurollama-architecture.md
     - Context & Memory:
       - concepts/context/index.md
