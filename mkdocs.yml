@@ -131,6 +131,7 @@ nav:
       - concepts/interop/index.md
       - MCP - Model Context Protocol: concepts/interop/mcp.md
       - A2A - Agent-to-Agent Protocol: concepts/interop/a2a.md
+    - Capability Registry: concepts/capability-registry.md
     - LLM Routing: concepts/llm-routing.md
     - Tool Reputation: concepts/tool-reputation.md
 
@@ -276,6 +277,8 @@ nav:
       - Context Quality Engine: reference/cognitive/context-quality.md
       - State File Manager: reference/cognitive/state-files.md
       - Cognitive Pipeline: reference/cognitive/cognitive-pipeline.md
+    - Capabilities:
+      - Capability Registry: reference/capabilities/registry.md
     - Security:
       - Key Vault: reference/security/vault.md
       - Capability Set: reference/security/capabilities.md
