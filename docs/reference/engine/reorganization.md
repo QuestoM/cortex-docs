@@ -417,5 +417,5 @@ restored = CorticalMapReorganizer.from_dict(state)
 
 ## See Also
 
-- [Weight Engine API](./weight-engine.md)
+- [Weight Engine API](./weights.md)
 - [Targeted Modulator API](./modulator.md)

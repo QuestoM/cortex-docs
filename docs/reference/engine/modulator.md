@@ -392,5 +392,5 @@ modulator.clear_all()
 
 ## See Also
 
-- [Weight Engine API](./weight-engine.md)
+- [Weight Engine API](./weights.md)
 - [Cortical Map Reorganizer API](./reorganization.md)

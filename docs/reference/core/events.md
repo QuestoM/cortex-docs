@@ -313,5 +313,5 @@ print(f"Subscribers: {bus.subscriber_count()}")
 
 - [Contracts API Reference](./contracts.md) - Core data types and protocols
 - [Registry API Reference](./registry.md) - Plugin registry
-- [Observability Concept Guide](../concepts/observability.md) - Observability architecture
+- [Observability Concept Guide](../../concepts/observability.md) - Observability architecture
 - [Security & Isolation](../../enterprise/security.md) - Tenant isolation design

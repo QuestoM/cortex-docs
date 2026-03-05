@@ -204,5 +204,5 @@ mc = sim.monte_carlo(state, scenario, n_runs=100)
 
 ## See Also
 
-- [Weight Engine API](./weight-engine.md)
+- [Weight Engine API](./weights.md)
 - [A/B Test Manager API](./ab-test-manager.md)

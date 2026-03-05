@@ -279,6 +279,8 @@ nav:
       - Cognitive Pipeline: reference/cognitive/cognitive-pipeline.md
     - Capabilities:
       - Capability Registry: reference/capabilities/registry.md
+      - Capability Analyzer: reference/capabilities/analyzer.md
+      - Capability Fingerprinter: reference/capabilities/fingerprinter.md
     - Security:
       - Key Vault: reference/security/vault.md
       - Capability Set: reference/security/capabilities.md
