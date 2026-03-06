@@ -187,6 +187,16 @@ nav:
       - reference/engine/content-prediction.md
       - reference/engine/context-summarizer.md
       - reference/engine/semantic-scorer.md
+      - reference/engine/context-pin.md
+      - reference/engine/readiness.md
+      - reference/engine/bias-detector.md
+      - reference/engine/degradation.md
+    - Observability:
+      - reference/observability/span-tracker.md
+      - reference/observability/metrics.md
+      - reference/observability/tracer.md
+      - reference/observability/audit-stream.md
+      - reference/observability/cost-predictor.md
     - Enterprise:
       - reference/enterprise/config.md
       - reference/enterprise/licensing.md

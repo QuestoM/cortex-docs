@@ -4,6 +4,29 @@ All notable changes to corteX are documented here.
 
 ---
 
+## v3.1.0-alpha (2026-03-06)
+
+### Production Hardening (5 new features)
+
+- **Context Pinning** - Reinforces critical instructions at the end of the context window to resist LLM recency-bias drift in long conversations (20+ turns). Integrated into ContextWindowPacker.
+- **Production Readiness Score** - Automated 0-100 scoring across 6 categories (reliability, observability, safety, performance, resilience, compliance) with letter grades and actionable recommendations.
+- **Graceful Degradation Chain** - 5-level fallback from full capability through reduced tools, cached knowledge, templates, to honest failure. Agents never crash silently.
+- **Span-Level Usage Metrics** - Heuristic-based analysis of which context spans the LLM actually referenced. Tracks utilization ratio and wasted tokens per turn without extra LLM calls.
+- **Pre-training Bias Override** - Detects when LLM training-data defaults override explicit instructions (format, length, style, factual grounding). Returns confidence-scored compliance reports.
+
+### Code Quality
+
+- Zero source files exceed 300-line limit (was 45/298). 153 split files created with re-export shims for backwards compatibility.
+- Em dash cleanup across entire codebase (2,528 replacements).
+- 11,491+ tests passing across Python 3.10/3.11/3.12/3.13.
+
+### Interop
+
+- **Anthropic/Claude** provider added (4th LLM provider).
+- **MCP** + **A2A** interop protocols.
+
+---
+
 ## v3.0.0-alpha
 
 *Initial release.*
