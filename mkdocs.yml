@@ -138,6 +138,12 @@ nav:
       - guides/advanced/weight-persistence.md
       - guides/advanced/observability.md
       - Memory Management: guides/advanced/memory-management.md
+    - Production Hardening:
+      - Context Pinning: guides/advanced/context-pinning.md
+      - Readiness Check: guides/advanced/readiness-check.md
+      - Graceful Degradation: guides/advanced/graceful-degradation.md
+      - Bias Detection: guides/advanced/bias-detection.md
+      - Span Tracking: guides/advanced/span-tracking.md
 
   - Enterprise:
     - enterprise/index.md
