@@ -48,8 +48,8 @@ Agent(
 | `enterprise_config` | `Optional[EnterpriseConfig]` | `None` | Enterprise settings (safety, audit, compliance). |
 | `context_config` | `Optional[ContextManagementConfig]` | `None` | Cortical Context Engine configuration (token budgets, profiles). |
 | `enable_session_recording` | `bool` | `False` | Enable digital twin session recording for replay and what-if. |
-| `mcp_servers` | `Optional[List]` | `None` | List of MCP (Model Context Protocol) server configurations for external tool integration. Each entry is an `MCPServerConfig` specifying the server endpoint and capabilities. |
-| `a2a_agents` | `Optional[List]` | `None` | List of A2A (Agent-to-Agent) agent configurations for inter-agent communication. Each entry is an `A2AAgentConfig` specifying the remote agent endpoint and protocol. |
+| `mcp_servers` | `Optional[List]` | `None` | List of `MCPServerConfig` objects for MCP server connections. Requires `pip install cortex-ai[mcp]`. |
+| `a2a_agents` | `Optional[List]` | `None` | List of `A2AAgentConfig` objects for A2A agent delegation. Requires `pip install cortex-ai[a2a]`. |
 
 ---
 

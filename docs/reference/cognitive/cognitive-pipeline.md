@@ -92,6 +92,25 @@ Record of context state at a decision point.
 
 ---
 
+### `DEFAULT_ZONE_BUDGETS`
+
+**Type**: `Dict[str, float]` (module-level constant)
+
+Default fractional zone budgets used by `CognitiveContextPipeline` when no custom `zone_budgets` are provided. Importable for programmatic access or modification.
+
+```python
+from corteX.engine.cognitive.cognitive_context import DEFAULT_ZONE_BUDGETS
+
+DEFAULT_ZONE_BUDGETS = {
+    "system": 0.12,
+    "persistent": 0.08,
+    "working": 0.40,
+    "recent": 0.40,
+}
+```
+
+---
+
 ### `CognitiveContextPipeline`
 
 Unified 8-phase cognitive context compilation pipeline.
@@ -111,7 +130,15 @@ CognitiveContextPipeline(
 **Parameters**:
 
 - `max_context_tokens` (int, default=128,000): Maximum total tokens for assembled context.
-- `zone_budgets` (`Optional[Dict[str, float]]`): Fractional budgets per zone. Defaults to `DEFAULT_ZONE_BUDGETS` (see [Constants](#constants) below).
+- `zone_budgets` (`Optional[Dict[str, float]]`): Fractional budgets per zone. Defaults to:
+
+| Zone | Budget Fraction | Purpose |
+|------|----------------|---------|
+| `system` | 0.12 | System prompt |
+| `persistent` | 0.08 | Goal, brain state, externalized state |
+| `working` | 0.40 | Working context items |
+| `recent` | 0.40 | Recent conversation + goal reminder |
+
 - `quality_engine` (`Optional[ContextQualityEngine]`): Custom quality engine. Auto-created if not provided.
 - `state_manager` (`Optional[StateFileManager]`): State file manager for persistent context.
 - `enable_adaptive_zones` (bool, default=True): Whether to adapt zone budgets dynamically.
@@ -233,30 +260,6 @@ await pipeline.record_outcome(
     success=True,
 )
 ```
-
----
-
-## Constants
-
-### `DEFAULT_ZONE_BUDGETS`
-
-```python
-DEFAULT_ZONE_BUDGETS: Dict[str, float] = {
-    "system": 0.12,
-    "persistent": 0.08,
-    "working": 0.40,
-    "recent": 0.40,
-}
-```
-
-Module-level constant defining the default fractional token budgets per context zone. Used when no custom `zone_budgets` are provided to the pipeline constructor. The fractions must sum to 1.0.
-
-| Zone | Budget Fraction | Purpose |
-|------|----------------|---------|
-| `system` | 0.12 | System prompt |
-| `persistent` | 0.08 | Goal, brain state, externalized state |
-| `working` | 0.40 | Working context items |
-| `recent` | 0.40 | Recent conversation + goal reminder |
 
 ---
 

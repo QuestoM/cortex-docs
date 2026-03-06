@@ -547,9 +547,12 @@ Factory function to create a NeuroLlamaModel from a preset name or a NeuroLlamaC
 
 | Preset | Layers | Hidden | Heads | KV Heads | FFN | Exit Layers |
 |--------|--------|--------|-------|----------|-----|-------------|
-| `"8B"` | 32 | 4096 | 32 | 8 | 14336 | [8, 16, 24] |
-| `"70B"` | 80 | 8192 | 64 | 8 | 28672 | [20, 40, 60] |
+| `"8B"` | 32 | 4096 | 32 | 8 | 14336 | [8, 16, 24] (default) |
+| `"70B"` | 80 | 8192 | 64 | 8 | 28672 | [8, 16, 24] (default) |
 | `"405B"` | 126 | 16384 | 128 | 16 | 53248 | [32, 64, 96] |
+
+!!! note "Exit layers in presets"
+    Only the 405B preset explicitly sets `exit_layers`. The 8B and 70B presets inherit the `NeuroLlamaConfig` dataclass default of `[8, 16, 24]`. To set custom exit layers for 70B (e.g., at 25/50/75% of 80 layers), use `from_llama_config()` or pass a custom `NeuroLlamaConfig`.
 
 ---
 
@@ -640,7 +643,7 @@ history = loss_fn.get_loss_history()
 - Weight initialization uses Xavier/He uniform for stable training
 - Softmax implementations are numerically stable (max-subtraction)
 - Sigmoid implementations are clipped to prevent overflow
-- Early exit confidence uses GELU approximation (no scipy dependency)
+- Early exit confidence uses softmax max probability (no scipy dependency)
 - Factory presets match Llama 3.1 architecture specifications
 
 ---
@@ -648,6 +651,6 @@ history = loss_fn.get_loss_history()
 ## See Also
 
 - [Inference Hooks API](../engine/inference-hooks.md) -- Inference-time hooks for existing models (Layer 2)
-- [Brain State Injector API](../engine/brain-state-injector.md) -- Brain state compilation for LLM prompts
+- [Inference Hooks API](../engine/inference-hooks.md) -- Brain state compilation for LLM prompts
 - [Calibration API](../engine/calibration.md) -- System-level calibration connecting to model confidence
 - [Prediction Engine API](../engine/prediction.md) -- Agent-level prediction and surprise

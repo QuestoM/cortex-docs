@@ -111,7 +111,7 @@ Estimate total steps needed to complete. Returns `None` if velocity is near zero
 def get_stats(self) -> Dict[str, Any]
 ```
 
-Get estimator statistics. Returns dict with keys: `total_steps`, `total_tokens`, `current_progress`, `velocity`, `acceleration`, `trend`, `history_size`.
+Get estimator statistics. Returns `Dict` with `total_steps`, `total_tokens`, `current_progress`, `velocity`, `acceleration`, `trend`, `history_size`.
 
 ##### `reset`
 

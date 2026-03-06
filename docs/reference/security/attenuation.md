@@ -106,7 +106,7 @@ Compute a composite risk score from multiple factors.
 | Tool type risk | 0.35 | Inherent risk of the tool |
 | Data level risk | 0.25 | Classification of data involved |
 | Confidence risk | 0.20 | `1.0 - confidence` |
-| Drift risk | 0.20 | Goal drift contribution |
+| Drift risk | 0.20 | Goal drift contribution (non-linear: <0.2 returns 0.0, 0.2-0.5 returns drift*0.5, >=0.5 returns min(1.0, drift*1.2)) |
 
 ##### `get_risk_thresholds`
 

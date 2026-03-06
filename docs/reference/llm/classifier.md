@@ -158,12 +158,19 @@ The classifier uses six weighted signals to compute complexity:
 
 ## Keyword Lexicons
 
-The classifier maintains frozen sets of keywords for each cognitive type. Each set contains 11-26 keywords ordered by specificity:
+The classifier maintains 9 frozen sets of keywords for each cognitive type. Each set contains 11-26 keywords, ordered by specificity in `_TYPE_LEXICONS` (most specific first):
 
-- `_CODING_KW`: 26 keywords (code, implement, function, class, debug, python, etc.)
-- `_PLANNING_KW`: 17 keywords (plan, strategy, design, architect, roadmap, etc.)
-- `_REASONING_KW`: 19 keywords (reason, analyze, why, explain, logic, etc.)
-- `_CREATIVE_KW`: 18 keywords (write, story, brainstorm, compose, etc.)
+| Lexicon | Count | Example Keywords |
+|---------|-------|-----------------|
+| `_CODING_KW` | 26 | code, implement, function, class, debug, python, javascript, etc. |
+| `_PLANNING_KW` | 17 | plan, strategy, design, architect, roadmap, decompose, etc. |
+| `_SUMMARIZATION_KW` | 12 | summarize, summary, tldr, brief, condense, digest, etc. |
+| `_VALIDATION_KW` | 12 | check, validate, review, verify, correct, audit, etc. |
+| `_CLASSIFICATION_KW` | 11 | classify, categorize, label, tag, sort, group, etc. |
+| `_DECISION_KW` | 14 | decide, choose, select, pick, recommend, best, optimal, etc. |
+| `_CREATIVE_KW` | 18 | creative, write, story, poem, brainstorm, compose, etc. |
+| `_FACTUAL_KW` | 17 | what, who, when, where, define, fact, lookup, etc. |
+| `_REASONING_KW` | 19 | reason, analyze, why, explain, logic, deduce, infer, etc. |
 
 Type scoring: `hits / lexicon_size`, with the highest-scoring type selected.
 
@@ -172,4 +179,4 @@ Type scoring: `hits / lexicon_size`, with the highest-scoring type selected.
 ## See Also
 
 - [LLM Router API](./router.md) - Uses classifier for routing decisions
-- [Intelligent Model Routing Concept](../../concepts/model-routing.md)
+- [Intelligent Model Routing Concept](../../concepts/llm-routing.md)

@@ -52,13 +52,21 @@ Configuration for registering a single LLM provider with the router.
 
 #### Attributes
 
-| Attribute | Type | Description |
-|-----------|------|-------------|
-| `provider_type` | `ProviderType` | Provider type enum (OPENAI, GEMINI, ANTHROPIC, LOCAL) |
-| `api_key` | `str` | API key for authentication |
-| `base_url` | `Optional[str]` | Custom API endpoint (for local/proxy setups) |
-| `default_model` | `Optional[str]` | Default model ID for this provider |
-| `organization` | `Optional[str]` | Organization ID (OpenAI only) |
+| Attribute | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `provider_type` | `ProviderType` | -- | Provider type enum (OPENAI, GEMINI, ANTHROPIC, LOCAL) |
+| `api_key` | `str` | -- | API key for authentication |
+| `base_url` | `Optional[str]` | `None` | Custom API endpoint (for local/proxy setups) |
+| `default_model` | `Optional[str]` | `None` | Default model ID for this provider |
+| `organization` | `Optional[str]` | `None` | Organization ID (OpenAI only) |
+| `model_name` | `Optional[str]` | `None` | Custom model name for LOCAL provider |
+| `vertex_ai` | `bool` | `False` | Use Vertex AI instead of API key (Gemini/Anthropic) |
+| `gcp_project` | `Optional[str]` | `None` | Vertex AI: GCP project ID |
+| `gcp_location` | `Optional[str]` | `None` | Vertex AI: GCP region |
+| `bedrock` | `bool` | `False` | Use Amazon Bedrock (Anthropic only) |
+| `aws_region` | `Optional[str]` | `None` | Bedrock: AWS region (e.g., `"us-west-2"`) |
+| `azure_endpoint` | `Optional[str]` | `None` | Azure OpenAI: resource endpoint URL |
+| `api_version` | `Optional[str]` | `None` | Azure OpenAI: API version string |
 
 ---
 
@@ -86,7 +94,7 @@ LLMRouter(
 - `default_rpm` (int, default=60): Default requests-per-minute limit per provider
 - `model_registry` (`Optional[ModelRegistry]`): External YAML model registry for role mappings and cost estimation
 - `cost_tracker` (`Optional[CostTracker]`): Cost tracker instance for budget enforcement
-- `data_classification_enabled` (bool, default=True): Enable data classification enforcement to block sensitive data from being sent to cloud models
+- `data_classification_enabled` (bool, default=True): Enable pre-call data classification enforcement. Requires the `corteX.security.classification` module to be available; if the module is not installed, classification is silently disabled regardless of this flag
 
 #### Properties
 
@@ -97,7 +105,9 @@ LLMRouter(
 | `cost_tracker` | `CostTracker` | Access the cost tracker |
 | `data_classification_enabled` | `bool` | Whether data classification enforcement is active |
 | `pii_protection_enabled` | `bool` | Whether PII tokenization is active |
-| `pii_tokenizer` | `PIITokenizer` | Access the PII tokenizer instance |
+| `pii_tokenizer` | `Optional[PIITokenizer]` | Access the PII tokenizer instance (`None` if enterprise security module is not installed) |
+| `health_monitor` | `Optional[Any]` | Access the health monitor (if configured via `set_health_monitor()`) |
+| `enterprise_config` | `Optional[Any]` | Access the enterprise configuration (if configured via `set_enterprise_config()`) |
 
 #### Methods
 
@@ -173,21 +183,13 @@ def get_role_model(self, role: str) -> Optional[str]
 
 Get the default model for a role. Returns `None` if not configured.
 
-##### `set_session_context`
-
-```python
-def set_session_context(self, session_id: str, tenant_id: Optional[str] = None) -> None
-```
-
-Set session and tenant context for cost tracking and budget enforcement.
-
 ##### `set_orchestrator_model`
 
 ```python
 def set_orchestrator_model(self, model: str) -> None
 ```
 
-Set the smartest model for orchestration tasks. This is a convenience shortcut for `set_role_model("orchestrator", model)`.
+Set the default model for orchestration tasks (the smartest model).
 
 ##### `get_orchestrator_model`
 
@@ -203,7 +205,7 @@ Get the current default orchestrator model name. Returns `None` if not configure
 def set_worker_model(self, model: str) -> None
 ```
 
-Set the fastest model for worker/background tasks. This is a convenience shortcut for `set_role_model("worker", model)`.
+Set the default model for worker/background tasks (the fastest model).
 
 ##### `get_worker_model`
 
@@ -213,19 +215,21 @@ def get_worker_model(self) -> Optional[str]
 
 Get the current default worker model name. Returns `None` if not configured.
 
+##### `set_session_context`
+
+```python
+def set_session_context(self, session_id: str, tenant_id: Optional[str] = None) -> None
+```
+
+Set session and tenant context for cost tracking and budget enforcement.
+
 ##### `set_data_classification_enabled`
 
 ```python
 def set_data_classification_enabled(self, enabled: bool) -> None
 ```
 
-Enable or disable pre-call data classification enforcement. When enabled, the router classifies message content before each LLM call and blocks requests if the data sensitivity level (e.g., CONFIDENTIAL, RESTRICTED) is too high for the target model's deployment type (e.g., cloud).
-
-**Example**:
-
-```python
-router.set_data_classification_enabled(False)  # Disable for local-only deployments
-```
+Enable or disable pre-call data classification enforcement. When enabled, message content is classified before each LLM call, and requests with sensitive data (e.g., CONFIDENTIAL, RESTRICTED) are blocked from being sent to cloud models.
 
 ##### `set_pii_protection_enabled`
 
@@ -233,15 +237,23 @@ router.set_data_classification_enabled(False)  # Disable for local-only deployme
 def set_pii_protection_enabled(self, enabled: bool) -> None
 ```
 
-Enable or disable PII tokenization before LLM calls. When enabled, personally identifiable information (emails, phone numbers, etc.) in messages is replaced with opaque tokens before being sent to the LLM, and restored in the response. Requires a tenant context to be set via `set_session_context()`.
+Enable or disable PII tokenization before LLM calls. When enabled, personally identifiable information is redacted from messages before sending to the LLM, and restored in the response.
 
-**Example**:
+##### `set_health_monitor`
 
 ```python
-router.set_pii_protection_enabled(True)
-router.set_session_context("session-1", tenant_id="acme-corp")
-# PII in messages will now be tokenized before LLM calls
+def set_health_monitor(self, monitor: Any) -> None
 ```
+
+Attach a `ProviderHealthMonitor` for health-aware routing. When configured, the router uses success rate metrics to add health bonuses/penalties to model scoring.
+
+##### `set_enterprise_config`
+
+```python
+def set_enterprise_config(self, config: Any) -> None
+```
+
+Set enterprise configuration to enforce `allowed_models` filtering. When set, only models listed in `config.allowed_models` are considered during routing.
 
 ##### `generate`
 
@@ -379,7 +391,7 @@ Claude-specific temperature defaults. Extended thinking forces `1.0` regardless.
 The router selects models using this scoring formula:
 
 ```
-final_score = weight_score + speed_bonus - failure_penalty + latency_bonus
+final_score = weight_score + speed_bonus - failure_penalty + latency_bonus + health_bonus - capability_penalty
 ```
 
 Where:
@@ -387,6 +399,10 @@ Where:
 - `speed_bonus`: +0.3 for fast tier when `prefer_speed=True`, -0.3 for slow tier
 - `failure_penalty`: `min(failures * 0.15, 0.6)` based on recent failure count
 - `latency_bonus`: +0.1 for avg latency < 1s, -0.1 for avg > 5s
+- `health_bonus`: +0.2 if provider success rate > 95%, -0.2 if < 80% (requires `ProviderHealthMonitor`)
+- `capability_penalty`: +0.3 per missing required capability (e.g., thinking, tool_calling)
+
+The final score is clamped to [0.0, 1.0].
 
 ---
 

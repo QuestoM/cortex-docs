@@ -520,4 +520,4 @@ Fallback truncation when summarization is rate-limited. Concatenates entries (ea
 - [Cortical Context Engine API](./context.md) -- The CCE that uses this module for context compression
 - [Semantic Scorer API](./semantic-scorer.md) -- TF-IDF scoring used alongside summarization
 - [Content Prediction API](./content-prediction.md) -- Related prompt-builder pattern for prediction
-- [Brain State Injector API](./brain-state-injector.md) -- Another prompt compilation module
+- [Inference Hooks API](./inference-hooks.md) -- Brain state injection and prompt compilation

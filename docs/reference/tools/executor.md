@@ -2,7 +2,7 @@
 
 ## Module: `corteX.tools.executor`
 
-Safe tool execution engine with timeout enforcement, error wrapping, and latency tracking. Integration hooks for the Weight Engine and Prediction system are defined in the class but not yet wired (planned for a future release).
+Safe tool execution engine with timeout enforcement, error wrapping, and latency tracking.
 
 **Security principle**: Only tools explicitly registered by the developer can be executed. The agent never discovers or calls tools on its own initiative. This is enforced at the executor level.
 
@@ -18,7 +18,7 @@ Safe tool execution engine with timeout enforcement, error wrapping, and latency
 
 ### `ToolExecutionResult`
 
-Result of a tool execution.
+Result of a tool execution. This is a plain class with an explicit `__init__` (not a dataclass).
 
 #### Constructor
 
@@ -56,7 +56,7 @@ Serialize to dict. Output is truncated to 2000 characters for context window man
 
 ### `ToolExecutor`
 
-Executes tools safely with timeout enforcement, error wrapping, and latency tracking.
+Executes registered tools safely with timeout enforcement, error wrapping, and latency tracking. Only developer-registered tools can be executed - the agent never discovers or calls tools on its own.
 
 #### Constructor
 

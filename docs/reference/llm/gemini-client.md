@@ -16,13 +16,24 @@ Gemini provider adapter using the `google-genai` SDK. Supports Gemini 3 (latest,
 GeminiAdapter(
     api_key: Optional[str] = None,
     default_model: str = "gemini-3-pro-preview",
+    vertex_ai: bool = False,
+    gcp_project: Optional[str] = None,
+    gcp_location: Optional[str] = None,
 )
 ```
 
 **Parameters**:
 
-- `api_key` (`Optional[str]`): Gemini API key. Falls back to `GEMINI_API_KEY` environment variable if not provided (with a warning logged)
+- `api_key` (`Optional[str]`): Gemini API key. Falls back to `GEMINI_API_KEY` environment variable if not provided (with a warning logged). Not needed in Vertex AI mode
 - `default_model` (str, default=`"gemini-3-pro-preview"`): Default model for generation calls
+- `vertex_ai` (bool, default=`False`): Use Vertex AI with Application Default Credentials (ADC) instead of API key
+- `gcp_project` (`Optional[str]`): GCP project ID (required when `vertex_ai=True`)
+- `gcp_location` (`Optional[str]`): GCP region (default `"us-central1"` when `vertex_ai=True`)
+
+**Authentication Modes**:
+
+- **API Key mode** (default): `GeminiAdapter(api_key="AIza...")`
+- **Vertex AI mode** (enterprise): `GeminiAdapter(vertex_ai=True, gcp_project="my-project", gcp_location="us-central1")`. Uses Application Default Credentials (ADC) - run `gcloud auth application-default login` or set `GOOGLE_APPLICATION_CREDENTIALS`
 
 #### Registered Models
 
@@ -114,7 +125,7 @@ async def generate_stream(
 ) -> AsyncIterator[StreamChunk]
 ```
 
-Stream response chunks. The Gemini SDK returns a synchronous iterator, so the adapter wraps each `__next__()` call with `asyncio.to_thread()` to avoid blocking the event loop.
+Stream response chunks. The Gemini SDK returns a synchronous iterator, so the adapter wraps each `__next__()` call with `asyncio.to_thread()` to avoid blocking the event loop. A module-level `_SENTINEL` object is used as the default value for `next()` to detect iterator exhaustion without catching `StopIteration` across async boundaries.
 
 Gemini streams function calls as complete parts (not incrementally like OpenAI), so each `StreamChunk` with `tool_call_delta` contains the full function name and arguments.
 
@@ -166,6 +177,14 @@ The module maps Gemini SDK exceptions to the corteX error hierarchy via `_classi
 ---
 
 ## Helper Functions
+
+### `_extract_system_messages`
+
+```python
+def _extract_system_messages(messages: List[LLMMessage]) -> str
+```
+
+Extract and concatenate all system messages from the message list. Returns a single string with all system message contents joined by double newlines. Used internally by `_build_system_instruction` to prevent system messages from being silently dropped during Gemini message conversion.
 
 ### `_build_system_instruction`
 

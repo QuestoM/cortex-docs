@@ -30,9 +30,7 @@ User message
     |
 [6] Tool filtering (reputation + modulation)
     |
-[6b] Context compilation (4-zone) + memory injection
-    |
-[7] LLM generation (full brain params on all calls)
+[7] LLM generation
     |
 [8] Tool execution loop (up to 5 rounds)
     |
@@ -103,17 +101,13 @@ The `DualProcessRouter` decides between System 1 (fast/worker model) and System 
 
 Quarantined tools (those that have failed repeatedly) are removed from the available tool set. The `TargetedModulator` can additionally force-activate or silence specific tools.
 
-### Step 6b: Context compilation
-
-The `ContextCompiler` assembles the context window using its 4-zone architecture (System 12%, Persistent 8%, Working 40%, Recent 40%). This step runs in **both chat and agentic modes**, ensuring KV-cache-aware context assembly, goal placement at both extremes, and automatic compaction regardless of execution path. Relevant memories from the `MemoryFabric` (working, episodic, and semantic) are injected into the context at this stage.
-
 ### Step 7: LLM generation
 
-The `LLMRouter` sends the compiled context to the selected model. Role selection combines signals from attention priority, dual-process routing, resource allocation, column recommendation, and concept graph suggestions. All LLM calls (initial, tool follow-up, retry, and sub-agent) receive the full 7-parameter brain state bundle (surprise, ECE, population confidence, column mode, attention priority, resource tier, concept recommendations).
+The `LLMRouter` sends the conversation history to the selected model. Role selection combines signals from attention priority, dual-process routing, resource allocation, column recommendation, and concept graph suggestions.
 
 ### Step 8: Tool execution
 
-If the LLM returns tool calls, each is executed through the `ToolExecutor`. Results are fed back into the LLM for up to 5 rounds. This tool execution loop operates in all three execution modes: `run()`, `run_agentic()`, and `run_stream()`. Every tool call is recorded in:
+If the LLM returns tool calls, each is executed through the `ToolExecutor`. Results are fed back into the LLM for up to 5 rounds. Every tool call is recorded in:
 
 - `WeightEngine` (Bayesian success tracking)
 - `ReputationSystem` (trust scoring)
@@ -169,7 +163,7 @@ engine = cortex.Engine(
         "gemini": {"api_key": "AIza..."},
     },
     orchestrator_model="gpt-4o",
-    worker_model="gemini-3-flash-preview",
+    worker_model="gemini-2.0-flash",
 )
 ```
 
@@ -200,61 +194,3 @@ corteX has three learning loops operating at different timescales:
 | **Cross-session** | Hours/days | Memory consolidation moves important patterns to long-term storage. Map reorganization redistributes territory. |
 
 Each loop feeds into the next. A tool that fails within a turn reduces its reputation. Repeated failures across turns trigger quarantine. Cross-session consolidation can permanently reassign a tool's territory to a more reliable alternative.
-
----
-
-## Wave 1 Enhancements (2026)
-
-corteX Wave 1 introduced four major subsystems that enhance the agent's ability to maintain context, stay goal-aligned, route intelligently, and avoid drift across ultra-long workflows:
-
-### Cognitive Context System
-
-Three modules work together to preserve context quality across unlimited compaction cycles:
-
-- **StateFileManager**: Externalizes state into 3 layers (crystallized/fluid/insights) that survive all compressions
-- **ContextQualityEngine**: 6-dimensional quality scoring (goal retention, information density, entanglement, temporal coherence, decision preservation, anti-hallucination)
-- **CognitiveContextPipeline**: Unified 8-phase pipeline (score → resolve → entangle → optimize → assemble → quality gate → prefetch → version)
-
-See [Cognitive Context Pipeline](cognitive-context.md) for details.
-
-### Goal Intelligence System
-
-Three modules ensure agents stay aligned with objectives:
-
-- **GoalDNA**: O(1) drift detection using token-set fingerprinting (no LLM calls needed)
-- **GoalReminderInjector**: Adaptive reminders that evolve from verbose (turns 1-5) to compact (6-15) to ultra-compact (16+)
-- **GoalTree**: Hierarchical goal decomposition with weighted progress, stuck detection, and dependency tracking
-
-See [Goal Intelligence](goal-intelligence.md) for details.
-
-### Intelligent Model Routing
-
-Three modules optimize model selection:
-
-- **ModelRegistry**: External YAML-based model catalog with 8 roles, hot-reload, and tenant overrides
-- **CognitiveClassifier**: Zero-LLM heuristic task classification (10 types × 5 tiers, <1ms latency)
-- **CostTracker**: Real-time cost tracking with budget enforcement and anomaly detection
-
-See [Intelligent Model Routing](model-routing.md) for details.
-
-### Anti-Drift System
-
-Three modules prevent loops and wasted resources:
-
-- **MultiResolutionLoopDetector**: 4 parallel detectors (exact hash, semantic Jaccard, oscillation, dead-end)
-- **DriftEngine**: 5-signal drift scoring with 4 graduated responses (nudge → replan → checkpoint → stop)
-- **AdaptiveBudget**: Dynamic step/token budgets that expand/contract based on velocity
-
-See [Anti-Drift System](anti-drift.md) for details.
-
-### Enterprise Isolation Enhancements
-
-Five critical fixes ensure complete tenant isolation:
-
-- **TenantContext**: Python contextvars for automatic async tenant propagation
-- **EventBus**: Instance-level subscribers (was class-level, leaked across tenants)
-- **ContextBroker**: Lazy initialization + deprecation (was eager global singleton)
-- **ToolRegistry**: Per-session tool registry (was global)
-- **API Keys**: Explicit configuration required (no env fallback in multi-tenant mode)
-
-See [Multi-Tenant Setup](../enterprise/multi-tenant.md) for details.

@@ -236,16 +236,7 @@ Get aggregated cost summary for a session.
 def get_tenant_summary(self, tenant_id: str) -> CostSummary
 ```
 
-Get aggregated cost summary for a tenant. Returns a `CostSummary` with total cost, token counts, call count, and breakdowns by model and provider across all sessions for the given tenant.
-
-**Example**:
-
-```python
-summary = tracker.get_tenant_summary("acme-corp")
-print(f"Tenant total: ${summary.total_cost_usd:.4f}")
-print(f"Calls: {summary.call_count}")
-print(f"By model: {summary.cost_by_model}")
-```
+Get aggregated cost summary for a tenant (all sessions, all time). Returns a `CostSummary` with total cost, token counts, call count, and breakdowns by model and provider.
 
 ##### `get_all_records`
 
@@ -253,24 +244,7 @@ print(f"By model: {summary.cost_by_model}")
 def get_all_records(self, session_id: Optional[str] = None) -> List[CostRecord]
 ```
 
-Get all cost records, optionally filtered by session. Returns a copy of the internal records list.
-
-**Parameters**:
-
-- `session_id` (`Optional[str]`): If provided, returns only records for that session. If `None`, returns all records.
-
-**Returns**: `List[CostRecord]`
-
-**Example**:
-
-```python
-# Get all records
-all_records = tracker.get_all_records()
-
-# Get records for a specific session
-session_records = tracker.get_all_records(session_id="session-1")
-print(f"Session has {len(session_records)} LLM calls")
-```
+Get all cost records. If `session_id` is provided, returns only records for that session. Otherwise returns all records.
 
 ##### `get_anomalies`
 

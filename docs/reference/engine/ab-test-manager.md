@@ -85,7 +85,7 @@ ABTestManager(significance_level: float = 0.05)
 
 **Parameters**:
 
-- `significance_level` (float): P-value threshold for significance. Clamped to [0.001, 0.5]. Default: 0.05
+- `significance_level` (float): P-value threshold for significance. Default: 0.05
 
 #### Methods
 
@@ -100,14 +100,6 @@ def create_test(
 ```
 
 Create a new A/B test. Traffic split is clamped to [0.1, 0.9].
-
-##### `should_use_test`
-
-```python
-def should_use_test(self, test_name: str, request_id: str) -> bool
-```
-
-Check if a request should participate in the test. Returns `True` if the test exists and is currently `ACTIVE`.
 
 ##### `get_variant`
 
@@ -133,21 +125,29 @@ def evaluate(self, test_name: str) -> ABTestResult
 
 Evaluate using Mann-Whitney U test on `quality_score`. Requires >= 5 samples per variant.
 
+##### `should_use_test`
+
+```python
+def should_use_test(test_name: str, request_id: str) -> bool
+```
+
+Check if a request should participate in the test. Returns `True` if the test exists and is active.
+
 ##### `get_active_tests`
 
 ```python
-def get_active_tests(self) -> List[ABTest]
+def get_active_tests() -> List[ABTest]
 ```
 
-Get all currently active A/B tests (status == `ACTIVE`).
+Get all currently active A/B tests.
 
 ##### `get_test`
 
 ```python
-def get_test(self, test_name: str) -> Optional[ABTest]
+def get_test(test_name: str) -> Optional[ABTest]
 ```
 
-Get a test by name. Returns `None` if the test does not exist.
+Retrieve a test by name. Returns `None` if not found.
 
 ##### `pause_test` / `cancel_test`
 
@@ -161,10 +161,10 @@ Pause or cancel a test. Returns `True` if status was changed.
 ##### `get_stats`
 
 ```python
-def get_stats(self) -> Dict[str, Any]
+def get_stats() -> Dict[str, Any]
 ```
 
-Get manager-level statistics. Returns `total_tests`, `active_tests`, and per-test details including `status`, `samples_a`, and `samples_b`.
+Get manager-level statistics. Returns `Dict` with `total_tests`, `active_tests`, and per-test `status`/`samples_a`/`samples_b`.
 
 ---
 
@@ -178,10 +178,6 @@ manager = ABTestManager(significance_level=0.05)
 # Create test
 manager.create_test("flash_vs_pro", "gemini-3-flash", "gemini-3-pro")
 
-# Check if test is active
-if manager.should_use_test("flash_vs_pro", "req-001"):
-    model = manager.get_variant("flash_vs_pro", "req-001")
-
 # Route requests
 for request_id in request_ids:
     model = manager.get_variant("flash_vs_pro", request_id)
@@ -190,26 +186,15 @@ for request_id in request_ids:
         quality_score=result.quality, latency_ms=result.latency,
     ))
 
-# List active tests
-active = manager.get_active_tests()
-print(f"Active tests: {[t.test_name for t in active]}")
-
-# Retrieve a specific test
-test = manager.get_test("flash_vs_pro")
-print(f"Test status: {test.status.value}")
-
 # Evaluate
 result = manager.evaluate("flash_vs_pro")
 if result.significant:
     print(f"Winner: {result.winner} (p={result.p_value:.4f})")
-
-# Manager stats
-print(manager.get_stats())
 ```
 
 ---
 
 ## See Also
 
-- [Model Routing Concept](../../concepts/model-routing.md)
+- [Model Routing Concept](../../concepts/llm-routing.md)
 - [Provider Health Monitor API](./provider-health.md)

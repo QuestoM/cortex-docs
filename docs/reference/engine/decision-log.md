@@ -53,25 +53,23 @@ A single recorded decision point.
 
 #### Attributes
 
-| Attribute | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `step_number` | `int` | *(required)* | Step at which decision was made |
-| `decision_type` | `DecisionType` | *(required)* | Category of decision |
-| `description` | `str` | *(required)* | What was being decided |
-| `chosen` | `str` | *(required)* | The chosen alternative |
-| `alternatives` | `List[str]` | `[]` | Other options that were considered |
-| `reasoning` | `str` | `""` | Why this choice was made |
-| `confidence` | `float` | `0.5` | Decision confidence [0.0, 1.0] |
-| `outcome` | `OutcomeRating` | `OutcomeRating.UNKNOWN` | Post-hoc outcome evaluation |
-| `outcome_detail` | `str` | `""` | Detail about the outcome |
-| `latency_ms` | `float` | `0.0` | Decision latency |
-| `cost_tokens` | `int` | `0` | Tokens consumed by this decision |
-| `model_used` | `str` | `""` | Model that made the decision |
-| `brain_signals` | `Dict[str, float]` | `{}` | Brain signals at decision time |
-| `timestamp` | `float` | `time.time()` | Unix timestamp. Auto-set on creation. |
-| `tags` | `List[str]` | `[]` | Arbitrary tags for filtering |
-
-Only `step_number`, `decision_type`, `description`, and `chosen` are required. All other fields have sensible defaults and can be omitted when creating entries.
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `step_number` | `int` | Step at which decision was made |
+| `decision_type` | `DecisionType` | Category of decision |
+| `description` | `str` | What was being decided |
+| `chosen` | `str` | The chosen alternative |
+| `alternatives` | `List[str]` | Other options that were considered |
+| `reasoning` | `str` | Why this choice was made |
+| `confidence` | `float` | Decision confidence [0.0, 1.0] (default: 0.5) |
+| `outcome` | `OutcomeRating` | Post-hoc outcome evaluation |
+| `outcome_detail` | `str` | Detail about the outcome |
+| `latency_ms` | `float` | Decision latency |
+| `cost_tokens` | `int` | Tokens consumed by this decision |
+| `model_used` | `str` | Model that made the decision |
+| `brain_signals` | `Dict[str, float]` | Brain signals at decision time |
+| `timestamp` | `float` | Unix timestamp |
+| `tags` | `List[str]` | Arbitrary tags for filtering |
 
 ---
 
@@ -87,20 +85,7 @@ DecisionLog(max_size: int = 1000)
 
 **Parameters**:
 
-- `max_size` (int): Maximum log entries. Oldest entries are evicted when full. Minimum: 50. Default: 1000
-
-#### Properties
-
-##### `size -> int`
-
-Number of entries currently in the log.
-
-```python
-log = DecisionLog()
-print(log.size)  # 0
-log.record(entry)
-print(log.size)  # 1
-```
+- `max_size` (int): Maximum log entries. Oldest entries are evicted when full. Default: 1000
 
 #### Methods
 
@@ -120,14 +105,6 @@ def update_outcome(self, index: int, outcome: OutcomeRating, detail: str = "") -
 
 Update the outcome of a previously recorded decision. Returns `True` if updated successfully.
 
-##### `get_entry`
-
-```python
-def get_entry(self, index: int) -> Optional[DecisionEntry]
-```
-
-Get a single entry by index. Returns `None` if the index is out of range.
-
 ##### `get_history`
 
 ```python
@@ -143,14 +120,6 @@ def get_by_type(self, decision_type: DecisionType) -> List[DecisionEntry]
 ```
 
 Get all entries of a specific decision type.
-
-##### `get_by_step`
-
-```python
-def get_by_step(self, step_number: int) -> List[DecisionEntry]
-```
-
-Get all decisions made at a specific step number. Useful for understanding all branch points at a particular execution step.
 
 ##### `get_regrets`
 
@@ -176,6 +145,39 @@ def analyze_patterns(self) -> Dict[str, Any]
 
 Analyze decision patterns across the log. Returns `Dict` with `total_decisions`, `rated_decisions`, `overall_success_rate`, `regret_count`, `calibration_failure_count`, `per_type` stats, `top_choices`, and `avg_confidence`.
 
+##### `get_entry`
+
+```python
+def get_entry(index: int) -> Optional[DecisionEntry]
+```
+
+Get a single entry by index. Returns `None` if index is out of range.
+
+##### `get_by_step`
+
+```python
+def get_by_step(step_number: int) -> List[DecisionEntry]
+```
+
+Get all decisions made at a specific step number.
+
+##### `size`
+
+```python
+@property
+def size(self) -> int
+```
+
+Number of entries currently in the log.
+
+##### `clear`
+
+```python
+def clear() -> None
+```
+
+Clear all entries from the log.
+
 ##### `export`
 
 ```python
@@ -183,14 +185,6 @@ def export(self, format: str = "json") -> str
 ```
 
 Export the decision log as a JSON string.
-
-##### `clear`
-
-```python
-def clear(self) -> None
-```
-
-Clear all entries from the log.
 
 ---
 
@@ -201,7 +195,7 @@ from corteX.engine.decision_log import DecisionLog, DecisionEntry, DecisionType,
 
 log = DecisionLog()
 
-# Record a decision (only required fields + reasoning)
+# Record a decision
 idx = log.record(DecisionEntry(
     step_number=1,
     decision_type=DecisionType.MODEL_SELECTION,
@@ -215,13 +209,6 @@ idx = log.record(DecisionEntry(
 # Later, record outcome
 log.update_outcome(idx, OutcomeRating.GOOD, "Code was correct")
 
-# Retrieve specific entries
-entry = log.get_entry(0)         # by index
-step_decisions = log.get_by_step(1)  # all decisions at step 1
-
-# Check log size
-print(f"Log contains {log.size} entries")
-
 # Analyze patterns
 patterns = log.analyze_patterns()
 print(f"Success rate: {patterns['overall_success_rate']:.0%}")
@@ -230,14 +217,11 @@ print(f"Success rate: {patterns['overall_success_rate']:.0%}")
 failures = log.get_high_confidence_failures()
 for f in failures:
     print(f"Overconfident: {f.description} (conf={f.confidence})")
-
-# Clear the log
-log.clear()
 ```
 
 ---
 
 ## See Also
 
-- [Observability Concept](../../concepts/observability.md)
+- [Architecture Concept](../../concepts/architecture.md)
 - [A/B Test Manager API](./ab-test-manager.md)

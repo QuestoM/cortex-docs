@@ -52,7 +52,7 @@ from corteX.engine.columns import FunctionalColumn
 | `activate` | `() -> None` | Set activation to 1.0, record timestamp, increment usage count. |
 | `record_outcome` | `(success: bool, quality: float = 1.0) -> None` | Update Bayesian competence posterior. Graded quality via probabilistic update. |
 | `record_coactivation` | `(other_id: str) -> None` | Track co-activation with another column (for merge detection). |
-| `get_coactivation_count` | `(other_id: str) -> int` | Get number of co-activations with another column. Returns 0 if none recorded. |
+| `get_coactivation_count` | `(other_id: str) -> int` | Get the number of co-activations with another column. |
 | `decay` | `(factor: float = 0.95) -> None` | Apply temporal decay to activation and (slowly) competence. |
 | `get_competence` | `() -> float` | Posterior mean of competence. |
 | `get_competence_uncertainty` | `() -> float` | Posterior standard deviation. |
@@ -94,9 +94,9 @@ ColumnCompetition(
 
 | Method | Signature | Description |
 |--------|-----------|-------------|
-| `compete` | `(columns, relevance_scores, available_tools) -> Optional[FunctionalColumn]` | Run competition. Returns winner or `None` (triggers recruitment). Score = relevance * Thompson_sample * activation_bonus * tool_fit. |
-| `lateral_inhibit` | `(column) -> None` | Suppress a losing column's activation. |
-| `get_activation_map` | `() -> Dict[str, float]` | Competition scores from the last round. |
+| `compete` | `(columns, relevance_scores, available_tools) -> Optional[FunctionalColumn]` | Run competition. Returns winner or `None` (triggers recruitment). Score = relevance * Thompson_sample * activation_bonus * tool_fit. Lateral inhibition is applied internally to losing columns. |
+
+Note: Lateral inhibition is applied inside `compete()` - losers have their activation multiplied by `(1 - inhibition_factor)`. The competition scores from the last round are stored internally in `_last_competition_scores`.
 
 ---
 

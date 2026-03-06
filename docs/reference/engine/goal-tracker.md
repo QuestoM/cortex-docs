@@ -118,14 +118,19 @@ Returns a summary dict with: `goal`, `progress`, `drift`, `steps_completed`, `st
 
 ### Recommended Actions
 
-The tracker recommends one of four actions based on current state:
+The tracker recommends one of four actions based on current state. Conditions are evaluated in precedence order - the first match wins:
 
-| Action | Condition |
-|--------|-----------|
-| `"replan"` | Loop detected, drift >= `0.6`, or stall >= 5 turns |
-| `"adjust"` | Drift >= `0.3` or alignment < `0.5` |
-| `"abort"` | Alignment < `0.3` (no loop/drift override) |
-| `"continue"` | Everything is on track |
+| Priority | Action | Condition |
+|----------|--------|-----------|
+| 1 | `"replan"` | Loop detected |
+| 2 | `"replan"` | Drift >= `0.6` (critical drift) |
+| 3 | `"replan"` | Stall >= 5 turns without progress |
+| 4 | `"adjust"` | Drift >= `0.3` (warning-level drift) |
+| 5 | `"abort"` | Alignment < `0.3` (too far off goal) |
+| 6 | `"adjust"` | Alignment < `0.5` (marginal alignment) |
+| 7 | `"continue"` | Everything is on track |
+
+Note: The `"abort"` action at priority 5 only fires if none of the higher-priority replan or adjust conditions were met first. Similarly, the alignment-based `"adjust"` at priority 6 only fires when alignment is between `0.3` and `0.5`.
 
 ### Example
 

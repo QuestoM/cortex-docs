@@ -216,5 +216,5 @@ print(f"Confidence: {result.confidence}, Strategy: {result.merge_strategy}")
 
 ## See Also
 
-- [Intelligent Model Routing Concept](../../concepts/model-routing.md)
+- [Intelligent Model Routing Concept](../../concepts/llm-routing.md)
 - [Dual-Process Routing](../../concepts/brain/dual-process.md)

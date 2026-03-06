@@ -169,10 +169,10 @@ Resolution methods for the three sources: timeout default, actual user input, an
 ##### `record_decision`
 
 ```python
-def record_decision(self, request: InteractionRequest, result: InteractionResult) -> None
+def record_decision(request: InteractionRequest, result: InteractionResult) -> None
 ```
 
-Record a decision for learning and prompt building. Stores the question, interaction type, choice, source, risk level, and timestamp. Keeps the last 100 decisions. Called automatically by all `resolve_with_*` methods, but can also be called directly.
+Record a resolved interaction decision for learning and prompt building. Called internally by `resolve_with_*` methods but also available as a public method. Maintains a history of up to 100 decisions.
 
 ##### `set_user_callback` / `reset_task` / `get_stats`
 

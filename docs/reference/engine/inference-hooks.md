@@ -570,7 +570,7 @@ stats = engine.get_stats()
 
 ## See Also
 
-- [Brain State Injector API](./brain-state-injector.md) -- How brain state reaches the LLM prompt
+- [Context Compiler API](./context-compiler.md) -- How brain state reaches the LLM prompt
 - [NeuroLlama Model API](../neurollama/neurollama-model.md) -- Full neuroscience-enhanced transformer
 - [Calibration API](./calibration.md) -- System-level calibration (connects to ConfidenceCalibrator)
 - [Game Theory API](./game-theory.md) -- DualProcessRouter for routing between models (complements early_exit)

@@ -14,17 +14,33 @@ Anthropic/Claude LLM provider supporting Opus, Sonnet, and Haiku model families 
 
 ```python
 AnthropicProvider(
-    api_key: str,
+    api_key: str = "",
     default_model: str = "claude-sonnet-4-5",
     base_url: Optional[str] = None,
+    bedrock: bool = False,
+    aws_region: Optional[str] = None,
+    vertex_ai: bool = False,
+    gcp_project: Optional[str] = None,
+    gcp_location: Optional[str] = None,
 )
 ```
 
 **Parameters**:
 
-- `api_key` (str): Anthropic API key
+- `api_key` (str, default=`""`): Anthropic API key. Not needed for Bedrock or Vertex AI modes
 - `default_model` (str, default=`"claude-sonnet-4-5"`): Default model for generation calls
 - `base_url` (`Optional[str]`): Custom API endpoint (for proxies or enterprise deployments)
+- `bedrock` (bool, default=`False`): Use Amazon Bedrock with AWS IAM authentication
+- `aws_region` (`Optional[str]`): AWS region for Bedrock (default `"us-east-1"`)
+- `vertex_ai` (bool, default=`False`): Use Google Vertex AI with Application Default Credentials (ADC)
+- `gcp_project` (`Optional[str]`): GCP project ID (required when `vertex_ai=True`)
+- `gcp_location` (`Optional[str]`): GCP region for Vertex AI (default `"us-east5"`)
+
+**Authentication Modes**:
+
+- **API Key mode** (default): `AnthropicProvider(api_key="sk-ant-...")`
+- **Amazon Bedrock mode**: `AnthropicProvider(bedrock=True, aws_region="us-east-1")`. Uses AWS IAM credentials
+- **Google Vertex AI mode**: `AnthropicProvider(vertex_ai=True, gcp_project="my-project")`. Uses Application Default Credentials (ADC)
 
 #### Registered Models
 
@@ -124,6 +140,8 @@ async def generate_stream(
 
 Stream response chunks using Anthropic's `messages.stream()` context manager. Emits `StreamChunk` for text deltas, thinking deltas, tool call JSON deltas, and message stop events.
 
+**Note**: When `thinking=True`, the streaming implementation uses a hardcoded `thinking_budget=10000` tokens. This value is not configurable in streaming mode (unlike `generate()` where you can pass a custom `thinking_budget`).
+
 **Stream Event Types**:
 
 | Event Type | Delta Type | StreamChunk Field |
@@ -169,6 +187,23 @@ Verify connectivity by sending a minimal "ping" message. Returns `True` on succe
 
 ---
 
+## Helper Functions
+
+### `_build_kwargs`
+
+```python
+def _build_kwargs(
+    model: str, msgs: List[Dict], max_tokens: Optional[int],
+    system: Optional[str], tools: Optional[List[ToolDefinition]],
+    temperature: float, thinking: bool, thinking_budget: Optional[int] = None,
+    top_p: Optional[float] = None, top_k: Optional[int] = None,
+) -> Dict[str, Any]
+```
+
+Build the kwargs dict for both `messages.create` and `messages.stream`. Handles thinking configuration (forces `temperature=1.0` when thinking is enabled with a budget), tool conversion to Anthropic's `input_schema` format, and sampling parameters. Default `max_tokens` is 4096 when not explicitly provided.
+
+---
+
 ## Error Classification
 
 | Anthropic Exception | corteX Error | Retry? |
@@ -185,5 +220,5 @@ Verify connectivity by sending a minimal "ping" message. Returns `True` on succe
 ## See Also
 
 - [BaseLLMProvider API](./base.md)
-- [Anthropic Provider Guide](../../guides/providers/anthropic.md)
+- [Switching Providers Guide](../../guides/providers/switching-providers.md)
 - [LLM Router API](./router.md)

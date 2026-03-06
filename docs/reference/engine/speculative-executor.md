@@ -10,6 +10,23 @@ Brain analogy: Predictive coding (pre-activation), cerebellum (forward models).
 
 ## Classes
 
+### `SpeculationStats`
+
+**Type**: `@dataclass`
+
+Aggregate statistics for speculative execution.
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `total_speculations` | `int` | Total speculation attempts |
+| `total_hits` | `int` | Correct speculations |
+| `total_misses` | `int` | Incorrect speculations |
+| `hit_rate` | `float` | Hit rate [0.0, 1.0] |
+| `total_savings_ms` | `float` | Total time saved (ms) |
+| `avg_confidence` | `float` | Average speculation confidence |
+
+---
+
 ### `SpeculativeResult`
 
 **Type**: `@dataclass`

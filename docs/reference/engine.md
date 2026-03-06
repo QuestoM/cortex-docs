@@ -23,6 +23,7 @@ Engine(
     weight_persistence_path: Optional[str] = None,
     tenant_id: Optional[str] = None,
     allowed_plugin_roots: Optional[List[str]] = None,
+    auth_manager: Optional[Any] = None,
 )
 ```
 
@@ -37,6 +38,7 @@ Engine(
 | `weight_persistence_path` | `Optional[str]` | `None` | File path for persisting learned behavioral weights across sessions. |
 | `tenant_id` | `Optional[str]` | `None` | Unique identifier for tenant isolation. Each tenant gets an isolated plugin registry. |
 | `allowed_plugin_roots` | `Optional[List[str]]` | `None` | List of filesystem directories from which dynamic plugin loading is permitted. Security control to prevent arbitrary code loading. |
+| `auth_manager` | `Optional[Any]` | `None` | Pre-configured `AuthManager` for unified credential management. When provided, providers without explicit `api_key` will use credentials from this manager. |
 
 #### Example: Basic Setup
 
@@ -99,6 +101,7 @@ engine = cortex.Engine(
 | `enterprise_config` | `Optional[EnterpriseConfig]` | Global enterprise configuration, inherited by agents that do not specify their own. |
 | `weight_persistence_path` | `Optional[str]` | Path for persisting learned weights to disk. |
 | `plugin_registry` | `PluginRegistry` | Tenant-isolated plugin registry. Pre-loaded with built-in plugins; additional plugins can be registered per-engine. |
+| `auth_manager` | `Optional[Any]` | Unified credential manager for provider authentication (API keys, OAuth, subscription tokens). |
 
 ---
 
@@ -138,8 +141,8 @@ Create a new agent template bound to this engine.
 | `enterprise_config` | `Optional[EnterpriseConfig]` | `None` | Agent-level enterprise config. Overrides the engine-level config if provided. |
 | `context_config` | `Optional[ContextManagementConfig]` | `None` | Configuration for the Cortical Context Engine (token budgets, summarization intervals). |
 | `enable_session_recording` | `bool` | `False` | Enable session recording for digital twin replay and what-if simulation. |
-| `mcp_servers` | `Optional[List]` | `None` | List of MCP (Model Context Protocol) server configurations for external tool integration. Each entry is an `MCPServerConfig` specifying the server endpoint and capabilities. |
-| `a2a_agents` | `Optional[List]` | `None` | List of A2A (Agent-to-Agent) agent configurations for inter-agent communication. Each entry is an `A2AAgentConfig` specifying the remote agent endpoint and protocol. |
+| `mcp_servers` | `Optional[List]` | `None` | List of `MCPServerConfig` objects for MCP server connections. Requires `pip install cortex-ai[mcp]`. |
+| `a2a_agents` | `Optional[List]` | `None` | List of `A2AAgentConfig` objects for A2A agent delegation. Requires `pip install cortex-ai[a2a]`. |
 
 **Returns**: `Agent` - A configured agent template ready to start sessions.
 

@@ -39,9 +39,12 @@ SDK-configurable context management parameters. All have sane defaults.
 | `l2_age_steps` | `int` | `50` | Age before L2 compression |
 | `l3_age_steps` | `int` | `200` | Age before L3 compression |
 | `tool_output_trim_chars` | `int` | `500` | Max chars for masked tool outputs |
+| `l2_max_tokens` | `int` | `2000` | Max tokens for L2 summaries |
+| `l3_max_tokens` | `int` | `500` | Max tokens for L3 digests |
 | `checkpoint_every_n_steps` | `int` | `50` | Steps between checkpoints |
 | `max_checkpoints` | `int` | `20` | Max checkpoints retained |
 | `use_cheaper_model_for_summary` | `bool` | `True` | Use worker model for summaries |
+| `max_total_tokens` | `Optional[int]` | `None` | Total token budget (`None` = unlimited) |
 | `enable_recovery` | `bool` | `True` | Enable checkpoint-based recovery |
 
 ---
@@ -100,6 +103,7 @@ Extracted structured state from conversation history. Always included in warm me
 | `open_questions` | `List[str]` | Unresolved questions |
 | `progress_percentage` | `float` | Overall progress |
 | `error_patterns` | `List[Dict]` | Known errors and resolutions |
+| `tool_usage_summary` | `Dict[str, Dict[str, Any]]` | Per-tool usage statistics (call counts, success rates, etc.) |
 | `total_steps` | `int` | Total steps executed |
 | `total_tokens_spent` | `int` | Cumulative token expenditure |
 
@@ -282,9 +286,25 @@ Adds a tool call record to hot memory (importance: `0.3`).
 
 Records a key decision point. Marks corresponding items with elevated importance (`0.9`).
 
+#### `record_tokens_spent(tokens: int) -> None`
+
+Tracks total token expenditure. Increments the internal counter and updates `task_state.total_tokens_spent`.
+
 #### `compress() -> int`
 
 Runs progressive compression: L1 masking on old items, moves aged items from hot to warm to cold. Returns number of items compressed.
+
+#### `should_compress() -> bool`
+
+Checks if compression should be triggered based on the number of steps since the last compression cycle. Returns `True` when `current_step - last_summarize_step >= summarize_every_n_steps`.
+
+#### `should_checkpoint() -> bool`
+
+Checks if a checkpoint should be created based on the number of steps since the last checkpoint. Returns `True` when `current_step - last_checkpoint_step >= checkpoint_every_n_steps`.
+
+#### `create_checkpoint() -> ContextCheckpoint`
+
+Creates a context checkpoint for recovery. Snapshots the current task state, hot and warm item IDs, total tokens spent, and current step number. Updates the internal last-checkpoint-step tracker. Returns a `ContextCheckpoint` instance.
 
 #### `get_context_window(model_context_window: int = 200000) -> List[ContextItem]`
 

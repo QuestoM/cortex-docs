@@ -1,36 +1,38 @@
-# Tenant Key Manager API Reference
+# Tenant Encryption API Reference
 
 ## Module: `corteX.security.tenant_encryption`
 
-Per-tenant encryption key management. Derives unique Fernet (AES-256-CBC + HMAC-SHA256) keys per tenant from a single master key using HKDF-SHA256. Supports per-tenant key rotation with transparent re-encryption of existing data.
+Per-tenant encryption key manager (GAP-G12). Derives unique Fernet (AES-128-CBC + HMAC-SHA256) keys per tenant from a single master key using HKDF-SHA256. HKDF produces a 256-bit key that Fernet splits into 128-bit AES + 128-bit HMAC per the Fernet specification. Supports per-tenant key rotation with transparent re-encryption of existing data.
 
-GDPR compliance: Art. 32 (encryption as a security measure), Art. 25 (per-tenant isolation by design).
+GDPR: Art. 32 (encryption), Art. 25 (per-tenant isolation).
 
-## Data Classes
+> **Thread Safety**: All public methods are thread-safe. Internal state is protected by a `threading.Lock`, making `TenantKeyManager` safe for concurrent use across multiple threads.
 
-### `TenantKeyInfo`
+---
+
+## TenantKeyInfo
 
 **Type**: `@dataclass`
 
 Metadata about a tenant's encryption key.
 
-| Attribute | Type | Description |
-|-----------|------|-------------|
-| `tenant_id` | `str` | Tenant identifier |
-| `key_version` | `int` | Current key version (starts at 1) |
-| `created_at` | `float` | When the key was first derived |
-| `rotated_at` | `Optional[float]` | When the key was last rotated |
-| `rotation_count` | `int` | Number of rotations performed |
+### Attributes
+
+| Attribute | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `tenant_id` | `str` | -- | Tenant identifier |
+| `key_version` | `int` | `1` | Current key version number |
+| `created_at` | `float` | `time.time()` | Key creation timestamp |
+| `rotated_at` | `Optional[float]` | `None` | Last rotation timestamp (`None` if never rotated) |
+| `rotation_count` | `int` | `0` | Total number of rotations performed |
 
 ---
 
-## Classes
+## TenantKeyManager
 
-### `TenantKeyManager`
+Derive, cache, and rotate per-tenant Fernet encryption keys. Uses HKDF-SHA256 key derivation from a 32-byte master key.
 
-Derive, cache, and rotate per-tenant Fernet encryption keys.
-
-#### Constructor
+### Constructor
 
 ```python
 TenantKeyManager(master_key: Optional[bytes] = None)
@@ -38,87 +40,89 @@ TenantKeyManager(master_key: Optional[bytes] = None)
 
 **Parameters**:
 
-- `master_key` (`Optional[bytes]`): 32-byte master key for key derivation. If `None`, a random master key is generated (with a warning log).
+- `master_key` (`Optional[bytes]`): Exactly 32 bytes. If `None`, a random key is generated (with a logged warning). **Raises** `ValueError` if the key is not exactly 32 bytes.
 
-**Raises**: `ValueError` if `master_key` is not exactly 32 bytes.
+### Tenant ID Validation
 
-!!! warning "Production Usage"
-    Always provide a persistent master key in production. A random key means all derived tenant keys are lost on restart, making previously encrypted data unrecoverable.
+All public methods validate that `tenant_id` is a non-empty, non-whitespace string. **Raises** `ValueError` for empty or whitespace-only `tenant_id` values.
 
-#### Methods
+### Cache Limit
 
-##### `get_tenant_key`
+The internal key cache is limited to 10,000 entries. **Raises** `RuntimeError` when a new key derivation would exceed this limit. This protects against memory exhaustion from unbounded tenant creation.
+
+### Methods
+
+#### `get_tenant_key`
 
 ```python
 def get_tenant_key(self, tenant_id: str) -> bytes
 ```
 
-Get or derive the Fernet key for a tenant. Keys are cached after first derivation.
+Get or derive the Fernet key bytes for a tenant. Returns cached key if available, otherwise derives and caches a new one.
 
-**Returns**: `bytes` -- The Fernet-compatible key (URL-safe base64 encoded, 44 bytes).
+**Raises**: `ValueError` if `tenant_id` is empty. `RuntimeError` if cache exceeds 10,000 entries.
 
-##### `get_tenant_fernet`
+#### `get_tenant_fernet`
 
 ```python
 def get_tenant_fernet(self, tenant_id: str) -> Fernet
 ```
 
-Get a ready-to-use `Fernet` instance for a tenant. Convenience method for direct encryption/decryption.
+Get a ready-to-use `Fernet` instance for a tenant.
 
-**Returns**: `Fernet` -- Initialized Fernet object.
+**Raises**: `ValueError` if `tenant_id` is empty. `RuntimeError` if cache exceeds 10,000 entries.
 
-##### `encrypt`
-
-```python
-def encrypt(self, tenant_id: str, plaintext: bytes) -> bytes
-```
-
-Encrypt data with the tenant's current key.
-
-**Parameters**:
-
-- `tenant_id` (`str`): Tenant identifier.
-- `plaintext` (`bytes`): Data to encrypt.
-
-**Returns**: `bytes` -- Fernet ciphertext (includes timestamp and HMAC).
-
-##### `decrypt`
-
-```python
-def decrypt(self, tenant_id: str, ciphertext: bytes) -> bytes
-```
-
-Decrypt data, trying the current key first, then retired keys (newest first). This allows transparent decryption of data encrypted with previous key versions.
-
-**Raises**: `ValueError` if no key (current or retired) can decrypt the data.
-
-##### `rotate_tenant_key`
+#### `rotate_tenant_key`
 
 ```python
 def rotate_tenant_key(self, tenant_id: str) -> bytes
 ```
 
-Rotate the encryption key for a tenant. The old key is retired (kept for decryption fallback) and a new key is derived.
+Rotate the encryption key for a tenant. The old key is retired (kept for decryption fallback) and a new key is derived. Updates the `TenantKeyInfo` with the new version, rotation timestamp, and rotation count.
 
-**Returns**: `bytes` -- The new Fernet key.
+**Behavior when no prior key exists**: If the tenant has no existing key, the rotation counter is still incremented (starting from 0 to 1) and a new key is derived. This means the first `rotate_tenant_key` call on a new tenant effectively creates the key at version 2, with rotation count 1. The `TenantKeyInfo` is created during derivation if it does not already exist.
 
-##### `re_encrypt`
+**Raises**: `ValueError` if `tenant_id` is empty. `RuntimeError` if cache exceeds 10,000 entries.
+
+#### `encrypt`
+
+```python
+def encrypt(self, tenant_id: str, plaintext: bytes) -> bytes
+```
+
+Encrypt data with the tenant's current Fernet key.
+
+**Raises**: `ValueError` if `tenant_id` is empty.
+
+#### `decrypt`
+
+```python
+def decrypt(self, tenant_id: str, ciphertext: bytes) -> bytes
+```
+
+Decrypt data, trying the current key first, then retired keys (newest first). This enables transparent decryption of data encrypted with previous key versions.
+
+**Raises**: `ValueError` if `tenant_id` is empty, or if no key (current or retired) can decrypt the ciphertext.
+
+#### `re_encrypt`
 
 ```python
 def re_encrypt(self, tenant_id: str, ciphertext: bytes) -> bytes
 ```
 
-Re-encrypt data under the current tenant key. Decrypts with any available key (current or retired), then encrypts with the current key.
+Re-encrypt data under the tenant's current key. Decrypts with any available key (current or retired), then encrypts with the current key. Use after key rotation to migrate old ciphertext.
 
-##### `get_key_info`
+**Raises**: `ValueError` if `tenant_id` is empty or decryption fails.
+
+#### `get_key_info`
 
 ```python
 def get_key_info(self, tenant_id: str) -> Optional[TenantKeyInfo]
 ```
 
-Get metadata about a tenant's current key. Returns `None` if no key has been derived.
+Get metadata about a tenant's current key. Returns `None` if no key has been derived for the tenant.
 
-##### `list_tenants`
+#### `list_tenants`
 
 ```python
 def list_tenants(self) -> List[str]
@@ -126,20 +130,17 @@ def list_tenants(self) -> List[str]
 
 List all tenant IDs that have derived keys.
 
-##### `destroy_tenant_keys`
+#### `destroy_tenant_keys`
 
 ```python
 def destroy_tenant_keys(self, tenant_id: str) -> bool
 ```
 
-Crypto-shred: destroy all keys for a tenant (GDPR Art. 17). Destroys both the current key and all retired keys. Key bytes are zeroed in memory.
+Crypto-shred: destroy all keys (current and retired) for a tenant (GDPR Art. 17 -- right to erasure). Returns `True` if keys were found and destroyed, `False` if the tenant had no keys.
 
-**Returns**: `bool` -- `True` if keys existed and were destroyed.
+**Raises**: `ValueError` if `tenant_id` is empty.
 
-!!! danger "Irreversible"
-    After destroying tenant keys, all data encrypted for that tenant becomes permanently unrecoverable. This is by design for GDPR Art. 17 (right to erasure via crypto-shredding).
-
-##### `destroy_all`
+#### `destroy_all`
 
 ```python
 def destroy_all(self) -> int
@@ -149,19 +150,15 @@ Destroy all cached keys for all tenants. Returns the number of tenants whose key
 
 ---
 
-## Key Derivation Design
+## Key Derivation
 
-| Property | Implementation |
-|----------|---------------|
-| **Algorithm** | HKDF-SHA256 |
-| **Master key** | 32 bytes (user-provided or random) |
-| **Salt** | `SHA-256(tenant_id)` |
-| **Info** | `corteX.tenant_encryption.v1:{tenant_id}:v{rotation_counter}` |
-| **Output** | 32-byte key, base64url-encoded for Fernet |
-| **Encryption** | Fernet (AES-256-CBC + HMAC-SHA256) |
-| **Rotation** | Old key retired (not deleted) for decryption fallback |
-| **Crypto-shred** | Key bytes zeroed in memory on destroy |
-| **Cache limit** | 10,000 tenant keys |
+Keys are derived using HKDF-SHA256:
+
+- **Salt**: SHA-256 hash of the tenant ID (UTF-8 encoded)
+- **Info**: `b"corteX.tenant_encryption.v1:{tenant_id}:v{rotation_counter}"`
+- **Output**: 32 bytes, base64url-encoded for Fernet compatibility
+
+Each rotation increments the counter, producing a deterministic but unique key per tenant per version.
 
 ---
 
@@ -171,53 +168,45 @@ Destroy all cached keys for all tenants. Returns the number of tenants whose key
 import os
 from corteX.security.tenant_encryption import TenantKeyManager
 
-# Production: use a persistent master key
-master_key = os.urandom(32)  # Store this securely!
+# Create manager with a stable master key
+master_key = os.urandom(32)
 manager = TenantKeyManager(master_key=master_key)
 
 # Encrypt data for a tenant
-plaintext = b"Sensitive user data for ACME Corp"
-ciphertext = manager.encrypt("acme", plaintext)
+ciphertext = manager.encrypt("acme_corp", b"sensitive customer data")
 
-# Decrypt
-decrypted = manager.decrypt("acme", ciphertext)
-assert decrypted == plaintext
+# Decrypt (uses current key)
+plaintext = manager.decrypt("acme_corp", ciphertext)
+assert plaintext == b"sensitive customer data"
 
-# Key rotation
-old_key = manager.get_tenant_key("acme")
-new_key = manager.rotate_tenant_key("acme")
-assert old_key != new_key
+# Rotate the key
+new_key = manager.rotate_tenant_key("acme_corp")
 
-# Old data still decryptable (retired key fallback)
-decrypted = manager.decrypt("acme", ciphertext)
-assert decrypted == plaintext
+# Old ciphertext still decrypts (retired key fallback)
+plaintext = manager.decrypt("acme_corp", ciphertext)
+assert plaintext == b"sensitive customer data"
 
-# Re-encrypt under new key
-new_ciphertext = manager.re_encrypt("acme", ciphertext)
+# Re-encrypt under the new key
+new_ciphertext = manager.re_encrypt("acme_corp", ciphertext)
 
-# Key info
-info = manager.get_key_info("acme")
+# Check key metadata
+info = manager.get_key_info("acme_corp")
 print(f"Version: {info.key_version}, Rotations: {info.rotation_count}")
 
-# List all tenants with keys
-tenants = manager.list_tenants()
+# GDPR Art. 17: Crypto-shred all tenant keys
+manager.destroy_tenant_keys("acme_corp")
 
-# GDPR Art. 17: Crypto-shredding
-# Destroys ALL keys -- data becomes permanently unrecoverable
-manager.destroy_tenant_keys("acme")
-
-# Verify destruction
-try:
-    manager.decrypt("acme", ciphertext)
-except ValueError as e:
-    print(f"Expected: {e}")  # Cannot decrypt -- keys destroyed
+# List remaining tenants
+print(manager.list_tenants())
 ```
 
 ---
 
 ## See Also
 
-- [Key Vault](./vault.md) -- API key storage with XOR obfuscation
+- [Capability Set](./capabilities.md) -- Permission enforcement
 - [Data Classifier](./classification.md) -- Data level classification
-- [GDPR Manager](../enterprise/gdpr.md) -- DSAR lifecycle with erasure
-- [Tenant Manager](../tenancy/manager.md) -- Per-tenant configuration
+- [Compliance Engine](./compliance.md) -- Compliance policy enforcement (GDPR, SOC2)
+- [Key Vault](./vault.md) -- Secure key storage
+- [Tenant Manager](../tenancy/manager.md) -- Multi-tenant management
+- [Fernet encryption](https://cryptography.io/en/latest/fernet/) -- Fernet specification (AES-128-CBC + HMAC-SHA256, 256-bit key split into 128-bit AES + 128-bit HMAC)

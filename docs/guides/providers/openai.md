@@ -34,25 +34,21 @@ Pass the model name to `orchestrator_model` and/or `worker_model`:
 ```python
 engine = cortex.Engine(
     providers={"openai": {"api_key": "sk-..."}},
-    orchestrator_model="gpt-4.1",          # (1)!
-    worker_model="gpt-4.1-mini",           # (2)!
+    orchestrator_model="gpt-4o",       # (1)!
+    worker_model="gpt-4o-mini",        # (2)!
 )
 ```
 
-1. The orchestrator handles planning, goal tracking, and multi-step reasoning. GPT-4.1 excels at coding and instruction following with a 1M token context.
-2. The worker handles simple completions and tool calls -- a smaller model keeps costs down while maintaining strong performance.
+1. The orchestrator handles planning, goal tracking, and multi-step reasoning.
+2. The worker handles simple completions and tool calls -- a smaller model keeps costs down.
 
 Common OpenAI model choices:
 
 | Model | Best for | Context window |
 |---|---|---|
-| `gpt-4.1` | High-accuracy orchestration, coding, instruction following | 1M tokens |
-| `gpt-4.1-mini` | Cost-effective worker tasks with strong performance | 1M tokens |
-| `gpt-4.1-nano` | Ultra-fast, lightweight tasks | 1M tokens |
-| `o3` | Complex reasoning and multi-step problems | 200k tokens |
-| `o4-mini` | Cost-efficient reasoning tasks | 200k tokens |
-| `gpt-4o` | General-purpose orchestration (legacy) | 128k tokens |
-| `gpt-4o-mini` | Lightweight worker tasks (legacy) | 128k tokens |
+| `gpt-4o` | High-accuracy orchestration | 128k tokens |
+| `gpt-4o-mini` | Cost-effective worker tasks | 128k tokens |
+| `o3-mini` | Reasoning-heavy problems | 200k tokens |
 
 ## Use Azure OpenAI
 
@@ -73,26 +69,6 @@ engine = cortex.Engine(
 
 !!! note
     The `base_url` must point to the full deployment URL including `/openai/deployments/<deployment-name>`. The model name you pass to `orchestrator_model` should match your Azure deployment name.
-
-## Use OpenRouter
-
-[OpenRouter](https://openrouter.ai/) aggregates hundreds of models behind a single OpenAI-compatible API. Because corteX uses the standard OpenAI client under the hood, connecting to OpenRouter only requires changing the `base_url`:
-
-```python
-engine = cortex.Engine(
-    providers={
-        "openai": {
-            "api_key": "sk-or-v1-...",                # Your OpenRouter API key
-            "base_url": "https://openrouter.ai/api/v1",
-        },
-    },
-    orchestrator_model="anthropic/claude-sonnet-4-5",  # Any model on OpenRouter
-    worker_model="google/gemini-2.5-flash",
-)
-```
-
-!!! tip
-    OpenRouter lets you access models from many providers through a single API key. This is useful when you want to experiment with different models without managing multiple provider credentials. Model names follow the `provider/model` format -- check the OpenRouter docs for the full list.
 
 ## Create an agent and run a message
 
@@ -148,6 +124,5 @@ If you want to confirm your credentials are valid before creating agents, check 
 ## Next steps
 
 - [Connect to Google Gemini](gemini.md) -- add a second provider for failover.
-- [Connect to Anthropic Claude](anthropic.md) -- add Claude as a provider with extended thinking.
 - [Switch Between Providers](switching-providers.md) -- route orchestrator and worker to different backends.
 - [Tune Agent Weights](../config/weight-tuning.md) -- adjust how your agent behaves.

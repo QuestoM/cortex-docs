@@ -140,13 +140,13 @@ Google's official documentation strongly recommends keeping temperature at the d
 **Default temperature:** 1.0 (API default, not published in ChatGPT UI)
 
 **Recommendations:**
-- **Structured output / tool calling:** T=0.0-0.2. GPT-4o supports Structured Outputs (`response_format: { type: "json_schema" }`) which constrain output format independently of temperature, but lower temperature still improves reliability.
+- **Structured output / tool calling:** T=0.0-0.2. GPT-5 supports Structured Outputs (`response_format: { type: "json_schema" }`) which constrain output format independently of temperature, but lower temperature still improves reliability.
 - **Code generation:** T=0.0-0.3 for correctness.
 - **Creative tasks:** T=0.7-1.0.
 - **General Q&A:** T=0.4-0.7.
 
 **Notes:**
-- Even at T=0.0, GPT-4o is not fully deterministic due to floating-point non-determinism in GPU computation.
+- Even at T=0.0, GPT-5 is not fully deterministic due to floating-point non-determinism in GPU computation.
 - For structured output, combine low temperature with JSON schema enforcement for best results.
 - Do not set both `temperature` and `top_p` -- use one or the other.
 
@@ -174,8 +174,8 @@ Google's official documentation strongly recommends keeping temperature at the d
 | Model | Default T | Tool Calling T | Creative T | Special Notes |
 |---|---|---|---|---|
 | Gemini 3 (all) | 1.0 | **1.0** (do not change) | **1.0** (do not change) | Changing T causes looping/degradation |
-| GPT-4o | 1.0 | 0.0-0.2 | 0.7-1.0 | Use JSON schema enforcement alongside |
-| GPT-4o-mini | 1.0 | 0.0-0.2 | 0.7-1.0 | Same as GPT-4o |
+| GPT-5 | 1.0 | 0.0-0.2 | 0.7-1.0 | Use JSON schema enforcement alongside |
+| GPT-5 mini | 1.0 | 0.0-0.2 | 0.7-1.0 | Same as GPT-5 |
 | Claude Opus 4.6 | 1.0 | 0.0-0.2 | 0.7-1.0 | Cannot set both T and top_p |
 | Claude Sonnet 4.6 | 1.0 | 0.0-0.2 | 0.7-1.0 | Cannot set both T and top_p |
 

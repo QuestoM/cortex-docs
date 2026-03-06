@@ -56,7 +56,6 @@ Each chunk yielded by `run_stream()` is a `StreamChunk` with these fields:
 | `content` | `str` | The text fragment for this chunk. |
 | `is_final` | `bool` | `True` for the last chunk in the stream. |
 | `model` | `str` | The model that generated this chunk. |
-| `chunk_type` | `str` | One of `text`, `tool_call`, `tool_result`, or `error`. |
 
 ---
 
@@ -87,28 +86,15 @@ async def chat(message: str, user_id: str = "anonymous"):
 
 ---
 
-## Streaming with tools
-
-`run_stream()` supports tool execution during streaming. If the LLM requests a tool call, the stream pauses, executes the tool, feeds the result back, and resumes streaming the follow-up response. Up to 5 tool execution rounds are supported per stream.
-
-```python
-async for chunk in session.run_stream("What is the weather in Tokyo?"):
-    if chunk.chunk_type == "tool_call":
-        print(f"[Calling tool...]")
-    elif chunk.chunk_type == "tool_result":
-        print(f"[Tool returned result]")
-    else:
-        print(chunk.content, end="", flush=True)
-```
-
----
-
 ## When to use streaming
+
+!!! note "Trade-offs"
+    `run_stream()` is a lightweight path. It processes feedback and records the turn, but skips some of the heavier brain components (dual-process routing, tool execution, quality estimation). For the full 14-step pipeline with tool calls, use `run()`.
 
 | Scenario | Recommended |
 |---|---|
 | Chat UI with typing indicator | `run_stream()` |
-| Agent with tool calls | Both `run()` and `run_stream()` |
+| Agent with tool calls | `run()` |
 | Batch processing | `run()` |
 | Server-sent events | `run_stream()` |
 

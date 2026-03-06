@@ -18,13 +18,15 @@ def tool(
 
 Decorator to register a function as a corteX tool in the default global registry. Supports both sync and async functions. Automatically generates a JSON Schema from type hints.
 
+**Important**: `tool()` returns a decorator function (a `Callable`), which in turn returns a `ToolWrapper`. You **must** use parentheses when decorating - `@tool()` works, but `@tool` without parentheses will fail because `tool()` expects no positional arguments.
+
 **Parameters**:
 
 - `name` (`Optional[str]`): Custom tool name. Defaults to the function name
 - `description` (`Optional[str]`): Tool description for the LLM. Defaults to the function docstring
 - `parameters` (`Optional[Dict[str, Any]]`): Explicit JSON Schema for parameters. If not provided, auto-generated from type hints
 
-**Returns**: A `ToolWrapper` instance (the decorated function is wrapped).
+**Returns**: A decorator function (`Callable`) that wraps the target function in a `ToolWrapper` and registers it in the default global registry.
 
 **Example**:
 
@@ -250,6 +252,17 @@ The decorator framework automatically converts Python type hints to JSON Schema:
 | `Set[str]` | `{"type": "array", "uniqueItems": true}` |
 
 Parameters without default values are marked as `required` in the schema.
+
+---
+
+## Module-Level Variables
+
+The module creates a default global registry for backward compatibility:
+
+| Variable | Type | Description |
+|----------|------|-------------|
+| `_default_registry` | `ToolRegistry` | Module-level default registry (name: `"global-default"`). Used by `@tool()`, `get_registered_tools()`, `get_tool()`, and `clear_tools()` |
+| `_registered_tools` | `Dict[str, ToolWrapper]` | Backward-compatible alias pointing to `_default_registry._tools`. Some tests reference this directly |
 
 ---
 

@@ -164,6 +164,10 @@ Updates the score for a model-task combination.
 
 Returns all model scores for a given task type.
 
+#### `to_dict() -> Dict[str, Dict[str, float]]`
+
+Returns a deep copy of all model-task score mappings.
+
 ---
 
 ## UserInsightWeights
@@ -183,6 +187,10 @@ Retrieves a user insight value.
 #### `update_topic_preference(topic: str, delta: float) -> None`
 
 Adjusts the affinity score for a specific topic.
+
+#### `to_dict() -> Dict[str, Any]`
+
+Returns a deep copy of all user insight weights.
 
 ---
 
@@ -204,6 +212,10 @@ Attempts a user override. Returns `True` if the key is in the overridable set (`
 
 Retrieves an enterprise weight value.
 
+#### `to_dict() -> Dict[str, Any]`
+
+Returns a deep copy of all enterprise weights.
+
 ---
 
 ## GlobalWeights
@@ -215,6 +227,10 @@ Tier 4 aggregated learning across all corteX deployments (opt-in only). Tracks c
 #### `merge_from_cloud(cloud_data: Dict[str, Any]) -> None`
 
 Merges weights received from the corteX cloud. No-op if `enabled` is `False`.
+
+#### `to_dict() -> Dict[str, Any]`
+
+Returns a deep copy of all global weights.
 
 ---
 

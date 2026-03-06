@@ -12,13 +12,17 @@ Brain analogy: Dorsolateral prefrontal cortex (dlPFC) maintaining goal in workin
 
 ### `ReminderMode`
 
-**Type**: `str`
+**Type**: Plain class inheriting from `str` (not an Enum - cannot use `.value` or iterate members)
 
-| Value | Turn Range | Token Budget |
-|-------|------------|-------------|
-| `"full"` | Turns 1-5 | ~80-120 tokens |
-| `"compact"` | Turns 6-15 | ~40-60 tokens |
-| `"ultra_compact"` | Turns 16+ | ~20-30 tokens |
+String constants for reminder verbosity modes:
+
+| Constant | Value | Turn Range | Token Budget |
+|----------|-------|------------|-------------|
+| `ReminderMode.FULL` | `"full"` | Turns 1-5 | ~80-120 tokens |
+| `ReminderMode.COMPACT` | `"compact"` | Turns 6-15 | ~40-60 tokens |
+| `ReminderMode.ULTRA_COMPACT` | `"ultra_compact"` | Turns 16+ | ~20-30 tokens |
+
+Note: `ReminderMode` is a plain `str` subclass with class-level attributes, not a Python `Enum`. You cannot iterate over its members or use `.value`. Compare directly against the string constants (e.g., `mode == ReminderMode.FULL`).
 
 ### `GoalProgress`
 

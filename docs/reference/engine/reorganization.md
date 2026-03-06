@@ -4,7 +4,7 @@
 
 Continuous cortical map reorganization for tool/model/behavior repertoire management. Implements usage-driven plasticity, territory allocation, fusion of co-activated entities, and redistribution when entities are removed.
 
-Neuroscience basis: Prof. Idan Segev, Lecture 4 -- When two monkey fingers are surgically joined, the brain's cortical map reorganizes to represent them as one. In blind individuals, the visual cortex is colonized by tactile processing.
+Neuroscience basis: Prof. Idan Segev, Lecture 4 - When two monkey fingers are surgically joined, the brain's cortical map reorganizes to represent them as one. In blind individuals, the visual cortex is colonized by tactile processing.
 
 ---
 
@@ -12,221 +12,88 @@ Neuroscience basis: Prof. Idan Segev, Lecture 4 -- When two monkey fingers are s
 
 ### Territory Allocation
 
-Each entity (tool, model, behavior) occupies a fraction of the "cortical map" -- a priority weight governing computational resource, attention, and preference allocation. All territories are normalized to sum to approximately 1.0.
+Each entity (tool, model, behavior) occupies a fraction of the "cortical map" - a priority weight governing computational resource, attention, and preference allocation. All territories sum to 1.0.
 
 ### Usage-Driven Plasticity
 
-Territory is recomputed using a weighted formula based on three signals:
+Entities used frequently and successfully expand their territory. Disused entities shrink. Territory is recomputed using a weighted formula:
 
 ```
 raw_score = 0.40 * usage_frequency + 0.35 * quality_score + 0.25 * recency_score
-territory = raw_score / sum(all_raw_scores)
+territory = raw_score / sum(raw_scores)
 ```
-
-Quality is tracked via a **Beta distribution** conjugate prior (`alpha / (alpha + beta)`), providing principled uncertainty quantification.
 
 ### Fusion (Merging)
 
-When two entities consistently co-occur (co-occurrence strength exceeds threshold, default 0.80), their representations merge into a single combined entity. Merges are reversible -- if co-occurrence drops below the split threshold (default 0.30), the merge is undone.
+When two entities are always co-activated (like surgically joined fingers), their representations merge into a single combined entity - reducing overhead and strengthening the association. Fusion triggers when co-occurrence strength exceeds `merge_threshold` (default: 0.80) with at least `merge_min_observations` (default: 5) observations.
 
 ### Redistribution
 
-When an entity is removed, its territory is redistributed to the most similar remaining entities using cosine + Jaccard similarity on co-occurrence usage vectors. A similarity exponent controls sharpness of redistribution.
+When an entity is removed or falls into disuse, its territory is redistributed to the most similar remaining entities - like the visual cortex being colonized by tactile processing in blind individuals.
 
 ### Scheduled Reorganization
 
-Reorganization is triggered by accumulated "reorganization pressure" from events (entity added/removed, pattern shifts, disuse, periodic ticks). When pressure crosses the threshold (default 0.70), a full reorganization cycle runs.
-
----
-
-## Enums
-
-### `EntityType`
-
-Types of entities that can occupy cortical territory.
-
-| Value | Description |
-|-------|------------|
-| `TOOL` | A tool entity (default) |
-| `MODEL` | A model entity |
-| `BEHAVIOR` | A behavior entity |
-| `MERGED` | A fused entity created by merging |
-
-### `ReorganizationEventType`
-
-Events that contribute to reorganization pressure.
-
-| Value | Pressure |
-|-------|----------|
-| `ENTITY_ADDED` | +0.15 |
-| `ENTITY_REMOVED` | +0.25 |
-| `PATTERN_SHIFT` | +0.20 |
-| `MERGE_CANDIDATE_FOUND` | +0.10 |
-| `DISUSE_DETECTED` | +0.08 |
-| `PERIODIC_TICK` | +0.03 |
-| `MANUAL_TRIGGER` | +1.00 (immediate) |
-
----
-
-## Data Classes
-
-### `TerritoryAllocation`
-
-Represents how much "brain territory" a tool/model/behavior receives. Quality is tracked via a Beta distribution conjugate prior.
-
-```python
-@dataclass
-class TerritoryAllocation:
-    entity_id: str
-    entity_type: EntityType = EntityType.TOOL
-    territory_size: float = 0.1          # Fraction of cortical map [0.0, 1.0]
-    usage_count: int = 0
-    usage_frequency: float = 0.0
-    last_used_turn: int = 0
-    quality_alpha: float = 1.0           # Beta distribution alpha
-    quality_beta: float = 1.0            # Beta distribution beta
-    created_at: float = time.time()
-    metadata: Dict[str, Any] = field(default_factory=dict)
-```
-
-**Properties**:
-
-| Property | Type | Description |
-|----------|------|-------------|
-| `quality_score` | `float` | Expected quality: `alpha / (alpha + beta)` |
-| `quality_uncertainty` | `float` | Std deviation of the Beta posterior |
-| `total_quality_observations` | `float` | Effective observation count (excluding prior) |
-
-**Methods**:
-
-| Method | Description |
-|--------|-------------|
-| `update_quality(success: bool, quality: float = 1.0)` | Update Beta distribution with a new observation |
-| `decay_quality(factor: float = 0.97)` | Apply temporal decay, increasing uncertainty |
-| `to_dict() -> Dict` | Serialize to dictionary |
-| `from_dict(data) -> TerritoryAllocation` | Reconstruct from dictionary (classmethod) |
-
-### `MergeRecord`
-
-Record of a territory merge operation, capturing pre-merge state for undo.
-
-```python
-@dataclass
-class MergeRecord:
-    merged_entity_id: str
-    source_ids: Tuple[str, ...]
-    source_allocations: Dict[str, Dict[str, Any]]
-    co_occurrence_strength: float = 0.0
-    merge_turn: int = 0
-    merge_timestamp: float = time.time()
-```
-
-### `MergedEntity`
-
-A fused entity created by merging two or more co-occurring entities.
-
-```python
-@dataclass
-class MergedEntity:
-    entity_id: str
-    source_ids: Tuple[str, ...]
-    territory: TerritoryAllocation
-    merge_record: Optional[MergeRecord] = None
-```
+Reorganization is not continuous (too expensive) but triggered by accumulated "reorganization pressure" from usage pattern shifts, entity additions/removals, and periodic timers.
 
 ---
 
 ## Supporting Classes
 
-### `UsageTracker`
+### `EntityType`
 
-Tracks entity usage patterns, co-occurrence, and temporal dynamics. Builds the co-occurrence matrix used for merge detection.
+**Type**: `Enum`
 
-```python
-UsageTracker(decay_factor: float = 0.97)
-```
+| Value | Description |
+|-------|-------------|
+| `TOOL` | A tool entity |
+| `MODEL` | A model entity |
+| `BEHAVIOR` | A behavior entity |
+| `MERGED` | A merged entity (created from fusion) |
 
-| Method | Description |
-|--------|-------------|
-| `advance_turn()` | Advance the internal turn counter |
-| `record_usage(entity_id, success=True, quality=1.0)` | Record a single entity usage event |
-| `record_co_usage(entities: List[str])` | Record co-occurrence for a set of entities used together |
-| `get_co_occurrence_strength(a, b) -> float` | Normalized co-occurrence strength in [0.0, 1.0] |
-| `get_fusion_candidates(threshold, min_observations) -> List[Tuple]` | Find entity pairs that co-occur enough to merge |
-| `get_disuse_candidates(threshold_turns) -> List[str]` | Find entities not used for N turns |
-| `get_usage_frequency(entity_id) -> float` | Relative usage frequency |
-| `get_usage_vector(entity_id) -> Dict[str, float]` | Co-occurrence-based "usage fingerprint" |
-| `apply_decay()` | Apply temporal decay to all tracking counters |
-| `remove_entity(entity_id)` | Remove all tracking data for an entity |
+### `ReorganizationEventType`
 
-### `TerritoryMerger`
+**Type**: `Enum`
 
-Handles merging and splitting of entity representations.
+Events that contribute to reorganization pressure.
 
-```python
-TerritoryMerger(
-    co_occurrence_threshold: float = 0.80,
-    min_observations: int = 5,
-    split_threshold: float = 0.30,
-)
-```
+| Value | Description |
+|-------|-------------|
+| `ENTITY_ADDED` | New entity registered |
+| `ENTITY_REMOVED` | Entity removed |
+| `PATTERN_SHIFT` | Usage patterns shifted significantly |
+| `MERGE_CANDIDATE_FOUND` | Potential merge pair detected |
+| `DISUSE_DETECTED` | Disused entities found |
+| `PERIODIC_TICK` | Periodic timer fired |
+| `MANUAL_TRIGGER` | Manual reorganization requested |
 
-| Method | Description |
-|--------|-------------|
-| `should_merge(a, b, co_occurrence_strength, a_observations, b_observations) -> bool` | Decide whether two entities should be merged |
-| `merge(a, b, alloc_a, alloc_b, co_occurrence_strength, current_turn) -> MergedEntity` | Execute a merge, creating a combined entity |
-| `split(merged_entity_id) -> Optional[Tuple[TerritoryAllocation, TerritoryAllocation]]` | Undo a merge, restoring the original entities |
-| `is_merged(entity_id) -> bool` | Check if an entity is part of a merged group |
-| `get_merged_entity(merged_id) -> Optional[MergedEntity]` | Get a merged entity by ID |
-| `get_merge_for_source(source_id) -> Optional[str]` | Get merged entity ID containing a source |
-| `get_merge_history() -> List[MergeRecord]` | Full merge/split history |
-| `get_merge_groups() -> List[List[str]]` | All current merge groups |
+### `TerritoryAllocation`
 
-### `TerritoryRedistributor`
+**Type**: `@dataclass`
 
-Redistributes territory from removed or disused entities to the most similar remaining entities.
+Represents how much "brain territory" a tool/model/behavior receives. Quality is tracked via a Beta distribution conjugate prior.
 
-```python
-TerritoryRedistributor(
-    similarity_exponent: float = 2.0,
-    min_similarity: float = 0.05,
-)
-```
-
-| Method | Description |
-|--------|-------------|
-| `compute_similarity(a_vector, b_vector) -> float` | Cosine + Jaccard similarity (70/30 blend) |
-| `redistribute(removed_entity_id, removed_territory, remaining_entities) -> Dict[str, float]` | Compute territory redistribution map |
-| `apply_redistribution(redistribution_map, territories)` | Apply redistribution to live territory allocations |
-
-### `ReorganizationScheduler`
-
-Decides when to trigger cortical map reorganization based on accumulated pressure.
-
-```python
-ReorganizationScheduler(
-    pressure_threshold: float = 0.70,
-    periodic_interval: int = 25,
-    pressure_decay: float = 0.95,
-)
-```
-
-| Method | Description |
-|--------|-------------|
-| `record_event(event_type, details=None)` | Record a pressure-contributing event |
-| `advance_turn()` | Advance turn, apply decay, check periodic tick |
-| `should_reorganize() -> bool` | Check if pressure exceeds threshold |
-| `mark_reorganized()` | Reset pressure after reorganization |
-| `get_pressure() -> float` | Current pressure in [0.0, 1.0] |
-| `get_recent_events(n=20) -> List[Dict]` | Recent scheduler events |
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `entity_id` | `str` | Unique identifier |
+| `entity_type` | `EntityType` | Classification (tool, model, behavior, merged) |
+| `territory_size` | `float` | Fraction of total cortical map [0.0, 1.0] |
+| `usage_count` | `int` | Total number of times this entity has been used |
+| `usage_frequency` | `float` | Relative frequency compared to all entities |
+| `last_used_turn` | `int` | Turn number when last activated |
+| `quality_alpha` | `float` | Beta distribution alpha (success pseudo-count) |
+| `quality_beta` | `float` | Beta distribution beta (failure pseudo-count) |
+| `created_at` | `float` | Timestamp of entity registration |
+| `metadata` | `Dict[str, Any]` | Arbitrary metadata |
 
 ---
 
-## Main Class: `CorticalMapReorganizer`
+## Main Class
 
-The main orchestrator that coordinates all reorganization subsystems.
+### `CorticalMapReorganizer`
 
-### Constructor
+The main reorganization engine managing territory allocation, fusion, and redistribution.
+
+#### Constructor
 
 ```python
 CorticalMapReorganizer(
@@ -243,26 +110,21 @@ CorticalMapReorganizer(
 
 **Parameters**:
 
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `decay_factor` | `float` | `0.97` | Temporal decay for usage tracking and quality |
-| `merge_threshold` | `float` | `0.80` | Co-occurrence strength threshold for merging |
-| `merge_min_observations` | `int` | `5` | Minimum observations before merge is considered |
-| `split_threshold` | `float` | `0.30` | Co-occurrence below this triggers split |
-| `pressure_threshold` | `float` | `0.70` | Pressure needed to trigger reorganization |
-| `periodic_interval` | `int` | `25` | Turns between periodic pressure ticks |
-| `disuse_threshold_turns` | `int` | `20` | Turns of inactivity before disuse detection |
-| `similarity_exponent` | `float` | `2.0` | Sharpness of similarity-based redistribution |
+- `decay_factor` (float): Temporal decay factor for usage tracking. Default: 0.97
+- `merge_threshold` (float): Co-occurrence strength threshold for merging. Default: 0.80
+- `merge_min_observations` (int): Minimum observations before merge is considered. Default: 5
+- `split_threshold` (float): Co-occurrence threshold below which merges are split. Default: 0.30
+- `pressure_threshold` (float): Accumulated pressure needed to trigger reorganization. Default: 0.70
+- `periodic_interval` (int): Turns between periodic reorganization checks. Default: 25
+- `disuse_threshold_turns` (int): Turns of inactivity before entity is considered disused. Default: 20
+- `similarity_exponent` (float): Exponent to sharpen similarity for redistribution. Default: 2.0
 
-### Methods
+#### Entity Registration and Removal
 
-#### `register_entity`
-
-Register a new entity in the cortical map.
+##### `register_entity`
 
 ```python
-def register_entity(
-    self,
+register_entity(
     entity_id: str,
     entity_type: EntityType = EntityType.TOOL,
     initial_territory: float = 0.1,
@@ -270,145 +132,152 @@ def register_entity(
 ) -> TerritoryAllocation
 ```
 
-#### `remove_entity`
+Register a new entity in the cortical map. Returns the created `TerritoryAllocation`. If the entity is already registered, returns the existing allocation.
 
-Remove an entity and redistribute its territory to the most similar remaining entities.
+##### `remove_entity`
 
 ```python
-def remove_entity(self, entity_id: str) -> Optional[Dict[str, float]]
+remove_entity(entity_id: str) -> Optional[Dict[str, float]]
 ```
 
-Returns a redistribution map (`entity_id -> territory increment`) or `None` if not found.
+Remove an entity and redistribute its territory to the most similar remaining entities. Returns a redistribution map (`{entity_id: territory_increment}`) or `None` if the entity was not found.
 
-#### `record_usage`
+#### Usage Recording
 
-Record that a set of entities were used together in this turn. Unknown entities are auto-registered.
+##### `record_usage`
 
 ```python
-def record_usage(
-    self,
+record_usage(
     entities: List[str],
     success: bool = True,
     quality: float = 1.0,
 ) -> None
 ```
 
-#### `maintenance`
+Record that a set of entities were used together in this turn. Updates individual usage stats and the co-occurrence matrix. Unknown entities are auto-registered. When multiple entities are passed, co-occurrence is automatically tracked (no separate call needed).
 
-Lightweight per-turn maintenance. Advances turn counters, applies quality decay, checks for pattern shifts and disuse, and updates reorganization pressure. Call once per agent turn.
+#### Reorganization
+
+##### `should_reorganize`
 
 ```python
-def maintenance(self) -> None
+should_reorganize() -> bool
 ```
 
-#### `should_reorganize`
+Check whether reorganization should be triggered based on accumulated pressure.
 
-Check whether reorganization should be triggered (pressure exceeds threshold or safety-valve timeout).
+##### `reorganize`
 
 ```python
-def should_reorganize(self) -> bool
+reorganize() -> Dict[str, Any]
 ```
 
-#### `reorganize`
+Perform a full reorganization cycle. Steps: (1) Apply temporal decay, (2) Recompute usage frequencies, (3) Adjust territory sizes based on frequency/quality/recency, (4) Detect and execute merges, (5) Handle disuse candidates (shrink territory), (6) Check if existing merges should be split, (7) Normalize territories to sum to 1.0, (8) Mark reorganization in scheduler.
 
-Perform a full reorganization cycle: decay, recompute frequencies, adjust territories, detect/execute merges, handle disuse, check splits, normalize. Returns a dict of actions taken.
+Returns a dict with: `turn`, `merges`, `splits`, `disuse_shrinks`, `territory_changes`.
+
+##### `maintenance`
 
 ```python
-def reorganize(self) -> Dict[str, Any]
+maintenance() -> None
 ```
 
-**Return keys**: `turn`, `merges`, `splits`, `disuse_shrinks`, `territory_changes`.
+Lightweight per-turn maintenance. Advances turn counters, applies quality decay, checks for pattern shifts and disuse, and updates reorganization pressure. Should be called once per agent turn.
 
-#### `get_territory_map`
+#### Queries
+
+##### `get_territory`
 
 ```python
-def get_territory_map(self) -> Dict[str, TerritoryAllocation]
+get_territory(entity_id: str) -> Optional[TerritoryAllocation]
 ```
 
-#### `get_territory`
+Get the territory allocation for a specific entity.
+
+##### `get_territory_map`
 
 ```python
-def get_territory(self, entity_id: str) -> Optional[TerritoryAllocation]
+get_territory_map() -> Dict[str, TerritoryAllocation]
 ```
 
-#### `get_ranked_entities`
+Return the current full cortical territory map as a dictionary of entity ID to `TerritoryAllocation`.
 
-Return all entities ranked by territory size (descending).
+##### `get_merge_groups`
 
 ```python
-def get_ranked_entities(self) -> List[Tuple[str, float]]
+get_merge_groups() -> List[List[str]]
 ```
 
-#### `get_merge_groups`
+Return all current merge groups as lists of source entity IDs.
+
+##### `get_ranked_entities`
 
 ```python
-def get_merge_groups(self) -> List[List[str]]
+get_ranked_entities() -> List[Tuple[str, float]]
 ```
 
-#### `get_stats`
+Return all entities ranked by territory size (descending). This is the cortical homunculus ranking.
 
-Comprehensive statistics: `entity_count`, `total_usages`, `merge_count`, `merge_history_count`, `reorganization_count`, `current_turn`, `current_pressure`, `territory_entropy`, `territory_uniformity`, `top_entities`, `disuse_candidates`, `fusion_candidates`.
+#### Statistics
+
+##### `get_stats`
 
 ```python
-def get_stats(self) -> Dict[str, Any]
+get_stats() -> Dict[str, Any]
 ```
 
-#### `export_map` / `from_dict`
+Comprehensive statistics: `entity_count`, `total_usages`, `merge_count`, `merge_history_count`, `reorganization_count`, `current_turn`, `current_pressure`, `territory_entropy`, `max_entropy`, `territory_uniformity`, `top_entities`, `disuse_candidates`, `fusion_candidates`, `creation_time`.
 
-Full state serialization for persistence across sessions.
+#### Persistence
+
+##### `export_map`
 
 ```python
-def export_map(self) -> Dict[str, Any]
+export_map() -> Dict[str, Any]
+```
 
+Export the full cortical map state as a serializable dictionary for persistence across sessions.
+
+##### `from_dict`
+
+```python
 @classmethod
-def from_dict(cls, data: Dict[str, Any]) -> CorticalMapReorganizer
+from_dict(data: Dict[str, Any]) -> CorticalMapReorganizer
 ```
+
+Reconstruct a `CorticalMapReorganizer` from an exported dictionary.
 
 ---
 
 ## Usage Example
 
 ```python
-from corteX.engine.reorganization import (
-    CorticalMapReorganizer,
-    EntityType,
-)
+from corteX.engine.reorganization import CorticalMapReorganizer, EntityType
 
-reorg = CorticalMapReorganizer(
-    decay_factor=0.97,
-    merge_threshold=0.80,
-    pressure_threshold=0.70,
-)
+reorg = CorticalMapReorganizer(decay_factor=0.97)
 
-# Register entities with types
-reorg.register_entity("web_search", EntityType.TOOL, initial_territory=0.3)
-reorg.register_entity("summarize", EntityType.TOOL, initial_territory=0.2)
-reorg.register_entity("gpt4", EntityType.MODEL, initial_territory=0.2)
+# Register entities
+reorg.register_entity("code_writer", EntityType.TOOL, initial_territory=0.3)
+reorg.register_entity("test_runner", EntityType.TOOL, initial_territory=0.2)
+reorg.register_entity("browser", EntityType.TOOL, initial_territory=0.1)
 
-# Record usage -- entities used together in one turn
-reorg.record_usage(["web_search", "summarize"], success=True, quality=0.9)
-reorg.record_usage(["gpt4"], success=True, quality=0.85)
+# Record usage - multiple entities records co-occurrence automatically
+reorg.record_usage(["code_writer", "test_runner"], success=True, quality=0.9)
+reorg.record_usage(["code_writer"], success=True, quality=0.8)
 
-# Per-turn maintenance (advances turn, checks disuse/pressure)
+# Per-turn maintenance (call every turn)
 reorg.maintenance()
 
 # Check if reorganization is needed
 if reorg.should_reorganize():
-    actions = reorg.reorganize()
-    print(f"Merges: {actions['merges']}, Shrinks: {actions['disuse_shrinks']}")
+    result = reorg.reorganize()
+    # result contains merges, splits, disuse_shrinks, territory_changes
 
-# Query territory allocation
-territory_map = reorg.get_territory_map()
-for eid, alloc in territory_map.items():
-    print(f"{eid}: size={alloc.territory_size:.3f}, quality={alloc.quality_score:.3f}")
-
-# Ranked entities (most territory first)
+# Query territory map
+territories = reorg.get_territory_map()
 ranked = reorg.get_ranked_entities()
 
-# Remove an entity -- territory redistributed to similar neighbors
-redistribution = reorg.remove_entity("web_search")
-
-# Persist state across sessions
+# Persistence
 state = reorg.export_map()
 restored = CorticalMapReorganizer.from_dict(state)
 ```

@@ -48,9 +48,9 @@ A directed association between items from different modalities.
 | `target_key` | `str` | Target item identifier. |
 | `strength` | `float` | Hebbian-updated weight [0.0, 1.0]. |
 | `co_activation_count` | `int` | Times co-activated. |
-| `last_activated` | `float` | Timestamp of last co-activation (default: `time.time()`). |
-| `created_at` | `float` | Timestamp of link creation (default: `time.time()`). |
-| `age_seconds` | `float` | (property) Seconds since last activation: `time.time() - last_activated`. |
+| `last_activated` | `float` | Timestamp of last activation (auto-populated). |
+| `created_at` | `float` | Timestamp of link creation (auto-populated). |
+| `age_seconds` | `float` | (property) Seconds since the link was last activated. |
 | `pair_key` | `str` | (property) Canonical key for this link. |
 
 ---

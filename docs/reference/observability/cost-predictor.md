@@ -14,14 +14,14 @@ Cost estimate for a single plan step.
 
 #### Attributes
 
-| Attribute | Type | Description |
-|-----------|------|-------------|
-| `step_description` | `str` | Description of the plan step |
-| `estimated_tokens` | `int` | Predicted token consumption |
-| `estimated_cost_usd` | `float` | Predicted cost in USD |
-| `model` | `str` | Model to be used |
-| `confidence` | `float` | Confidence in this estimate (0.0-1.0) |
-| `metadata` | `Dict[str, Any]` | Additional metadata |
+| Attribute | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `step_description` | `str` | -- | Description of the plan step |
+| `estimated_tokens` | `int` | -- | Predicted token consumption |
+| `estimated_cost_usd` | `float` | -- | Predicted cost in USD |
+| `model` | `str` | -- | Model to be used |
+| `confidence` | `float` | `0.8` | Confidence in this estimate (0.0-1.0). The dataclass default is 0.8, but `CostPredictor` overrides this dynamically: 0.95 for explicit tokens, 0.75 for 10+ word descriptions, 0.65 for 5+ word descriptions, 0.5 otherwise |
+| `metadata` | `Dict[str, Any]` | `{}` | Additional metadata |
 
 ---
 

@@ -52,6 +52,7 @@ Tier 1: Immediate conversation signal detection. Analyzes user messages for impl
 | `CORRECTION_PATTERNS` | `List[str]` | Regex patterns for correction detection |
 | `FRUSTRATION_PATTERNS` | `List[str]` | Regex patterns for frustration detection |
 | `SATISFACTION_PATTERNS_WEIGHTED` | `List[Tuple[str, float]]` | Weighted patterns with base confidence |
+| `SATISFACTION_PATTERNS` | `List[str]` | Flat list of satisfaction regex patterns (backward-compatible, derived from the weighted list) |
 | `SPEED_PATTERNS` | `List[str]` | Regex patterns for speed/urgency detection |
 | `DETAIL_PATTERNS` | `List[str]` | Regex patterns for detail-seeking behavior |
 
@@ -187,10 +188,12 @@ from corteX.engine.feedback import FeedbackEngine
 weights = WeightEngine()
 feedback = FeedbackEngine(weights)
 
-# Process user messages -- weights update automatically
+# Process user messages - weights update automatically
 signals = feedback.process_user_message("Thanks, that's perfect!")
-# -> [FeedbackSignal(SATISFACTION, strength=0.35)]
-# -> autonomy weight increases by 0.05 * 0.35
+# -> [FeedbackSignal(SATISFACTION, strength=0.7)]
+# -> autonomy weight increases by 0.05 * 0.7
+# (Both "thanks" and "perfect" match satisfaction patterns with high
+# confidence due to the short message length bonus)
 
 signals = feedback.process_user_message("No, that's wrong. Try again.")
 # -> [FeedbackSignal(CORRECTION, strength=0.8)]

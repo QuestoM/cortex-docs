@@ -149,7 +149,7 @@ Estimate initial budget from historical data. Requires 3+ samples. Returns `avg_
 def get_stats(self) -> Dict[str, Any]
 ```
 
-Get budget statistics. Returns dict with keys: `step_budget`, `initial_step_budget`, `token_budget`, `steps_taken`, `tokens_consumed`, `progress`, `current_velocity`, `zero_velocity_streak`, `budget_utilization`, `decision_history` (last 10), `task_type`, `task_profile_exists`.
+**Returns**: Dict with keys `step_budget`, `initial_step_budget`, `token_budget`, `steps_taken`, `tokens_consumed`, `progress`, `current_velocity`, `zero_velocity_streak`, `budget_utilization`, `decision_history` (last 10), `task_type`, `task_profile_exists`.
 
 ##### `reset`
 
@@ -157,7 +157,7 @@ Get budget statistics. Returns dict with keys: `step_budget`, `initial_step_budg
 def reset(self) -> None
 ```
 
-Reset budget state for a new task. Restores initial step and token budgets, clears all counters, velocities, and decision history.
+Reset budget state for a new task. Resets steps taken, tokens consumed, progress, velocity history, and decision history back to initial values. Step and token budgets are restored to their original values. Does not clear the class-level task profiles.
 
 ---
 

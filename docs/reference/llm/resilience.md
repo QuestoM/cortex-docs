@@ -20,6 +20,35 @@ class CircuitState(str, Enum)
 
 ---
 
+## Internal Data Classes
+
+These are internal implementation details used by the resilience primitives. They are not part of the public API but are documented here for completeness.
+
+### `_CircuitData`
+
+**Type**: `@dataclass`
+
+Internal state for a single provider's circuit breaker.
+
+| Attribute | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `state` | `CircuitState` | `CLOSED` | Current circuit state |
+| `consecutive_failures` | `int` | `0` | Number of consecutive failures |
+| `last_failure_time` | `float` | `0.0` | Monotonic timestamp of last failure |
+| `last_success_time` | `float` | `0.0` | Monotonic timestamp of last success |
+
+### `_BucketData`
+
+**Type**: `@dataclass`
+
+Sliding-window token bucket for a single provider's rate limiter.
+
+| Attribute | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `timestamps` | `list` | `[]` | Request timestamps within the 60-second window |
+
+---
+
 ## Classes
 
 ### `CircuitBreaker`
