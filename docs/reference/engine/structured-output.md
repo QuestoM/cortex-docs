@@ -88,6 +88,14 @@ Generate instruction text to append to system prompt. Two modes:
 
 Requests JSON in `cortex-signals` code block format.
 
+##### `set_verbosity`
+
+```python
+def set_verbosity(self, verbosity: str) -> None
+```
+
+Change the default verbosity mode. Accepts `"full"` or `"compact"`.
+
 ---
 
 ### `StructuredOutputParser`
@@ -160,6 +168,7 @@ Combine all signal sources into unified quality assessment. Missing signals defa
 | urgency >= 0.5 | `escalate_to_system2` |
 | confidence < 0.3 | `retry_with_stronger_model` |
 | agreement < 0.4 | `verify_output` |
+| confidence < 0.5 and difficulty in (HARD, EXTREME) | `escalate_to_system2` |
 | confidence >= 0.8 and agreement >= 0.7 | `proceed_confident` |
 | Default | `proceed` |
 
