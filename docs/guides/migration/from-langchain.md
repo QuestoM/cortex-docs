@@ -25,7 +25,7 @@ LangChain orchestrates LLM calls through **chains** - explicit sequences of prom
 |---|---|---|
 | `ChatOpenAI` / `ChatAnthropic` | `Engine(providers={...})` | Multi-provider with automatic routing |
 | `AgentExecutor` | `session.run()` | Brain pipeline runs automatically |
-| `@tool` decorator | `@cortex.tool()` | Nearly identical syntax |
+| `@tool` decorator | `@tool()` from `corteX.tools.decorator` | Nearly identical syntax |
 | `ConversationBufferMemory` | `MemoryFabric` | Working + short-term + long-term + episodic |
 | `PromptTemplate` | `system_prompt` param | Plain string, no template wiring |
 | `RunnableSequence` / LCEL | Not needed | Engine routes internally |
@@ -64,10 +64,10 @@ LangChain orchestrates LLM calls through **chains** - explicit sequences of prom
 
     ```python
     import asyncio
-    import cortex
+    from corteX.sdk import Engine
 
     async def main():
-        engine = cortex.Engine(providers={"openai": {"api_key": "sk-..."}})
+        engine = Engine(providers={"openai": {"api_key": "sk-..."}})
         agent = engine.create_agent(
             name="assistant",
             system_prompt="You are a helpful assistant.",
@@ -105,13 +105,14 @@ LangChain orchestrates LLM calls through **chains** - explicit sequences of prom
 === "corteX"
 
     ```python
-    import cortex
+    from corteX.sdk import Engine
+    from corteX.tools.decorator import tool
 
-    @cortex.tool(name="get_weather", description="Get weather for a city")
+    @tool(name="get_weather", description="Get weather for a city")
     async def get_weather(city: str) -> str:
         return f"22C and sunny in {city}"
 
-    engine = cortex.Engine(providers={"openai": {"api_key": "sk-..."}})
+    engine = Engine(providers={"openai": {"api_key": "sk-..."}})
     agent = engine.create_agent(
         name="assistant",
         system_prompt="You help with weather questions.",
@@ -140,7 +141,9 @@ LangChain orchestrates LLM calls through **chains** - explicit sequences of prom
 === "corteX"
 
     ```python
-    engine = cortex.Engine(
+    from corteX.sdk import Engine
+
+    engine = Engine(
         providers={
             "openai": {"api_key": "sk-..."},
             "gemini": {"api_key": "AIza..."},
@@ -171,10 +174,10 @@ Features that corteX provides out of the box with no extra code:
 ### 1. Install
 
 ```bash
-pip install cortex-engine[openai]     # OpenAI provider
-pip install cortex-engine[gemini]     # or Gemini
-pip install cortex-engine[anthropic]  # or Anthropic
-pip install cortex-engine[all]        # all providers
+pip install cortex-ai[openai]     # OpenAI provider
+pip install cortex-ai[gemini]     # or Gemini
+pip install cortex-ai[anthropic]  # or Anthropic
+pip install cortex-ai[all]        # all providers
 ```
 
 ### 2. Replace imports
@@ -186,7 +189,7 @@ from langchain.agents import AgentExecutor, create_openai_tools_agent
 from langchain_core.tools import tool
 
 # After (corteX)
-import cortex
+from corteX.sdk import Engine
 ```
 
 ### 3. Convert chains to sessions
@@ -198,7 +201,7 @@ llm = ChatOpenAI(model="gpt-4o")
 result = executor.invoke({"input": query})
 
 # After: engine -> agent -> session -> run
-engine = cortex.Engine(providers={"openai": {"api_key": "sk-..."}})
+engine = Engine(providers={"openai": {"api_key": "sk-..."}})
 agent = engine.create_agent(name="my_agent", system_prompt="...")
 session = agent.start_session(user_id="user_1")
 response = await session.run(query)
@@ -213,8 +216,10 @@ def search_db(query: str) -> str:
     """Search the database."""
     return db.search(query)
 
-# After (corteX) - add async, use cortex.tool()
-@cortex.tool(name="search_db", description="Search the database")
+# After (corteX) - add async, use @tool()
+from corteX.tools.decorator import tool
+
+@tool(name="search_db", description="Search the database")
 async def search_db(query: str) -> str:
     return db.search(query)
 ```
@@ -249,7 +254,7 @@ await session.close()
 ## FAQ
 
 **Can I use LangChain tools with corteX?**
-Not directly. LangChain tools use a different interface. Convert them by wrapping the function body in a `@cortex.tool()` decorated async function - usually a one-line change.
+Not directly. LangChain tools use a different interface. Convert them by wrapping the function body in a `@tool()` decorated async function (from `corteX.tools.decorator`) - usually a one-line change.
 
 **Does corteX support LCEL (LangChain Expression Language)?**
 corteX does not use chains or LCEL. The brain engine handles orchestration internally. If you need explicit step sequencing, use multiple `session.run()` calls.

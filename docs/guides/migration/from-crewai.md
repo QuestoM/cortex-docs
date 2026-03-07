@@ -75,15 +75,15 @@ weights adapt from experience, and loops are detected automatically.
 
     ```python
     import asyncio
-    import cortex
-    from cortex.tools.decorator import tool
+    from corteX.sdk import Engine
+    from corteX.tools.decorator import tool
 
     @tool(description="Search internal documentation.")
     def search_docs(query: str) -> str:
         return f"Results for: {query}"
 
     async def main():
-        engine = cortex.Engine(
+        engine = Engine(
             providers={"openai": {"api_key": "sk-..."}},
         )
 
@@ -148,10 +148,10 @@ weights adapt from experience, and loops are detected automatically.
 
     ```python
     import asyncio
-    import cortex
+    from corteX.sdk import Engine
 
     async def main():
-        engine = cortex.Engine(
+        engine = Engine(
             providers={"openai": {"api_key": "sk-..."}},
         )
 
@@ -198,7 +198,9 @@ weights adapt from experience, and loops are detected automatically.
 
     ```python
     # corteX: configure at engine level, all agents inherit
-    engine = cortex.Engine(
+    from corteX.sdk import Engine
+
+    engine = Engine(
         providers={
             "openai": {"api_key": "sk-..."},
             "gemini": {"api_key": "AIza..."},
@@ -224,8 +226,8 @@ weights adapt from experience, and loops are detected automatically.
 
 ## Migration Steps
 
-1. **Install** - `pip install cortex-engine[openai]`
-2. **Replace imports** - swap `from crewai import ...` with `import cortex`
+1. **Install** - `pip install cortex-ai[openai]`
+2. **Replace imports** - swap `from crewai import ...` with `from corteX.sdk import Engine`
 3. **Convert tools** - rename `@tool` to `@tool(description="...")`, body stays the same
 4. **Replace Crew/Agent/Task** - use the Engine/Agent/Session pattern shown above
 5. **Add async** - wrap entry point in `async def main()` with `asyncio.run(main())`
