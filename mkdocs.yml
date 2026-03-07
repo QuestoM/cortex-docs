@@ -144,6 +144,9 @@ nav:
       - Graceful Degradation: guides/advanced/graceful-degradation.md
       - Bias Detection: guides/advanced/bias-detection.md
       - Span Tracking: guides/advanced/span-tracking.md
+    - Migration:
+      - From LangChain: guides/migration/from-langchain.md
+      - From CrewAI: guides/migration/from-crewai.md
 
   - Enterprise:
     - enterprise/index.md
