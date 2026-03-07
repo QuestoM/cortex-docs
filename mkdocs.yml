@@ -83,6 +83,13 @@ nav:
     - Multi-Provider Failover: tutorials/multi-provider.md
     - Deploy to Production: tutorials/production.md
 
+  - Integrations:
+    - integrations/index.md
+    - LangChain: integrations/langchain.md
+    - CrewAI: integrations/crewai.md
+    - OpenAI: integrations/openai.md
+    - IntegrationBrain API: integrations/brain-api.md
+
   - Concepts:
     - concepts/index.md
     - Architecture Overview: concepts/architecture.md
