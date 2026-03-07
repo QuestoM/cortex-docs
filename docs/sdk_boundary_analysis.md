@@ -64,7 +64,7 @@
 
 **Key Success Pattern:** CrewAI's simplicity is also its strength for onboarding. Defining an agent in three lines (role, goal, backstory) is a "pit of success" -- the developer cannot create a malformed agent. The framework forces good practices.
 
-**What corteX should learn:** Provide a simple "happy path" that is hard to misuse (like CrewAI), but do not close the door on advanced customization (unlike CrewAI). The `cortex.Engine` -> `create_agent` -> `start_session` -> `session.run()` chain achieves this.
+**What corteX should learn:** Provide a simple "happy path" that is hard to misuse (like CrewAI), but do not close the door on advanced customization (unlike CrewAI). The `Engine` -> `create_agent` -> `start_session` -> `session.run()` chain achieves this.
 
 ### 1.4 Anthropic Claude SDK + MCP
 
@@ -111,7 +111,7 @@ Based on competitor analysis and the Stack Overflow 2025 Developer Survey data (
 > Make the right thing easy and the wrong thing hard.
 
 **Applied to corteX:**
-- `cortex.Engine(providers={"openai": {"api_key": "..."}})` should immediately give you a working adaptive agent with zero brain configuration.
+- `Engine(providers={"openai": {"api_key": "..."}})` should immediately give you a working adaptive agent with zero brain configuration.
 - Misconfiguring the brain should be *impossible* through the public API. You can tune it, but you cannot break it.
 - The default configuration should be production-viable, not just demo-viable.
 
@@ -198,7 +198,7 @@ NO to modifying learning dynamics: Learning rates, momentum, homeostatic regulat
 **Public API Surface:**
 ```python
 # Level 1: Zero config (weights adapt automatically)
-engine = cortex.Engine(providers={...})
+engine = Engine(providers={...})
 
 # Level 2: Set initial preferences
 agent = engine.create_agent(
@@ -397,16 +397,16 @@ The current architecture already supports this through dependency injection in `
 **Public API Surface:**
 ```python
 # Level 1: Zero config (in-memory, volatile)
-engine = cortex.Engine(providers={...})
+engine = Engine(providers={...})
 
 # Level 2: File-based persistence
-engine = cortex.Engine(
+engine = Engine(
     memory=MemoryConfig(backend="file", path="./data/memory")
 )
 
 # Level 3: Custom backend
 from cortex_memory_redis import RedisBackend
-engine = cortex.Engine(
+engine = Engine(
     memory=MemoryConfig(
         working_backend=RedisBackend(url="redis://localhost"),
         episodic_backend=RedisBackend(url="redis://localhost"),
@@ -425,7 +425,7 @@ session.memory.semantic.learn(SemanticEntry(
 ))
 
 # Level 2: Adjust capacities
-engine = cortex.Engine(
+engine = Engine(
     memory=MemoryConfig(
         working_capacity=200,
         episodic_capacity=2000,
@@ -518,7 +518,7 @@ tenant_config = TenantConfig(
 
 | Sub-Component | Category | Rationale |
 |--------------|----------|-----------|
-| `@cortex.tool` decorator | **B** | Built-in, zero-config type inference from Python signatures. |
+| `@tool` decorator | **B** | Built-in, zero-config type inference from Python signatures. |
 | Tool execution engine (timeout, error handling) | **A** | Infrastructure: timeout enforcement, error wrapping, latency tracking. Invisible. |
 | Tool definitions (JSON schema generation) | **A** | Auto-generated from type hints. Developer never writes JSON schema manually. |
 | Tool implementations | **C** | Developer writes the tool functions. This is 100% business logic. |
@@ -528,7 +528,7 @@ tenant_config = TenantConfig(
 **Public API Surface:**
 ```python
 # Level 2: Simple tool registration
-@cortex.tool(name="lookup_order", description="Look up order status")
+@tool(name="lookup_order", description="Look up order status")
 async def lookup_order(order_id: str) -> str:
     order = await db.orders.find(order_id)
     return f"Order {order_id}: {order.status}"
@@ -540,7 +540,7 @@ agent = engine.create_agent(
 )
 
 # Level 3: Custom tool with explicit schema
-@cortex.tool(
+@tool(
     name="complex_query",
     parameters={
         "type": "object",
@@ -609,10 +609,10 @@ async def complex_query(sql: str, database: str) -> str:
 **Public API Surface:**
 ```python
 # Level 1: Single provider, auto-routing
-engine = cortex.Engine(providers={"openai": {"api_key": "sk-..."}})
+engine = Engine(providers={"openai": {"api_key": "sk-..."}})
 
 # Level 2: Multi-provider with role assignment
-engine = cortex.Engine(
+engine = Engine(
     providers={
         "openai": {"api_key": "sk-...", "default_model": "gpt-4o"},
         "gemini": {"api_key": "AIza...", "default_model": "gemini-3-pro"},
@@ -669,10 +669,10 @@ class MyCustomProvider(BaseLLMProvider):
 ### 4.1 What Developers See (Public API)
 
 ```python
-import cortex
-
+from corteX.sdk import Engine
+from corteX.tools.decorator import tool
 # --- Engine (Entry Point) ---
-engine = cortex.Engine(
+engine = Engine(
     providers={"openai": {"api_key": "..."}},      # Required
     enterprise_config=EnterpriseConfig(...),         # Optional
     orchestrator_model="gpt-4o",                    # Optional
@@ -754,7 +754,7 @@ Configuration cascades from broadest scope (SDK defaults) to narrowest scope (en
 Layer 1: SDK Defaults (baked into code)
     |
     v
-Layer 2: Engine Config (cortex.Engine constructor)
+Layer 2: Engine Config (Engine constructor)
     |
     v
 Layer 3: Agent Config (engine.create_agent parameters)
@@ -803,7 +803,7 @@ The developer cannot weaken enterprise policy. They can only operate within its 
 |----------------|-----------|----------|----------|
 | **Memory Backend** | `MemoryBackend` ABC | C/D | Redis, PostgreSQL, Vector DB storage |
 | **LLM Provider** | `BaseLLMProvider` ABC | C | Custom model infrastructure |
-| **Tool Function** | `@cortex.tool` decorator | C | Domain-specific tools |
+| **Tool Function** | `@tool` decorator | C | Domain-specific tools |
 | **Quality Heuristic** | `Evaluator` callable | D | Domain-specific quality assessment |
 | **Signal Detector** | `@cortex.signal_detector` (proposed) | D | Domain-specific feedback signals |
 | **Autonomy Evaluator** | `Evaluator` callable (via PopulationDecoder) | D | Domain-specific risk assessment |

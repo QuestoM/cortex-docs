@@ -17,11 +17,9 @@ Use `run_stream()` to receive tokens as they are generated, rather than waiting 
 
 ```python
 import asyncio
-import cortex
-
-
+from corteX.sdk import Engine
 async def main():
-    engine = cortex.Engine(
+    engine = Engine(
         providers={"openai": {"api_key": "sk-..."}},
     )
 
@@ -66,10 +64,9 @@ Stream directly to an HTTP response:
 ```python
 from fastapi import FastAPI
 from fastapi.responses import StreamingResponse
-import cortex
-
+from corteX.sdk import Engine
 app = FastAPI()
-engine = cortex.Engine(providers={"openai": {"api_key": "sk-..."}})
+engine = Engine(providers={"openai": {"api_key": "sk-..."}})
 agent = engine.create_agent(name="api", system_prompt="You are an API assistant.")
 
 

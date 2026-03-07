@@ -41,9 +41,8 @@ researcher = A2AAgentConfig(
 Pass your agent configs to `create_agent()`:
 
 ```python
-import cortex
-
-engine = cortex.Engine(providers={"openai": {"api_key": "sk-..."}})
+from corteX.sdk import Engine
+engine = Engine(providers={"openai": {"api_key": "sk-..."}})
 
 agent = engine.create_agent(
     name="orchestrator",

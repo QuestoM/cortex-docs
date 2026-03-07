@@ -9,7 +9,7 @@ Hands-on projects that walk you through building complete agents from start to f
 All tutorials assume you have completed the [Quick Start](../getting-started/quickstart.md) guide and have a working corteX installation with at least one LLM provider configured.
 
 ```bash
-pip install cortex-engine[openai]
+pip install cortex-ai[openai]
 ```
 
 ---

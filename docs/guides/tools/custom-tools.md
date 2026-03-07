@@ -1,17 +1,17 @@
 # Create Custom Tools
 
-Use the `@cortex.tool()` decorator to give your agent custom capabilities -- from API calls to database queries to file operations.
+Use the `@tool()` decorator to give your agent custom capabilities -- from API calls to database queries to file operations.
 
 ---
 
 ## Basic tool
 
-Decorate an async function with `@cortex.tool()`:
+Decorate an async function with `@tool()`:
 
 ```python
-import cortex
-
-@cortex.tool(name="get_weather", description="Get current weather for a city")
+from corteX.sdk import Engine
+from corteX.tools.decorator import tool
+@tool(name="get_weather", description="Get current weather for a city")
 async def get_weather(city: str, units: str = "celsius") -> str:
     # Your real implementation here
     return f"22 degrees {units} and sunny in {city}"
@@ -24,7 +24,7 @@ The decorator extracts the parameter schema from the function signature. Type hi
 Pass a list of decorated tools when creating the agent:
 
 ```python
-engine = cortex.Engine(
+engine = Engine(
     providers={"openai": {"api_key": "sk-..."}},
     orchestrator_model="gpt-4o",
     worker_model="gpt-4o-mini",
@@ -44,7 +44,7 @@ agent = engine.create_agent(
 ### Database lookup
 
 ```python
-@cortex.tool(name="lookup_order", description="Look up an order by its ID")
+@tool(name="lookup_order", description="Look up an order by its ID")
 async def lookup_order(order_id: str) -> str:
     # In production, query your database
     return f"Order {order_id}: shipped on 2026-02-08, arrives 2026-02-12"
@@ -55,7 +55,7 @@ async def lookup_order(order_id: str) -> str:
 ```python
 import httpx
 
-@cortex.tool(name="search_docs", description="Search the knowledge base")
+@tool(name="search_docs", description="Search the knowledge base")
 async def search_docs(query: str, max_results: int = 5) -> str:
     async with httpx.AsyncClient() as client:
         resp = await client.get(
@@ -72,7 +72,7 @@ async def search_docs(query: str, max_results: int = 5) -> str:
 ```python
 from pathlib import Path
 
-@cortex.tool(name="read_log", description="Read the last N lines of a log file")
+@tool(name="read_log", description="Read the last N lines of a log file")
 async def read_log(file_path: str, lines: int = 50) -> str:
     path = Path(file_path)
     if not path.exists():
@@ -84,7 +84,7 @@ async def read_log(file_path: str, lines: int = 50) -> str:
 ### Calculation
 
 ```python
-@cortex.tool(name="calculate", description="Evaluate a mathematical expression")
+@tool(name="calculate", description="Evaluate a mathematical expression")
 async def calculate(expression: str) -> str:
     try:
         result = eval(expression, {"__builtins__": {}})  # (1)!
@@ -103,7 +103,7 @@ async def calculate(expression: str) -> str:
 Return error information as a string. The agent will see the error message and can adapt its approach:
 
 ```python
-@cortex.tool(name="get_user", description="Fetch user profile by ID")
+@tool(name="get_user", description="Fetch user profile by ID")
 async def get_user(user_id: str) -> str:
     try:
         user = await db.fetch_user(user_id)
@@ -143,21 +143,20 @@ print(rep_stats)
 
 ```python
 import asyncio
-import cortex
-
-
-@cortex.tool(name="get_weather", description="Get weather for a city")
+from corteX.sdk import Engine
+from corteX.tools.decorator import tool
+@tool(name="get_weather", description="Get weather for a city")
 async def get_weather(city: str, units: str = "celsius") -> str:
     return f"22 degrees {units} and sunny in {city}"
 
 
-@cortex.tool(name="lookup_order", description="Look up order status by ID")
+@tool(name="lookup_order", description="Look up order status by ID")
 async def lookup_order(order_id: str) -> str:
     return f"Order {order_id}: shipped, arriving Feb 12"
 
 
 async def main():
-    engine = cortex.Engine(
+    engine = Engine(
         providers={"openai": {"api_key": "sk-..."}},
         orchestrator_model="gpt-4o",
         worker_model="gpt-4o-mini",

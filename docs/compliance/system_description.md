@@ -43,9 +43,8 @@ with a brain-inspired AI agent engine that provides:
 Developers integrate corteX into their applications using a four-step pattern:
 
 ```python
-import cortex
-
-engine = cortex.Engine(providers={"openai": {"api_key": "sk-..."}})
+from corteX.sdk import Engine
+engine = Engine(providers={"openai": {"api_key": "sk-..."}})
 agent = engine.create_agent(name="support", system_prompt="You help users.")
 session = agent.start_session(user_id="user_123")
 response = await session.run("Help me with my order")

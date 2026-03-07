@@ -17,7 +17,7 @@ In this tutorial you will take an agent from development to production. You will
 ## Prerequisites
 
 - Python 3.11+
-- corteX installed: `pip install cortex-engine[openai]`
+- corteX installed: `pip install cortex-ai[openai]`
 - An OpenAI API key
 - Completion of at least one earlier tutorial (any agent will work)
 
@@ -51,8 +51,9 @@ import asyncio
 import logging
 import os
 import time
-import cortex
-
+from corteX.sdk import Engine
+from corteX.sdk_config import ContextManagementConfig, EnterpriseConfig, WeightConfig
+from corteX.tools.decorator import tool
 # Load from .env file in development (pip install python-dotenv)
 try:
     from dotenv import load_dotenv
@@ -95,7 +96,7 @@ Enterprise safety controls enforce behavioral boundaries that the weight engine 
 ```python title="production.py"
 safety_level = os.environ.get("CORTEX_SAFETY_LEVEL", "strict")
 
-enterprise = cortex.EnterpriseConfig(
+enterprise = EnterpriseConfig(
     safety_level=safety_level,                   # (1)!
     blocked_topics=[
         "competitor_info",
@@ -158,7 +159,7 @@ async def main():
     start_time = time.time()
 
     # 1. Create the engine with environment-based configuration
-    engine = cortex.Engine(
+    engine = Engine(
         providers={
             "openai": {
                 "api_key": os.environ["OPENAI_API_KEY"],  # (1)!
@@ -169,7 +170,7 @@ async def main():
     )
 
     # 2. Define a simple tool for demonstration
-    @cortex.tool(name="lookup_account", description="Look up a customer account")
+    @tool(name="lookup_account", description="Look up a customer account")
     async def lookup_account(account_id: str) -> str:
         """Look up a customer account by ID."""
         logger.info(f"Tool called: lookup_account(account_id={account_id})")
@@ -307,7 +308,7 @@ corteX is designed on-prem first. For air-gapped or regulated environments, keep
     1. **Local models:** Replace cloud providers with local models (Ollama, vLLM) to keep all data on-premises.
 
         ```python
-        engine = cortex.Engine(
+        engine = Engine(
             providers={
                 "local": {"base_url": "http://localhost:11434/v1"},
             },
@@ -334,12 +335,12 @@ For high-throughput production deployments, consider these tuning strategies.
 # Ensure your worker model is fast: gemini-2.0-flash, gpt-4o-mini, or a local 8B model.
 
 # 2. Tune the context budget for your model
-context_config = cortex.ContextManagementConfig(
+context_config = ContextManagementConfig(
     token_budget_ratio=0.80,  # Leave 20% headroom for response generation
 )
 
 # 3. Configure weight tuning for efficiency
-weights = cortex.WeightConfig(
+weights = WeightConfig(
     speed_vs_quality=0.3,  # Lean toward speed in high-throughput scenarios
     verbosity=-0.4,        # Shorter responses = fewer tokens = faster
 )
@@ -380,8 +381,9 @@ import asyncio
 import logging
 import os
 import time
-import cortex
-
+from corteX.sdk import Engine
+from corteX.sdk_config import ContextManagementConfig, EnterpriseConfig, WeightConfig
+from corteX.tools.decorator import tool
 try:
     from dotenv import load_dotenv
     load_dotenv()
@@ -397,7 +399,7 @@ logging.basicConfig(
 logger = logging.getLogger("cortex.production")
 
 safety_level = os.environ.get("CORTEX_SAFETY_LEVEL", "strict")
-enterprise = cortex.EnterpriseConfig(
+enterprise = EnterpriseConfig(
     safety_level=safety_level,
     blocked_topics=["competitor_info", "internal_salary", "unreleased_products", "legal_advice"],
     audit_log=True,
@@ -411,13 +413,13 @@ async def main():
     logger.info("Starting production agent...")
     start_time = time.time()
 
-    engine = cortex.Engine(
+    engine = Engine(
         providers={"openai": {"api_key": os.environ["OPENAI_API_KEY"]}},
         orchestrator_model="gpt-4o",
         worker_model="gpt-4o-mini",
     )
 
-    @cortex.tool(name="lookup_account", description="Look up a customer account")
+    @tool(name="lookup_account", description="Look up a customer account")
     async def lookup_account(account_id: str) -> str:
         logger.info(f"Tool called: lookup_account(account_id={account_id})")
         return f"Account {account_id}: Active, Plan: Enterprise, Since: 2024-01"
@@ -485,7 +487,7 @@ if __name__ == "__main__":
 
 ## What you learned
 
-- How to configure `cortex.EnterpriseConfig` with safety levels, blocked topics, PII detection, and autonomy caps
+- How to configure `EnterpriseConfig` with safety levels, blocked topics, PII detection, and autonomy caps
 - How to manage API keys and configuration through environment variables
 - How to set up structured logging that integrates with production log aggregation
 - How to build a monitoring wrapper that tracks performance metrics per request

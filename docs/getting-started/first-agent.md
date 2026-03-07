@@ -9,9 +9,9 @@ corteX uses a three-layer architecture: **Engine** creates **Agents**, Agents cr
 The `Engine` is the root object. It registers LLM providers and holds global configuration. Create one per application.
 
 ```python
-import cortex
-
-engine = cortex.Engine(
+from corteX.sdk import Engine
+from corteX.tools.decorator import tool
+engine = Engine(
     providers={
         "openai": {"api_key": "sk-..."},
     },
@@ -26,7 +26,7 @@ The engine's internal **LLM Router** (the "thalamus") decides which model handle
     Register as many providers as you need. The router can fail over between them automatically.
 
     ```python
-    engine = cortex.Engine(
+    engine = Engine(
         providers={
             "openai": {"api_key": "sk-..."},
             "gemini": {"api_key": "AIza..."},
@@ -57,7 +57,7 @@ agent = engine.create_agent(
 |---|---|---|---|
 | `name` | `str` | required | Identifier for the agent. |
 | `system_prompt` | `str` | `""` | Personality and instructions. |
-| `tools` | `list` | `[]` | List of `@cortex.tool` wrappers. |
+| `tools` | `list` | `[]` | List of `@tool` wrappers. |
 | `goal_tracking` | `bool` | `True` | Enable goal progress and drift detection. |
 | `loop_prevention` | `bool` | `True` | Detect repetitive tool/response loops. |
 | `weight_config` | `WeightConfig` | defaults | Behavioral weight presets. |
@@ -117,11 +117,10 @@ print(stats["total_tokens"])   # Total tokens consumed
 
 ```python
 import asyncio
-import cortex
-
-
+from corteX.sdk import Engine
+from corteX.tools.decorator import tool
 async def main():
-    engine = cortex.Engine(
+    engine = Engine(
         providers={"openai": {"api_key": "sk-..."}},
     )
 

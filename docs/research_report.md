@@ -176,14 +176,14 @@ FastAPI Server
 ```
 Developer's SaaS Application
     │
-    ├── cortex.Engine (multi-provider LLM routing)
+    ├── Engine (multi-provider LLM routing)
     │   ├── OpenAI / Azure
     │   ├── Gemini / Google
     │   ├── Anthropic / Claude
     │   └── Local (Ollama, vLLM)
     │
-    ├── cortex.Agent (stateless template)
-    │   └── cortex.Session (stateful brain)
+    ├── Agent (stateless template)
+    │   └── Session (stateful brain)
     │       │
     │       ├── WeightEngine (7 categories of adaptive weights)
     │       ├── GoalTracker (drift detection + loop prevention)
@@ -210,14 +210,14 @@ Developer's SaaS Application
 ```
 Developer's SaaS Application
     │
-    ├── cortex.Engine (multi-provider LLM routing)
+    ├── Engine (multi-provider LLM routing)
     │   ├── OpenAI / Azure
     │   ├── Gemini / Google
     │   ├── Anthropic / Claude
     │   └── Local (Ollama, vLLM)
     │
-    ├── cortex.Agent (stateless template, ContextManagementConfig)
-    │   └── cortex.Session (stateful brain)
+    ├── Agent (stateless template, ContextManagementConfig)
+    │   └── Session (stateful brain)
     │       │
     │       ├── WeightEngine ──────────────────── (7 categories, now Bayesian-enhanced)
     │       │   ├── BayesianToolSelector           (Thompson Sampling)
@@ -1780,7 +1780,7 @@ Extracted structured state maintained across the context lifecycle:
 The `CorticalContextEngine` is instantiated per `Session` and configured via `ContextManagementConfig`:
 
 ```python
-engine = cortex.Engine(providers={"gemini": {"api_key": "..."}})
+engine = Engine(providers={"gemini": {"api_key": "..."}})
 agent = engine.create_agent(
     name="coder",
     system_prompt="You are an expert coder.",
@@ -1823,7 +1823,7 @@ Built all 5 core engine modules in sequence:
 
 ### Phase 3: Tool Framework & SDK (Tasks #210, #212)
 
-**`@cortex.tool` decorator**: Developers define tools with a simple decorator. The framework handles argument extraction, type validation, timeout, error handling, and weight integration.
+**`@tool` decorator**: Developers define tools with a simple decorator. The framework handles argument extraction, type validation, timeout, error handling, and weight integration.
 
 **SDK Entry Point** (`sdk.py`): Engine -> Agent -> Session -> Response pipeline. Each Session has its own brain (weights, feedback, prediction, plasticity, adaptation, memory, quality estimator).
 
@@ -2668,7 +2668,7 @@ The demo requires realistic data to showcase agent capabilities:
 | CRM Leads | 30 | DONE | $2.89M pipeline, various stages and deal sizes |
 | Project Templates | 4 (62 tasks) | DONE | Onboarding, security audit, migration, incident response |
 | Support Tickets | 200 | IN PROGRESS | Across 4 priority levels (Critical/High/Medium/Low), various statuses |
-| Odoo Tools | ~35 | IN PROGRESS | Generic tools registered via @cortex.tool decorator |
+| Odoo Tools | ~35 | IN PROGRESS | Generic tools registered via @tool decorator |
 
 All data is seeded programmatically via Odoo's XML-RPC API, ensuring reproducibility and the ability to reset the demo environment.
 
@@ -2693,7 +2693,7 @@ Two repositories were established for the project:
 |-------|-------------|--------|---------|
 | Phase 1 | Odoo structure (departments, employees, helpdesk, CRM, products) | **[COMPLETE]** | 9 depts, 17 jobs, 18 employees, 4 helpdesk teams, 10 ticket stages, 50 tags, 24 SLAs, 10 CRM stages, 14 CRM tags, 7 lost reasons, 21 products, 23 custom fields |
 | Phase 2 | Content seeding (customers, tickets, leads, KB articles, projects) | **[COMPLETE]** | 50 customers + 50 contacts across 7 countries, 200 tickets (30 critical, 50 high, 70 medium, 50 low), 100 KB articles with real HTML content, 30 CRM leads ($2.89M pipeline), 4 project templates (62 tasks) |
-| Phase 3 | corteX tool layer (~35 generic Odoo tools via @cortex.tool) | **[COMPLETE]** | 35 generic Odoo tools across 7 files. Categories: CRUD, Helpdesk, CRM, Knowledge, Sales, Project, Communication, General |
+| Phase 3 | corteX tool layer (~35 generic Odoo tools via @tool) | **[COMPLETE]** | 35 generic Odoo tools across 7 files. Categories: CRUD, Helpdesk, CRM, Knowledge, Sales, Project, Communication, General |
 | Phase 4 | FastAPI backend + corteX agent integration | **[COMPLETE]** | server.py with 17 REST endpoints + WebSocket, config.py with Barvaz system prompt + weights + safety, ws_broadcaster.py for real-time brain state. Full code review + 12 bug fixes applied |
 | Phase 5 | React frontend dashboards (Developer + Brain Visualizer) | **[COMPLETE]** | 37 source files, ~2,964 lines. Landing page + Developer Dashboard + Brain Visualizer. 20 brain component cards with charts. Mock data fallback when backend offline |
 | Phase 6 | Snapshot/Restore mechanism | **[IN PROGRESS]** | Researched 5 approaches, chose API-level + DB duplicate hybrid |
@@ -2714,7 +2714,7 @@ This section is designed to be continuously updated by a documentation agent thr
 - Implemented FeedbackEngine (4 tiers, 483 lines)
 - Implemented PredictionEngine (predict-compare-surprise, 343 lines)
 - Implemented PlasticityManager (5 rules, 404 lines)
-- Built Tool Framework (@cortex.tool decorator, 337 lines)
+- Built Tool Framework (@tool decorator, 337 lines)
 - Built SDK entry point (Engine -> Agent -> Session -> Response)
 - Initial test suite: ~730 tests passing
 
@@ -2945,7 +2945,7 @@ Demo app feature-complete: FastAPI backend (17 endpoints), React frontend (3 pag
 **Phase 3 (corteX Tool Layer) -- COMPLETE:**
 - 35 generic Odoo tools implemented across 7 files
 - Tool categories: CRUD, Helpdesk, CRM, Knowledge, Sales, Project, Communication, General
-- All tools use `@cortex.tool` decorator with full type hints and docstrings
+- All tools use `@tool` decorator with full type hints and docstrings
 
 **Phase 4 (FastAPI Backend) -- COMPLETE:**
 - `server.py`: 17 REST endpoints + WebSocket for real-time brain state streaming
@@ -4929,10 +4929,10 @@ gcloud auth application-default login
 ### SDK Usage
 
 ```python
-import cortex
-
+from corteX.sdk import Agent, Engine, Session
+from corteX.tools.decorator import tool
 # Vertex AI mode
-engine = cortex.Engine(
+engine = Engine(
     providers={
         "gemini": {
             "vertex_ai": True,
@@ -5011,9 +5011,9 @@ The core design pattern is consistent across all providers:
 
 **SDK Usage**:
 ```python
-import cortex
-
-engine = cortex.Engine(
+from corteX.sdk import Agent, Engine, Session
+from corteX.tools.decorator import tool
+engine = Engine(
     providers={
         "openai": {
             "api_key": "your-azure-api-key",
@@ -5044,7 +5044,7 @@ engine = cortex.Engine(
 
 **SDK Usage**:
 ```python
-engine = cortex.Engine(
+engine = Engine(
     providers={
         "anthropic": {
             "bedrock": True,
@@ -5074,7 +5074,7 @@ engine = cortex.Engine(
 
 **SDK Usage**:
 ```python
-engine = cortex.Engine(
+engine = Engine(
     providers={
         "anthropic": {
             "vertex_ai_anthropic": True,
@@ -5094,7 +5094,7 @@ engine = cortex.Engine(
 
 **SDK Usage**:
 ```python
-engine = cortex.Engine(
+engine = Engine(
     providers={
         "local": {
             "api_key": "sk-or-v1-your-openrouter-key",
@@ -5879,7 +5879,7 @@ Following the v1.0.0 release milestone (Wave 16), Barvaz entered a second harden
 - **A2A JSON-RPC 2.0 compliance tests**: 52 dedicated tests verifying protocol conformance (request/response structure, id handling, error codes, batch support)
 - **Full delegation chain tests**: CEO to engineer task flow via A2A, multi-hop escalation, cross-department routing verified end-to-end
 - **76 comms package export tests**: complete type coverage across all 6 dataclass modules (collaboration, intelligence, feedback, meeting, task, status types)
-- **101 Odoo tool tests**: XML-RPC integration with `.func()` unwrap pattern for `@cortex.tool()` ToolWrapper objects
+- **101 Odoo tool tests**: XML-RPC integration with `.func()` unwrap pattern for `@tool()` ToolWrapper objects
 - Tests for `delegation_engine_base.py` and `delegation_helpers.py`: base class contracts + helper utilities
 - All production files remain under 300-line limit (0 violations)
 
@@ -5890,7 +5890,7 @@ Following the v1.0.0 release milestone (Wave 16), Barvaz entered a second harden
 - A2A protocol: JSON-RPC 2.0 fully verified with 52 dedicated compliance tests
 - Full delegation chain tested: CEO -> VP -> Manager -> Engineer task flow
 - 76 comms exports tested, complete type coverage across 6 dataclass modules
-- 101 Odoo tool tests with `.func()` unwrap for `@cortex.tool()` ToolWrapper
+- 101 Odoo tool tests with `.func()` unwrap for `@tool()` ToolWrapper
 
 **Wave 22 (Comms Layer Deep Coverage)**:
 - Built comprehensive comms core tests: a2a_cards, a2a_protocol, a2a_registry, a2a_events, contracts

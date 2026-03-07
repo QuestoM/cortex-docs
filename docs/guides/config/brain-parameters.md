@@ -7,9 +7,9 @@ This guide shows you how to customize how corteX's brain components map to LLM A
 By default, corteX automatically resolves LLM parameters from brain state:
 
 ```python
-import cortex
-
-engine = cortex.Engine(providers={"openai": {"api_key": "sk-..."}})
+from corteX.sdk import Engine
+from corteX.sdk_config import WeightConfig
+engine = Engine(providers={"openai": {"api_key": "sk-..."}})
 agent = engine.create_agent(name="assistant")
 session = agent.start_session(user_id="user_123")
 
@@ -39,7 +39,7 @@ The simplest way to influence temperature is through behavioral weights:
 # Initialize with high creativity
 agent = engine.create_agent(
     name="creative_writer",
-    weight_config=cortex.WeightConfig(
+    weight_config=WeightConfig(
         verbosity=0.5,
         creativity=0.8,  # High creativity → higher temperature
         autonomy=0.7,
@@ -167,7 +167,7 @@ Max tokens combines three signals: attention priority, resource allocation, and 
 # Terse responses
 agent = engine.create_agent(
     name="concise_assistant",
-    weight_config=cortex.WeightConfig(verbosity=-0.5)
+    weight_config=WeightConfig(verbosity=-0.5)
 )
 session = agent.start_session()
 response = await session.run("Explain async/await")
@@ -176,7 +176,7 @@ response = await session.run("Explain async/await")
 # Verbose responses
 agent = engine.create_agent(
     name="detailed_assistant",
-    weight_config=cortex.WeightConfig(verbosity=0.8)
+    weight_config=WeightConfig(verbosity=0.8)
 )
 session = agent.start_session()
 response = await session.run("Explain async/await")
@@ -263,7 +263,7 @@ These parameters are OpenAI-specific and map directly from brain state:
 
 agent = engine.create_agent(
     name="creative",
-    weight_config=cortex.WeightConfig(creativity=0.8)
+    weight_config=WeightConfig(creativity=0.8)
 )
 session = agent.start_session()
 response = await session.run("Write a story")
@@ -271,7 +271,7 @@ response = await session.run("Write a story")
 
 agent = engine.create_agent(
     name="conservative",
-    weight_config=cortex.WeightConfig(creativity=-0.6)
+    weight_config=WeightConfig(creativity=-0.6)
 )
 session = agent.start_session()
 response = await session.run("Write a report")
@@ -388,10 +388,10 @@ This shows:
 ## Complete Example: Custom Parameter Strategy
 
 ```python
-import cortex
-
+from corteX.sdk import Engine
+from corteX.sdk_config import WeightConfig
 # 1. Create engine with Gemini
-engine = cortex.Engine(
+engine = Engine(
     providers={"gemini": {"api_key": "AIza..."}},
     orchestrator_model="gemini-2.5-pro",
     worker_model="gemini-2.5-flash",
@@ -401,7 +401,7 @@ engine = cortex.Engine(
 agent = engine.create_agent(
     name="code_assistant",
     system_prompt="You are an expert Python developer.",
-    weight_config=cortex.WeightConfig(
+    weight_config=WeightConfig(
         verbosity=0.3,       # Moderately detailed
         creativity=-0.2,     # Prefer conventional patterns for code
         autonomy=0.6,        # Proactive but not too aggressive

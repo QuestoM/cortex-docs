@@ -28,10 +28,9 @@ corteX has **zero required external dependencies**. The entire SDK runs on your 
 - Per-tenant configuration stored locally as JSON - no external config service
 
 ```python
-import cortex
-
+from corteX.sdk import Engine
 # Fully on-prem: local LLM, no external calls
-engine = cortex.Engine(
+engine = Engine(
     providers={"local": {"base_url": "http://localhost:11434/v1"}},
     tenant_id="acme_corp"
 )

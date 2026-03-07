@@ -413,9 +413,8 @@ The cognitive context system includes seven specialized modules that extend the 
 Two context items may each score low individually but become critical when present together. For example, a database schema definition and an error message referencing that schema are nearly useless alone but essential as a pair. The EntanglementGraph tracks these co-reference relationships and ensures entangled items are kept or removed together during context compression.
 
 ```python
-import cortex
-
-engine = cortex.Engine()
+from corteX.sdk import Engine
+engine = Engine()
 agent = engine.create_agent(name="developer", system_prompt="Build software.")
 session = agent.start_session(user_id="dev_1")
 
@@ -464,9 +463,8 @@ The system tracks hit/miss rates and self-tunes its prediction strategy over tim
 When an agent successfully completes a task, the MemoryCrystallizer extracts the generalizable pattern: what goal template was used, what decision chain led to success, what tools were called in what order, and what errors were encountered and resolved. These "crystals" are matched to future goals by keyword similarity and injected as few-shot guidance.
 
 ```python
-import cortex
-
-engine = cortex.Engine()
+from corteX.sdk import Engine
+engine = Engine()
 agent = engine.create_agent(
     name="developer",
     system_prompt="Build software.",

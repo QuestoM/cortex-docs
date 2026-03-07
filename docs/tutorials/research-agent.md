@@ -14,7 +14,7 @@ In this tutorial you will build a research agent that conducts multi-step invest
 ## Prerequisites
 
 - Python 3.11+
-- corteX installed: `pip install cortex-engine[openai]`
+- corteX installed: `pip install cortex-ai[openai]`
 - An OpenAI API key
 
 ---
@@ -30,7 +30,9 @@ touch researcher.py
 import asyncio
 import json
 import os
-import cortex
+from corteX.sdk import Engine
+from corteX.sdk_config import ContextManagementConfig, WeightConfig
+from corteX.tools.decorator import tool
 ```
 
 ---
@@ -40,7 +42,7 @@ import cortex
 This tool simulates searching the web and returning results. In production, you would integrate with a real search API such as SerpAPI, Tavily, or Brave Search.
 
 ```python title="researcher.py"
-@cortex.tool(name="web_search", description="Search the web for information")
+@tool(name="web_search", description="Search the web for information")
 async def web_search(query: str, num_results: int = 3) -> str:
     """
     Search the web and return a list of results with titles, URLs, and snippets.
@@ -107,7 +109,7 @@ async def web_search(query: str, num_results: int = 3) -> str:
 This tool simulates fetching and reading a document from a URL. In production, this would use an HTTP client or document parser.
 
 ```python title="researcher.py"
-@cortex.tool(name="read_document", description="Read and extract content from a URL")
+@tool(name="read_document", description="Read and extract content from a URL")
 async def read_document(url: str) -> str:
     """
     Fetch a document from a URL and return its main content.
@@ -156,7 +158,7 @@ async def read_document(url: str) -> str:
 The `research` context profile preserves citations and source references during compression while aggressively compressing navigation steps and redundant search results.
 
 ```python title="researcher.py"
-context_config = cortex.ContextManagementConfig(
+context_config = ContextManagementConfig(
     profile="research",         # (1)!
     token_budget_ratio=0.85,    # Use 85% of the context window
 )
@@ -171,7 +173,7 @@ context_config = cortex.ContextManagementConfig(
 A research agent should be detail-oriented, methodical, and prioritize quality over speed.
 
 ```python title="researcher.py"
-weights = cortex.WeightConfig(
+weights = WeightConfig(
     autonomy=0.5,            # Balance between independent work and user check-ins
     verbosity=0.4,           # Provide detailed findings
     initiative=0.5,          # Suggest follow-up research directions
@@ -187,7 +189,7 @@ weights = cortex.WeightConfig(
 
 ```python title="researcher.py"
 async def main():
-    engine = cortex.Engine(
+    engine = Engine(
         providers={
             "openai": {"api_key": os.environ.get("OPENAI_API_KEY", "sk-...")},
         },
@@ -330,10 +332,10 @@ if __name__ == "__main__":
 import asyncio
 import json
 import os
-import cortex
-
-
-@cortex.tool(name="web_search", description="Search the web for information")
+from corteX.sdk import Engine
+from corteX.sdk_config import ContextManagementConfig, WeightConfig
+from corteX.tools.decorator import tool
+@tool(name="web_search", description="Search the web for information")
 async def web_search(query: str, num_results: int = 3) -> str:
     """Search the web and return results with titles, URLs, and snippets."""
     search_db = {
@@ -367,7 +369,7 @@ async def web_search(query: str, num_results: int = 3) -> str:
     return "No results found."
 
 
-@cortex.tool(name="read_document", description="Read and extract content from a URL")
+@tool(name="read_document", description="Read and extract content from a URL")
 async def read_document(url: str) -> str:
     """Fetch a document from a URL and return its main content."""
     documents = {
@@ -386,15 +388,15 @@ async def read_document(url: str) -> str:
     return documents.get(url, f"Could not fetch {url}.")
 
 
-context_config = cortex.ContextManagementConfig(profile="research", token_budget_ratio=0.85)
-weights = cortex.WeightConfig(
+context_config = ContextManagementConfig(profile="research", token_budget_ratio=0.85)
+weights = WeightConfig(
     autonomy=0.5, verbosity=0.4, initiative=0.5,
     detail_level=0.6, explanation_depth=0.7, speed_vs_quality=-0.4,
 )
 
 
 async def main():
-    engine = cortex.Engine(
+    engine = Engine(
         providers={"openai": {"api_key": os.environ.get("OPENAI_API_KEY", "sk-...")}},
     )
     agent = engine.create_agent(

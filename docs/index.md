@@ -3,9 +3,8 @@
 **Enterprise AI Agent SDK -- brain-inspired, goal-driven, on-prem ready.**
 
 ```python
-import cortex
-
-engine = cortex.Engine(providers={"openai": {"api_key": "sk-..."}})
+from corteX.sdk import Engine
+engine = Engine(providers={"openai": {"api_key": "sk-..."}})
 agent = engine.create_agent(name="support", system_prompt="You help users.")
 session = agent.start_session(user_id="user_123")
 response = await session.run("Help me with my order")
@@ -62,7 +61,7 @@ response = await session.run("Help me with my order")
 - One LLM provider (OpenAI, Gemini, or a local model)
 
 ```bash
-pip install cortex-engine[openai]
+pip install cortex-ai[openai]
 ```
 
 [:octicons-arrow-right-24: Full installation guide](getting-started/installation.md)

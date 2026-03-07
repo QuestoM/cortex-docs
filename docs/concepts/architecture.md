@@ -157,7 +157,7 @@ The `LLMRouter` acts as a thalamus -- a relay that routes requests to the right 
 - **Model overrides:** Set `orchestrator_model` and `worker_model` at engine creation.
 
 ```python
-engine = cortex.Engine(
+engine = Engine(
     providers={
         "openai": {"api_key": "sk-..."},
         "gemini": {"api_key": "AIza..."},

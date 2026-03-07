@@ -15,7 +15,7 @@ In this tutorial you will build a complete customer support agent for a fictiona
 ## Prerequisites
 
 - Python 3.11+
-- corteX installed: `pip install cortex-engine[openai]`
+- corteX installed: `pip install cortex-ai[openai]`
 - An OpenAI API key (set as `OPENAI_API_KEY` or passed directly)
 
 ---
@@ -34,9 +34,9 @@ Add the imports and a basic `main` function skeleton:
 ```python title="support_agent.py"
 import asyncio
 import os
-import cortex
-
-
+from corteX.sdk import Engine
+from corteX.sdk_config import EnterpriseConfig, WeightConfig
+from corteX.tools.decorator import tool
 async def main():
     pass  # We will fill this in step by step
 
@@ -52,7 +52,7 @@ if __name__ == "__main__":
 The order lookup tool simulates querying a database of customer orders. In production, this would call your real order management API.
 
 ```python title="support_agent.py"
-@cortex.tool(name="lookup_order", description="Look up an order by its ID")
+@tool(name="lookup_order", description="Look up an order by its ID")
 async def lookup_order(order_id: str) -> str:
     """
     Retrieve the current status of a customer order.
@@ -76,7 +76,7 @@ async def lookup_order(order_id: str) -> str:
 The FAQ tool searches a small knowledge base. In production, this could query a vector database or search index.
 
 ```python title="support_agent.py"
-@cortex.tool(name="search_faq", description="Search the FAQ knowledge base")
+@tool(name="search_faq", description="Search the FAQ knowledge base")
 async def search_faq(query: str) -> str:
     """
     Search the Acme Store FAQ for answers to common questions.
@@ -108,7 +108,7 @@ async def search_faq(query: str) -> str:
 When the agent cannot resolve an issue, it should escalate to a human support representative.
 
 ```python title="support_agent.py"
-@cortex.tool(name="escalate_to_human", description="Escalate the conversation to a human agent")
+@tool(name="escalate_to_human", description="Escalate the conversation to a human agent")
 async def escalate_to_human(reason: str, priority: str = "normal") -> str:
     """
     Transfer the conversation to a human support representative.
@@ -131,7 +131,7 @@ async def escalate_to_human(reason: str, priority: str = "normal") -> str:
 corteX behavioral weights control the agent's conversational style. For a support agent, you want a formal, moderately verbose, and helpful tone. Weights range from -1.0 to 1.0.
 
 ```python title="support_agent.py"
-weights = cortex.WeightConfig(
+weights = WeightConfig(
     formality=0.6,       # Lean formal, but not stiff
     verbosity=-0.3,      # Slightly concise -- respect the customer's time
     initiative=0.4,      # Proactively suggest next steps
@@ -150,7 +150,7 @@ weights = cortex.WeightConfig(
 Block sensitive topics and enable audit logging. In this example, the agent must never discuss competitor products or internal pricing formulas.
 
 ```python title="support_agent.py"
-enterprise = cortex.EnterpriseConfig(
+enterprise = EnterpriseConfig(
     safety_level="strict",
     blocked_topics=["competitor_info", "internal_pricing", "employee_data"],
     audit_log=True,
@@ -169,7 +169,7 @@ Now wire everything together inside the `main` function:
 ```python title="support_agent.py"
 async def main():
     # 1. Create the engine
-    engine = cortex.Engine(
+    engine = Engine(
         providers={
             "openai": {"api_key": os.environ.get("OPENAI_API_KEY", "sk-...")},
         },
@@ -345,10 +345,10 @@ Here is the full `support_agent.py` for reference:
 ```python title="support_agent.py"
 import asyncio
 import os
-import cortex
-
-
-@cortex.tool(name="lookup_order", description="Look up an order by its ID")
+from corteX.sdk import Engine
+from corteX.sdk_config import EnterpriseConfig, WeightConfig
+from corteX.tools.decorator import tool
+@tool(name="lookup_order", description="Look up an order by its ID")
 async def lookup_order(order_id: str) -> str:
     """
     Retrieve the current status of a customer order.
@@ -365,7 +365,7 @@ async def lookup_order(order_id: str) -> str:
     return orders.get(order_id, f"Order {order_id} not found in our system.")
 
 
-@cortex.tool(name="search_faq", description="Search the FAQ knowledge base")
+@tool(name="search_faq", description="Search the FAQ knowledge base")
 async def search_faq(query: str) -> str:
     """
     Search the Acme Store FAQ for answers to common questions.
@@ -390,7 +390,7 @@ async def search_faq(query: str) -> str:
     return "No FAQ found. Consider escalating to a human agent."
 
 
-@cortex.tool(name="escalate_to_human", description="Escalate the conversation to a human agent")
+@tool(name="escalate_to_human", description="Escalate the conversation to a human agent")
 async def escalate_to_human(reason: str, priority: str = "normal") -> str:
     """
     Transfer the conversation to a human support representative.
@@ -406,7 +406,7 @@ async def escalate_to_human(reason: str, priority: str = "normal") -> str:
     )
 
 
-weights = cortex.WeightConfig(
+weights = WeightConfig(
     formality=0.6,
     verbosity=-0.3,
     initiative=0.4,
@@ -414,7 +414,7 @@ weights = cortex.WeightConfig(
     explanation_depth=0.5,
 )
 
-enterprise = cortex.EnterpriseConfig(
+enterprise = EnterpriseConfig(
     safety_level="strict",
     blocked_topics=["competitor_info", "internal_pricing", "employee_data"],
     audit_log=True,
@@ -422,7 +422,7 @@ enterprise = cortex.EnterpriseConfig(
 
 
 async def main():
-    engine = cortex.Engine(
+    engine = Engine(
         providers={
             "openai": {"api_key": os.environ.get("OPENAI_API_KEY", "sk-...")},
         },
@@ -489,10 +489,10 @@ if __name__ == "__main__":
 
 ## What you learned
 
-- How to define tools with `@cortex.tool` and register them with an agent
-- How to tune behavioral weights with `cortex.WeightConfig` for a specific conversational tone
+- How to define tools with `@tool` and register them with an agent
+- How to tune behavioral weights with `WeightConfig` for a specific conversational tone
 - How to enable goal tracking and observe progress across a multi-turn conversation
-- How to configure enterprise safety controls with `cortex.EnterpriseConfig`
+- How to configure enterprise safety controls with `EnterpriseConfig`
 - How to inspect brain metrics: weights, goal progress, dual-process stats, and tool reputation
 
 ## Next steps

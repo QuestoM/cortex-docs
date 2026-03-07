@@ -258,7 +258,7 @@ Environment variables are **process-global**. In a multi-tenant deployment, ALL 
 The `Engine` constructor does accept per-provider API keys:
 
 ```python
-engine = cortex.Engine(providers={
+engine = Engine(providers={
     "openai": {"api_key": "sk-tenant-specific-key"},
     "gemini": {"api_key": "AIza-tenant-specific-key"},
 })
@@ -356,7 +356,7 @@ This is NOT currently implemented in corteX.
 Isolation should begin at the SDK entry point. Tenant resolution happens BEFORE any business logic:
 
 ```python
-engine = cortex.Engine(tenant_id="acme_corp", ...)
+engine = Engine(tenant_id="acme_corp", ...)
 # All subsequent operations are scoped to this tenant
 ```
 
@@ -633,7 +633,7 @@ class TenantRateLimiter:
 Formalize the `Engine` as the tenant boundary:
 
 ```python
-engine = cortex.Engine(
+engine = Engine(
     tenant_id="acme_corp",
     tenant_config=TenantConfig.load("config/acme.json"),
     providers={

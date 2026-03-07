@@ -17,7 +17,7 @@ Configure OpenAI or Azure OpenAI as the LLM provider for your corteX agents.
     ```python
     import cortex
 
-    engine = cortex.Engine(
+    engine = Engine(
         providers={
             "openai": {"api_key": "sk-proj-abc123..."},
         },
@@ -32,7 +32,7 @@ Configure OpenAI or Azure OpenAI as the LLM provider for your corteX agents.
 Pass the model name to `orchestrator_model` and/or `worker_model`:
 
 ```python
-engine = cortex.Engine(
+engine = Engine(
     providers={"openai": {"api_key": "sk-..."}},
     orchestrator_model="gpt-4o",       # (1)!
     worker_model="gpt-4o-mini",        # (2)!
@@ -55,7 +55,7 @@ Common OpenAI model choices:
 Azure OpenAI deployments are supported through the same `openai` provider type. Supply your Azure-specific endpoint and deployment name:
 
 ```python
-engine = cortex.Engine(
+engine = Engine(
     providers={
         "openai": {
             "api_key": "your-azure-key",
@@ -76,11 +76,9 @@ Once the engine is configured, everything else works the same regardless of prov
 
 ```python
 import asyncio
-import cortex
-
-
+from corteX.sdk import Engine
 async def main():
-    engine = cortex.Engine(
+    engine = Engine(
         providers={"openai": {"api_key": "sk-..."}},
         orchestrator_model="gpt-4o",
     )

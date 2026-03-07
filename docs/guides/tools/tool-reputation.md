@@ -18,18 +18,18 @@ Every tool registered with an agent accumulates a **trust score** based on its e
 Inspect the current trust state of all tools at any point during a session:
 
 ```python
-import cortex
-
-engine = cortex.Engine(
+from corteX.sdk import Engine
+from corteX.tools.decorator import tool
+engine = Engine(
     providers={"openai": {"api_key": "sk-..."}},
     orchestrator_model="gpt-4o",
 )
 
-@cortex.tool(name="search_api", description="Search an external API")
+@tool(name="search_api", description="Search an external API")
 async def search_api(query: str) -> str:
     return f"Results for: {query}"
 
-@cortex.tool(name="get_price", description="Get product price")
+@tool(name="get_price", description="Get product price")
 async def get_price(product_id: str) -> str:
     return f"Product {product_id}: $29.99"
 
@@ -137,21 +137,20 @@ print(f"Calibration: {calibration}")
 
 ```python
 import asyncio
-import cortex
-
-
-@cortex.tool(name="search_api", description="Search products")
+from corteX.sdk import Engine
+from corteX.tools.decorator import tool
+@tool(name="search_api", description="Search products")
 async def search_api(query: str) -> str:
     return f"Found 3 results for: {query}"
 
 
-@cortex.tool(name="get_price", description="Get product price")
+@tool(name="get_price", description="Get product price")
 async def get_price(product_id: str) -> str:
     return f"Product {product_id}: $29.99"
 
 
 async def main():
-    engine = cortex.Engine(
+    engine = Engine(
         providers={"openai": {"api_key": "sk-..."}},
         orchestrator_model="gpt-4o",
         worker_model="gpt-4o-mini",

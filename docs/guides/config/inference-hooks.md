@@ -185,9 +185,8 @@ pipeline = InferenceHookPipeline(config)
 When using local models through an OpenAI-compatible API, inference hooks operate at the corteX orchestrator level rather than inside the model's forward pass:
 
 ```python
-import cortex
-
-engine = cortex.Engine(
+from corteX.sdk import Engine
+engine = Engine(
     providers={
         "local": {
             "base_url": "http://localhost:11434/v1",

@@ -47,7 +47,7 @@ All interop connections are governed by the existing `CapabilitySet` security mo
 ```python
 from corteX.interop.types import MCPServerConfig, A2AAgentConfig
 
-engine = cortex.Engine(providers={"openai": {"api_key": "sk-..."}})
+engine = Engine(providers={"openai": {"api_key": "sk-..."}})
 
 agent = engine.create_agent(
     name="assistant",

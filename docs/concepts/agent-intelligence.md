@@ -34,9 +34,8 @@ Instead of sending every request to a single model, the ModelMosaic enables patt
 ### How to Use It
 
 ```python
-import cortex
-
-engine = cortex.Engine(providers={
+from corteX.sdk import Engine
+engine = Engine(providers={
     "gemini": {"api_key": "..."},
     "openai": {"api_key": "..."},
 })
@@ -76,9 +75,8 @@ The SpeculativeExecutor predicts what the agent will need to do next and begins 
 ### How It Works
 
 ```python
-import cortex
-
-engine = cortex.Engine()
+from corteX.sdk import Engine
+engine = Engine()
 agent = engine.create_agent(
     name="developer",
     system_prompt="Build software.",
@@ -131,9 +129,8 @@ When an agent produces an unexpected result, you need to trace the decision chai
 ### How to Use It
 
 ```python
-import cortex
-
-engine = cortex.Engine()
+from corteX.sdk import Engine
+engine = Engine()
 agent = engine.create_agent(
     name="support",
     system_prompt="Help customers.",
@@ -191,9 +188,8 @@ The ProgressEstimator tracks how fast the agent is making progress toward its go
 ### How to Use It
 
 ```python
-import cortex
-
-engine = cortex.Engine()
+from corteX.sdk import Engine
+engine = Engine()
 agent = engine.create_agent(
     name="developer",
     system_prompt="Build software.",
@@ -241,9 +237,8 @@ The ABTestManager runs controlled experiments to determine which model, prompt, 
 ### How to Use It
 
 ```python
-import cortex
-
-engine = cortex.Engine()
+from corteX.sdk import Engine
+engine = Engine()
 
 # Create an A/B test comparing two models
 test = engine.create_ab_test(
@@ -302,9 +297,8 @@ The ProviderHealthMonitor tracks success rates, latency percentiles, and error p
 ### How It Works
 
 ```python
-import cortex
-
-engine = cortex.Engine(providers={
+from corteX.sdk import Engine
+engine = Engine(providers={
     "gemini": {"api_key": "..."},
     "openai": {"api_key": "..."},
     "anthropic": {"api_key": "..."},
@@ -351,9 +345,8 @@ The circuit breaker opens after consecutive failures and automatically attempts 
 All agent intelligence modules work together within the session:
 
 ```python
-import cortex
-
-engine = cortex.Engine()
+from corteX.sdk import Engine
+engine = Engine()
 agent = engine.create_agent(
     name="developer",
     system_prompt="Build production software.",

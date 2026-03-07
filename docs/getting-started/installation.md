@@ -12,19 +12,19 @@ Choose the extras that match your provider.
 === "OpenAI"
 
     ```bash
-    pip install cortex-engine[openai]
+    pip install cortex-ai[openai]
     ```
 
 === "Gemini"
 
     ```bash
-    pip install cortex-engine[gemini]
+    pip install cortex-ai[gemini]
     ```
 
 === "Local models"
 
     ```bash
-    pip install cortex-engine
+    pip install cortex-ai
     ```
 
     No extras required. Point the `base_url` at your Ollama or vLLM instance.
@@ -32,7 +32,7 @@ Choose the extras that match your provider.
 === "Everything"
 
     ```bash
-    pip install cortex-engine[all]
+    pip install cortex-ai[all]
     ```
 
     Includes OpenAI, Gemini, FastAPI server, and Playwright browser tools.
@@ -76,8 +76,7 @@ Set your API key as an environment variable. The SDK reads it at provider regist
 ## Verify
 
 ```python
-import cortex
-
+from corteX.sdk import Engine
 print(cortex.__version__)  # 3.0.0-alpha
 ```
 
@@ -95,9 +94,8 @@ Each provider accepts the following keys when passed to `Engine(providers={...})
 Example with multiple providers:
 
 ```python
-import cortex
-
-engine = cortex.Engine(
+from corteX.sdk import Engine
+engine = Engine(
     providers={
         "openai": {"api_key": "sk-..."},
         "gemini": {"api_key": "AIza..."},

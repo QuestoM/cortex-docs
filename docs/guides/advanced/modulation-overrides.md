@@ -18,14 +18,15 @@ Both actions expire automatically after the specified number of turns.
 Force a tool to be available for the next N turns, even if it is quarantined or has low reputation:
 
 ```python
-import cortex
-
-engine = cortex.Engine(
+from corteX.sdk import Engine
+from corteX.sdk_config import EnterpriseConfig
+from corteX.tools.decorator import tool
+engine = Engine(
     providers={"openai": {"api_key": "sk-..."}},
     orchestrator_model="gpt-4o",
 )
 
-@cortex.tool(name="search_api", description="Search products")
+@tool(name="search_api", description="Search products")
 async def search_api(query: str) -> str:
     return f"Results for: {query}"
 
@@ -105,7 +106,7 @@ agent = engine.create_agent(
     name="secure_agent",
     system_prompt="You handle sensitive financial data.",
     tools=[search_api, get_account],
-    enterprise_config=cortex.EnterpriseConfig(safety_level="strict"),  # (1)!
+    enterprise_config=EnterpriseConfig(safety_level="strict"),  # (1)!
 )
 ```
 
@@ -136,21 +137,21 @@ print(f"Active modulations: {session.get_active_modulations()}")
 
 ```python
 import asyncio
-import cortex
-
-
-@cortex.tool(name="search_api", description="Search products")
+from corteX.sdk import Engine
+from corteX.sdk_config import EnterpriseConfig
+from corteX.tools.decorator import tool
+@tool(name="search_api", description="Search products")
 async def search_api(query: str) -> str:
     return f"Found 3 results for: {query}"
 
 
-@cortex.tool(name="get_reviews", description="Get product reviews")
+@tool(name="get_reviews", description="Get product reviews")
 async def get_reviews(product_id: str) -> str:
     return f"Product {product_id}: 4.5 stars, 120 reviews"
 
 
 async def main():
-    engine = cortex.Engine(
+    engine = Engine(
         providers={"openai": {"api_key": "sk-..."}},
         orchestrator_model="gpt-4o",
         worker_model="gpt-4o-mini",
@@ -160,7 +161,7 @@ async def main():
         name="shop",
         system_prompt="You help users find and evaluate products.",
         tools=[search_api, get_reviews],
-        enterprise_config=cortex.EnterpriseConfig(safety_level="standard"),
+        enterprise_config=EnterpriseConfig(safety_level="standard"),
     )
 
     session = agent.start_session(user_id="user_123")

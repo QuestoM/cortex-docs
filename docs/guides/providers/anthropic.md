@@ -17,7 +17,7 @@ Configure Anthropic Claude as the LLM provider for your corteX agents.
     ```python
     import cortex
 
-    engine = cortex.Engine(
+    engine = Engine(
         providers={
             "anthropic": {"api_key": "sk-ant-api03-..."},
         },
@@ -32,7 +32,7 @@ Configure Anthropic Claude as the LLM provider for your corteX agents.
 Pass the model name to `orchestrator_model` and/or `worker_model`:
 
 ```python
-engine = cortex.Engine(
+engine = Engine(
     providers={"anthropic": {"api_key": "sk-ant-..."}},
     orchestrator_model="claude-opus-4-6",      # (1)!
     worker_model="claude-haiku-4-5",           # (2)!
@@ -58,7 +58,7 @@ Common Claude model choices:
 Claude supports an extended thinking mode where the model reasons step-by-step before responding. This is especially useful for complex planning and analysis tasks:
 
 ```python
-engine = cortex.Engine(
+engine = Engine(
     providers={
         "anthropic": {
             "api_key": "sk-ant-...",
@@ -77,11 +77,9 @@ Once the engine is configured, everything else works the same regardless of prov
 
 ```python
 import asyncio
-import cortex
-
-
+from corteX.sdk import Engine
 async def main():
-    engine = cortex.Engine(
+    engine = Engine(
         providers={"anthropic": {"api_key": "sk-ant-..."}},
         orchestrator_model="claude-sonnet-4-5",
         worker_model="claude-haiku-4-5",
@@ -144,7 +142,7 @@ Bedrock uses the standard AWS credential chain. The SDK discovers credentials au
 Pass `bedrock=True` along with your preferred AWS region:
 
 ```python
-engine = cortex.Engine(
+engine = Engine(
     providers={
         "anthropic": {
             "bedrock": True,
@@ -190,7 +188,7 @@ You can also access Claude through [Google Vertex AI](https://cloud.google.com/v
 Pass `vertex_ai=True` along with your GCP project ID:
 
 ```python
-engine = cortex.Engine(
+engine = Engine(
     providers={
         "anthropic": {
             "vertex_ai": True,
@@ -230,7 +228,7 @@ pip install 'anthropic[vertex]'
 You can register Claude alongside other providers and route each role to a different backend:
 
 ```python
-engine = cortex.Engine(
+engine = Engine(
     providers={
         "anthropic": {"api_key": "sk-ant-...", "default_model": "claude-sonnet-4-5"},
         "gemini": {"api_key": "AIza...", "default_model": "gemini-3-pro-preview"},

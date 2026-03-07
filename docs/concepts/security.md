@@ -34,9 +34,8 @@ API keys are the most common source of security incidents in AI applications. De
 ### How to Use It
 
 ```python
-import cortex
-
-engine = cortex.Engine()
+from corteX.sdk import Engine
+engine = Engine()
 
 # Store keys per tenant
 engine.security.vault.store_key(
@@ -77,9 +76,8 @@ Role-based access is too coarse for AI agents. An agent that needs to read a dat
 ### How to Use It
 
 ```python
-import cortex
-
-engine = cortex.Engine()
+from corteX.sdk import Engine
+engine = Engine()
 agent = engine.create_agent(
     name="data-analyst",
     system_prompt="You analyze customer data.",
@@ -126,9 +124,8 @@ The RiskAttenuator monitors the current risk level of agent actions and dynamica
 ### How to Use It
 
 ```python
-import cortex
-
-engine = cortex.Engine()
+from corteX.sdk import Engine
+engine = Engine()
 agent = engine.create_agent(
     name="support",
     system_prompt="Help customers with their accounts.",
@@ -177,9 +174,8 @@ The DataClassifier scans every piece of data flowing through corteX and assigns 
 ### How to Use It
 
 ```python
-import cortex
-
-engine = cortex.Engine()
+from corteX.sdk import Engine
+engine = Engine()
 agent = engine.create_agent(
     name="hr-assistant",
     system_prompt="Help HR team with employee queries.",
@@ -233,9 +229,8 @@ The ComplianceEngine evaluates regulatory policies before the agent executes any
 ### How to Use It
 
 ```python
-import cortex
-
-engine = cortex.Engine()
+from corteX.sdk import Engine
+engine = Engine()
 agent = engine.create_agent(
     name="medical-assistant",
     system_prompt="Help clinicians with patient queries.",
@@ -275,9 +270,8 @@ For every agent action, the compliance engine:
 All security modules integrate automatically when configured:
 
 ```python
-import cortex
-
-engine = cortex.Engine(
+from corteX.sdk import Engine
+engine = Engine(
     security={
         "key_vault": True,
         "capabilities": True,

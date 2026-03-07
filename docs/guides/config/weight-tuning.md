@@ -21,9 +21,9 @@ Weights are floating-point values between 0.0 and 1.0 that shape agent behavior.
 Pass a `WeightConfig` when creating the agent:
 
 ```python
-import cortex
-
-engine = cortex.Engine(
+from corteX.sdk import Engine
+from corteX.sdk_config import WeightConfig
+engine = Engine(
     providers={"openai": {"api_key": "sk-..."}},
     orchestrator_model="gpt-4o",
 )
@@ -31,7 +31,7 @@ engine = cortex.Engine(
 agent = engine.create_agent(
     name="formal_assistant",
     system_prompt="You are a professional enterprise assistant.",
-    weight_config=cortex.WeightConfig(
+    weight_config=WeightConfig(
         verbosity=0.6,
         formality=0.9,          # (1)!
         autonomy=0.3,
@@ -71,7 +71,7 @@ print(weights)
 === "Customer support"
 
     ```python
-    weight_config = cortex.WeightConfig(
+    weight_config = WeightConfig(
         verbosity=0.5,
         formality=0.7,
         autonomy=0.6,
@@ -83,7 +83,7 @@ print(weights)
 === "Code review"
 
     ```python
-    weight_config = cortex.WeightConfig(
+    weight_config = WeightConfig(
         verbosity=0.7,
         formality=0.4,
         autonomy=0.8,     # Independently analyze code
@@ -95,7 +95,7 @@ print(weights)
 === "Quick Q&A"
 
     ```python
-    weight_config = cortex.WeightConfig(
+    weight_config = WeightConfig(
         verbosity=0.2,         # Short answers
         formality=0.3,
         autonomy=0.5,

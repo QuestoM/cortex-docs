@@ -43,7 +43,7 @@ graph TD
     subgraph DEV_LAYER ["<b>A. נקודות כניסה -- Developer API</b>"]
         direction TB
         DEV_CODE["Developer Code<br/><i>import cortex</i>"]:::dev
-        TOOL_DECORATOR["@cortex.tool()<br/><i>Tool Decorator</i>"]:::dev
+        TOOL_DECORATOR["@tool()<br/><i>Tool Decorator</i>"]:::dev
         CONFIG["WeightConfig / EnterpriseConfig<br/>ContextManagementConfig"]:::dev
     end
 
@@ -61,7 +61,7 @@ graph TD
         RESPONSE["<b>Response</b><br/>content + metadata<br/>+ artifacts"]:::sdk
     end
 
-    DEV_CODE -->|"engine = cortex.Engine(providers=...)"| ENGINE
+    DEV_CODE -->|"engine = Engine(providers=...)"| ENGINE
     ENGINE -->|"engine.create_agent()"| AGENT
     AGENT -->|"agent.start_session(user_id)"| SESSION
     CONFIG -->|"Configuration"| ENGINE

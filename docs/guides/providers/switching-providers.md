@@ -9,9 +9,8 @@ Set up multi-provider routing so your orchestrator and worker use different LLM 
 Pass every provider you want available to the `Engine`:
 
 ```python
-import cortex
-
-engine = cortex.Engine(
+from corteX.sdk import Engine
+engine = Engine(
     providers={
         "openai": {"api_key": "sk-..."},
         "gemini": {"api_key": "AIza..."},
@@ -31,7 +30,7 @@ The **orchestrator** handles planning, goal decomposition, and multi-step reason
 === "Accuracy-first"
 
     ```python
-    engine = cortex.Engine(
+    engine = Engine(
         providers={
             "openai": {"api_key": "sk-..."},
             "gemini": {"api_key": "AIza..."},
@@ -44,7 +43,7 @@ The **orchestrator** handles planning, goal decomposition, and multi-step reason
 === "Cost-first"
 
     ```python
-    engine = cortex.Engine(
+    engine = Engine(
         providers={
             "openai": {"api_key": "sk-..."},
             "gemini": {"api_key": "AIza..."},
@@ -57,7 +56,7 @@ The **orchestrator** handles planning, goal decomposition, and multi-step reason
 === "Privacy-first"
 
     ```python
-    engine = cortex.Engine(
+    engine = Engine(
         providers={
             "openai": {"api_key": "sk-..."},
             "local": {"base_url": "http://localhost:11434/v1"},
@@ -72,7 +71,7 @@ The **orchestrator** handles planning, goal decomposition, and multi-step reason
 When multiple providers are registered, corteX fails over automatically. If the primary provider returns an error or times out, the engine retries with the next available provider that supports a compatible model.
 
 ```python
-engine = cortex.Engine(
+engine = Engine(
     providers={
         "openai": {"api_key": "sk-..."},
         "gemini": {"api_key": "AIza..."},
@@ -118,11 +117,9 @@ print(f"Routing:    {dp_stats}")
 
 ```python
 import asyncio
-import cortex
-
-
+from corteX.sdk import Engine
 async def main():
-    engine = cortex.Engine(
+    engine = Engine(
         providers={
             "openai": {"api_key": "sk-..."},
             "gemini": {"api_key": "AIza..."},

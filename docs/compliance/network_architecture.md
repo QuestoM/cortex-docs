@@ -165,7 +165,7 @@ graph TB
 
     %% Application flow
     END_USER -->|"User request"| SAAS_APP
-    SAAS_APP -->|"cortex.Engine() / session.run()"| ENGINE
+    SAAS_APP -->|"Engine() / session.run()"| ENGINE
     ENGINE --> AGENT
     AGENT --> SESSION
 

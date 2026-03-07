@@ -9,9 +9,9 @@ Access every stats method corteX exposes, configure logging, and export metrics 
 Every call to `session.run()` returns a `Response` with rich metadata:
 
 ```python
-import cortex
-
-engine = cortex.Engine(
+from corteX.sdk import Engine
+from corteX.sdk_config import WeightConfig
+engine = Engine(
     providers={"openai": {"api_key": "sk-..."}},
     orchestrator_model="gpt-4o",
     worker_model="gpt-4o-mini",
@@ -21,7 +21,7 @@ agent = engine.create_agent(
     name="assistant",
     system_prompt="You are a helpful assistant.",
     goal_tracking=True,
-    weight_config=cortex.WeightConfig(autonomy=0.7),
+    weight_config=WeightConfig(autonomy=0.7),
 )
 
 session = agent.start_session(user_id="user_123")
@@ -163,11 +163,10 @@ This includes total tokens, total turns, average latency, and final weight state
 ```python
 import asyncio
 import json
-import cortex
-
-
+from corteX.sdk import Engine
+from corteX.sdk_config import WeightConfig
 async def main():
-    engine = cortex.Engine(
+    engine = Engine(
         providers={"openai": {"api_key": "sk-..."}},
         orchestrator_model="gpt-4o",
         worker_model="gpt-4o-mini",
@@ -177,7 +176,7 @@ async def main():
         name="monitored_agent",
         system_prompt="You are a helpful assistant.",
         goal_tracking=True,
-        weight_config=cortex.WeightConfig(autonomy=0.7, formality=0.5),
+        weight_config=WeightConfig(autonomy=0.7, formality=0.5),
     )
 
     session = agent.start_session(user_id="user_123")

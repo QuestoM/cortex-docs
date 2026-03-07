@@ -69,7 +69,7 @@ All notable changes to corteX are documented here.
 ### SDK
 
 - `Engine`, `Agent`, `Session` three-layer public API.
-- `@cortex.tool` decorator with automatic JSON schema generation from type hints.
+- `@tool` decorator with automatic JSON schema generation from type hints.
 - `run()` with full 14-step brain pipeline.
 - `run_stream()` for token-by-token streaming.
 - `Response` with `ResponseMetadata` (goal progress, drift, tokens, latency, tools called).

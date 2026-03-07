@@ -33,9 +33,8 @@ When an agent makes a mistake, you need to understand the decision chain that le
 ### How to Use It
 
 ```python
-import cortex
-
-engine = cortex.Engine()
+from corteX.sdk import Engine
+engine = Engine()
 agent = engine.create_agent(
     name="support",
     system_prompt="Help users with their accounts.",
@@ -114,9 +113,8 @@ LLM costs are unpredictable. A plan that looks simple might require dozens of to
 ### How to Use It
 
 ```python
-import cortex
-
-engine = cortex.Engine()
+from corteX.sdk import Engine
+engine = Engine()
 agent = engine.create_agent(
     name="developer",
     system_prompt="Help build software.",
@@ -193,9 +191,8 @@ The MetricsCollector captures latency, token usage, success rates, drift scores,
 ### How to Use It
 
 ```python
-import cortex
-
-engine = cortex.Engine()
+from corteX.sdk import Engine
+engine = Engine()
 agent = engine.create_agent(
     name="support",
     system_prompt="Help users.",
@@ -263,9 +260,8 @@ Enterprise customers require proof that their AI agents operated within policy. 
 ### How to Use It
 
 ```python
-import cortex
-
-engine = cortex.Engine()
+from corteX.sdk import Engine
+engine = Engine()
 agent = engine.create_agent(
     name="hr-assistant",
     system_prompt="Help HR team.",
@@ -326,9 +322,8 @@ if not verification.valid:
 All observability modules work together automatically:
 
 ```python
-import cortex
-
-engine = cortex.Engine(
+from corteX.sdk import Engine
+engine = Engine(
     observability={
         "tracing": True,
         "cost_prediction": True,

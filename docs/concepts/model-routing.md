@@ -174,7 +174,7 @@ tenant_override = {
 tenant_registry = ModelRegistry.from_dict(tenant_override)
 
 # Use tenant registry for this session
-session = cortex.Session(
+session = Session(
     tenant_id="acme_corp",
     model_registry=tenant_registry,
 )

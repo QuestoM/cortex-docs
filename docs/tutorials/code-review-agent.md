@@ -14,7 +14,7 @@ In this tutorial you will build a code review agent that reads source files, ana
 ## Prerequisites
 
 - Python 3.11+
-- corteX installed: `pip install cortex-engine[openai]`
+- corteX installed: `pip install cortex-ai[openai]`
 - An OpenAI API key
 
 ---
@@ -74,10 +74,10 @@ This tool reads a file from disk and returns its contents. In production, this m
 ```python title="reviewer.py"
 import asyncio
 import os
-import cortex
-
-
-@cortex.tool(name="read_file", description="Read the contents of a source file")
+from corteX.sdk import Engine
+from corteX.sdk_config import ContextManagementConfig, WeightConfig
+from corteX.tools.decorator import tool
+@tool(name="read_file", description="Read the contents of a source file")
 async def read_file(file_path: str) -> str:
     """
     Read a file and return its contents with line numbers.
@@ -101,7 +101,7 @@ async def read_file(file_path: str) -> str:
 This tool performs static analysis on a code string and returns structured findings. In production, you might integrate with tools like `ruff`, `pylint`, or `semgrep`.
 
 ```python title="reviewer.py"
-@cortex.tool(name="analyze_code", description="Run static analysis on Python code")
+@tool(name="analyze_code", description="Run static analysis on Python code")
 async def analyze_code(code: str) -> str:
     """
     Analyze Python code for common issues and return findings.
@@ -148,7 +148,7 @@ async def analyze_code(code: str) -> str:
 The `coding` context profile tells the Cortical Context Engine to preserve code snippets during compression while aggressively compressing verbose tool output like build logs.
 
 ```python title="reviewer.py"
-context_config = cortex.ContextManagementConfig(
+context_config = ContextManagementConfig(
     profile="coding",           # (1)!
     token_budget_ratio=0.85,    # Use 85% of the model's context window
 )
@@ -163,7 +163,7 @@ context_config = cortex.ContextManagementConfig(
 A code review agent should work independently through files without asking permission at every step. Set autonomy high, verbosity moderate, and formality neutral.
 
 ```python title="reviewer.py"
-weights = cortex.WeightConfig(
+weights = WeightConfig(
     autonomy=0.7,           # Work through files independently
     verbosity=0.2,          # Moderate detail in reviews
     formality=0.0,          # Neutral tone -- neither casual nor stiff
@@ -181,7 +181,7 @@ weights = cortex.WeightConfig(
 
 ```python title="reviewer.py"
 async def main():
-    engine = cortex.Engine(
+    engine = Engine(
         providers={
             "openai": {"api_key": os.environ.get("OPENAI_API_KEY", "sk-...")},
         },
@@ -355,10 +355,10 @@ python reviewer.py
 ```python title="reviewer.py"
 import asyncio
 import os
-import cortex
-
-
-@cortex.tool(name="read_file", description="Read the contents of a source file")
+from corteX.sdk import Engine
+from corteX.sdk_config import ContextManagementConfig, WeightConfig
+from corteX.tools.decorator import tool
+@tool(name="read_file", description="Read the contents of a source file")
 async def read_file(file_path: str) -> str:
     """Read a file and return its contents with line numbers."""
     try:
@@ -370,7 +370,7 @@ async def read_file(file_path: str) -> str:
         return f"Error: File '{file_path}' not found."
 
 
-@cortex.tool(name="analyze_code", description="Run static analysis on Python code")
+@tool(name="analyze_code", description="Run static analysis on Python code")
 async def analyze_code(code: str) -> str:
     """Analyze Python code for common issues and return findings."""
     findings = []
@@ -395,14 +395,14 @@ async def analyze_code(code: str) -> str:
     return f"Found {len(findings)} issue(s):\n" + "\n".join(f"  - {f}" for f in findings)
 
 
-context_config = cortex.ContextManagementConfig(profile="coding", token_budget_ratio=0.85)
-weights = cortex.WeightConfig(
+context_config = ContextManagementConfig(profile="coding", token_budget_ratio=0.85)
+weights = WeightConfig(
     autonomy=0.7, verbosity=0.2, formality=0.0, initiative=0.6, explanation_depth=0.6,
 )
 
 
 async def main():
-    engine = cortex.Engine(
+    engine = Engine(
         providers={"openai": {"api_key": os.environ.get("OPENAI_API_KEY", "sk-...")}},
         orchestrator_model="gpt-4o",
         worker_model="gpt-4o-mini",

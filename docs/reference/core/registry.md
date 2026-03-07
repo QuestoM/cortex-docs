@@ -238,9 +238,8 @@ Return the module-level default registry instance.
 The `Engine` class creates a per-engine `PluginRegistry` that starts with built-in plugins and can be extended:
 
 ```python
-import cortex
-
-engine = cortex.Engine(
+from corteX.sdk import Engine
+engine = Engine(
     providers={"openai": {"api_key": "sk-..."}},
     tenant_id="acme_corp",
     allowed_plugin_roots=["/opt/acme/plugins"],

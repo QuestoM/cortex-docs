@@ -18,9 +18,9 @@ At any point, retrieve the current weight snapshot and store it:
 
 ```python
 import json
-import cortex
-
-engine = cortex.Engine(
+from corteX.sdk import Engine
+from corteX.sdk_config import WeightConfig
+engine = Engine(
     providers={"openai": {"api_key": "sk-..."}},
     orchestrator_model="gpt-4o",
 )
@@ -28,7 +28,7 @@ engine = cortex.Engine(
 agent = engine.create_agent(
     name="support",
     system_prompt="You help customers.",
-    weight_config=cortex.WeightConfig(autonomy=0.5, formality=0.5),
+    weight_config=WeightConfig(autonomy=0.5, formality=0.5),
     goal_tracking=True,
 )
 
@@ -59,13 +59,13 @@ Read the saved weights and apply them as the starting configuration:
 
 ```python
 import json
-import cortex
-
+from corteX.sdk import Engine
+from corteX.sdk_config import WeightConfig
 # Load previously saved weights
 with open("learned_weights.json") as f:
     saved_weights = json.load(f)
 
-engine = cortex.Engine(
+engine = Engine(
     providers={"openai": {"api_key": "sk-..."}},
     orchestrator_model="gpt-4o",
 )
@@ -74,7 +74,7 @@ engine = cortex.Engine(
 agent = engine.create_agent(
     name="support",
     system_prompt="You help customers.",
-    weight_config=cortex.WeightConfig(**saved_weights),  # (1)!
+    weight_config=WeightConfig(**saved_weights),  # (1)!
 )
 
 session = agent.start_session(user_id="user_456")
@@ -164,9 +164,9 @@ user_id = "user_123"
 saved = load_user_weights(user_id)
 
 if saved:
-    weight_config = cortex.WeightConfig(**saved)
+    weight_config = WeightConfig(**saved)
 else:
-    weight_config = cortex.WeightConfig()  # Defaults
+    weight_config = WeightConfig()  # Defaults
 
 agent = engine.create_agent(
     name="personal_assistant",

@@ -43,9 +43,9 @@ Engine(
 #### Example: Basic Setup
 
 ```python
-import cortex
-
-engine = cortex.Engine(
+from corteX.sdk import Engine
+from corteX.sdk_config import WeightConfig
+engine = Engine(
     providers={
         "openai": {"api_key": "sk-..."},
     }
@@ -55,9 +55,9 @@ engine = cortex.Engine(
 #### Example: Multi-Provider with Model Selection
 
 ```python
-import cortex
-
-engine = cortex.Engine(
+from corteX.sdk import Engine
+from corteX.sdk_config import WeightConfig
+engine = Engine(
     providers={
         "openai": {
             "api_key": "sk-...",
@@ -75,10 +75,11 @@ engine = cortex.Engine(
 #### Example: Enterprise Multi-Tenant
 
 ```python
-import cortex
+from corteX.sdk import Engine
+from corteX.sdk_config import WeightConfig
 from cortex import EnterpriseConfig
 
-engine = cortex.Engine(
+engine = Engine(
     providers={"openai": {"api_key": tenant_api_key}},
     enterprise_config=EnterpriseConfig(
         safety_level="strict",
@@ -160,7 +161,7 @@ agent = engine.create_agent(
     system_prompt="You are a helpful customer support agent.",
     tools=[search_docs],
     goal_tracking=True,
-    weight_config=cortex.WeightConfig(
+    weight_config=WeightConfig(
         verbosity=0.3,
         autonomy=0.7,
     ),
@@ -188,7 +189,8 @@ Unrecognized provider names default to `ProviderType.OPENAI` (OpenAI-compatible 
 
 ```python
 import asyncio
-import cortex
+from corteX.sdk import Engine
+from corteX.sdk_config import WeightConfig
 from corteX.tools.decorator import tool
 
 # 1. Define tools
@@ -197,7 +199,7 @@ def lookup_order(order_id: str) -> str:
     return f"Order {order_id}: Shipped, arriving tomorrow"
 
 # 2. Create engine with providers
-engine = cortex.Engine(
+engine = Engine(
     providers={
         "openai": {"api_key": "sk-..."},
     },

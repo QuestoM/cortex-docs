@@ -18,9 +18,9 @@ The router analyzes each incoming message and selects the appropriate system aut
 Check which system handled a particular request:
 
 ```python
-import cortex
-
-engine = cortex.Engine(
+from corteX.sdk import Engine
+from corteX.sdk_config import WeightConfig
+engine = Engine(
     providers={"openai": {"api_key": "sk-..."}},
     orchestrator_model="gpt-4o",
 )
@@ -74,7 +74,7 @@ The `speed_vs_quality` weight indirectly affects temperature behavior:
     agent = engine.create_agent(
         name="precise",
         system_prompt="You give exact, verified answers.",
-        weight_config=cortex.WeightConfig(
+        weight_config=WeightConfig(
             speed_vs_quality=0.1,  # (1)!
         ),
     )
@@ -88,7 +88,7 @@ The `speed_vs_quality` weight indirectly affects temperature behavior:
     agent = engine.create_agent(
         name="creative",
         system_prompt="You brainstorm creative ideas.",
-        weight_config=cortex.WeightConfig(
+        weight_config=WeightConfig(
             speed_vs_quality=0.9,  # (1)!
         ),
     )
@@ -112,11 +112,10 @@ print(result)  # Shows predicted shift toward System 1 or System 2
 
 ```python
 import asyncio
-import cortex
-
-
+from corteX.sdk import Engine
+from corteX.sdk_config import WeightConfig
 async def main():
-    engine = cortex.Engine(
+    engine = Engine(
         providers={"openai": {"api_key": "sk-..."}},
         orchestrator_model="gpt-4o",
         worker_model="gpt-4o-mini",
@@ -125,7 +124,7 @@ async def main():
     agent = engine.create_agent(
         name="writer",
         system_prompt="You are a technical writer who can also brainstorm.",
-        weight_config=cortex.WeightConfig(
+        weight_config=WeightConfig(
             speed_vs_quality=0.5,  # Balanced default
         ),
     )

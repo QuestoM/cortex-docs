@@ -17,7 +17,7 @@ Configure Google Gemini as the LLM provider for your corteX agents.
     ```python
     import cortex
 
-    engine = cortex.Engine(
+    engine = Engine(
         providers={
             "gemini": {"api_key": "AIzaSy..."},
         },
@@ -32,7 +32,7 @@ Configure Google Gemini as the LLM provider for your corteX agents.
 Gemini offers models optimized for different cost and capability trade-offs:
 
 ```python
-engine = cortex.Engine(
+engine = Engine(
     providers={"gemini": {"api_key": "AIza..."}},
     orchestrator_model="gemini-2.5-pro",     # (1)!
     worker_model="gemini-2.5-flash",         # (2)!
@@ -57,11 +57,9 @@ Common Gemini model choices:
 
 ```python
 import asyncio
-import cortex
-
-
+from corteX.sdk import Engine
 async def main():
-    engine = cortex.Engine(
+    engine = Engine(
         providers={"gemini": {"api_key": "AIza..."}},
         orchestrator_model="gemini-2.5-pro",
         worker_model="gemini-2.5-flash",
@@ -99,7 +97,7 @@ async for chunk in session.run_stream("List five applications of reinforcement l
 For Google Cloud deployments using Vertex AI, supply your project and location:
 
 ```python
-engine = cortex.Engine(
+engine = Engine(
     providers={
         "gemini": {
             "project": "my-gcp-project",
@@ -118,7 +116,7 @@ engine = cortex.Engine(
 You can register Gemini alongside OpenAI and route each role to a different provider:
 
 ```python
-engine = cortex.Engine(
+engine = Engine(
     providers={
         "openai": {"api_key": "sk-..."},
         "gemini": {"api_key": "AIza..."},

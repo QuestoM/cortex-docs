@@ -20,9 +20,10 @@ ollama pull llama3.1:8b
 ### 2. Configure corteX
 
 ```python
-import cortex
-
-engine = cortex.Engine(
+from corteX.sdk import Engine
+from corteX.sdk_config import EnterpriseConfig
+from corteX.tools.decorator import tool
+engine = Engine(
     providers={
         "local": {
             "base_url": "http://localhost:11434/v1",  # (1)!
@@ -51,7 +52,7 @@ python -m vllm.entrypoints.openai.api_server \
 ### 2. Configure corteX
 
 ```python
-engine = cortex.Engine(
+engine = Engine(
     providers={
         "local": {
             "base_url": "http://localhost:8000/v1",
@@ -67,7 +68,7 @@ engine = cortex.Engine(
 corteX works with any server that implements the OpenAI Chat Completions API. This includes LM Studio, LocalAI, llama.cpp server, and TGI.
 
 ```python
-engine = cortex.Engine(
+engine = Engine(
     providers={
         "local": {
             "base_url": "http://your-server:port/v1",
@@ -85,11 +86,11 @@ engine = cortex.Engine(
 
 ```python
 import asyncio
-import cortex
-
-
+from corteX.sdk import Engine
+from corteX.sdk_config import EnterpriseConfig
+from corteX.tools.decorator import tool
 async def main():
-    engine = cortex.Engine(
+    engine = Engine(
         providers={
             "local": {"base_url": "http://localhost:11434/v1"},
         },
@@ -100,7 +101,7 @@ async def main():
     agent = engine.create_agent(
         name="private_assistant",
         system_prompt="You are a helpful assistant. All data stays on-premises.",
-        enterprise_config=cortex.EnterpriseConfig(safety_level="strict"),
+        enterprise_config=EnterpriseConfig(safety_level="strict"),
     )
 
     session = agent.start_session(user_id="local_user")
@@ -122,7 +123,7 @@ asyncio.run(main())
     Not all local models support tool calling. Models that do not support function calling will ignore tool definitions. Use a model with native tool support (e.g., Llama 3.1 Instruct, Mistral Instruct) for the best results.
 
 ```python
-@cortex.tool(name="search_docs", description="Search internal documents")
+@tool(name="search_docs", description="Search internal documents")
 async def search_docs(query: str) -> str:
     # Your search logic here
     return f"Results for: {query}"
@@ -139,7 +140,7 @@ agent = engine.create_agent(
 You can use a cloud model for orchestration and a local model for data-sensitive worker tasks:
 
 ```python
-engine = cortex.Engine(
+engine = Engine(
     providers={
         "openai": {"api_key": "sk-..."},
         "local": {"base_url": "http://localhost:11434/v1"},

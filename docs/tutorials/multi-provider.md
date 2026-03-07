@@ -14,7 +14,7 @@ In this tutorial you will configure a resilient multi-provider setup with OpenAI
 ## Prerequisites
 
 - Python 3.11+
-- corteX installed: `pip install cortex-engine[openai,gemini]`
+- corteX installed: `pip install cortex-ai[openai,gemini]`
 - An OpenAI API key and a Google Gemini API key
 
 ---
@@ -29,7 +29,7 @@ touch failover_demo.py
 ```python title="failover_demo.py"
 import asyncio
 import os
-import cortex
+from corteX.sdk import Engine
 ```
 
 ---
@@ -40,7 +40,7 @@ Register both providers and assign roles. The `orchestrator_model` handles compl
 
 ```python title="failover_demo.py"
 async def main():
-    engine = cortex.Engine(
+    engine = Engine(
         providers={
             "openai": {
                 "api_key": os.environ.get("OPENAI_API_KEY", "sk-..."),
@@ -191,7 +191,7 @@ To test failover, send a request that simulates the primary provider being unava
     To test failover without actually breaking a provider, you can temporarily set an invalid API key for the primary provider. corteX will detect the authentication failure and fall back to the next available model.
 
     ```python
-    engine = cortex.Engine(
+    engine = Engine(
         providers={
             "openai": {"api_key": "sk-invalid-key-for-testing"},
             "gemini": {"api_key": os.environ["GEMINI_API_KEY"]},
@@ -232,11 +232,9 @@ python failover_demo.py
 ```python title="failover_demo.py"
 import asyncio
 import os
-import cortex
-
-
+from corteX.sdk import Engine
 async def main():
-    engine = cortex.Engine(
+    engine = Engine(
         providers={
             "openai": {"api_key": os.environ.get("OPENAI_API_KEY", "sk-...")},
             "gemini": {"api_key": os.environ.get("GEMINI_API_KEY", "AIza...")},
@@ -288,7 +286,7 @@ if __name__ == "__main__":
 
 ## What you learned
 
-- How to configure multiple LLM providers in a single `cortex.Engine`
+- How to configure multiple LLM providers in a single `Engine`
 - How `orchestrator_model` and `worker_model` map to System 2 and System 1 routing
 - How `fallback_models` provides automatic failover when the primary provider is unavailable
 - How to monitor routing decisions with `get_dual_process_stats()`

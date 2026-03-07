@@ -19,9 +19,9 @@ Use cases:
 Call `simulate_what_if()` with a dictionary of weight overrides:
 
 ```python
-import cortex
-
-engine = cortex.Engine(
+from corteX.sdk import Engine
+from corteX.sdk_config import WeightConfig
+engine = Engine(
     providers={"openai": {"api_key": "sk-..."}},
     orchestrator_model="gpt-4o",
 )
@@ -29,7 +29,7 @@ engine = cortex.Engine(
 agent = engine.create_agent(
     name="assistant",
     system_prompt="You are a helpful assistant.",
-    weight_config=cortex.WeightConfig(autonomy=0.5, formality=0.5),
+    weight_config=WeightConfig(autonomy=0.5, formality=0.5),
 )
 
 session = agent.start_session(user_id="user_123")
@@ -120,11 +120,10 @@ print(f"Goal progress: {progress}")
 
 ```python
 import asyncio
-import cortex
-
-
+from corteX.sdk import Engine
+from corteX.sdk_config import WeightConfig
 async def main():
-    engine = cortex.Engine(
+    engine = Engine(
         providers={"openai": {"api_key": "sk-..."}},
         orchestrator_model="gpt-4o",
         worker_model="gpt-4o-mini",
@@ -133,7 +132,7 @@ async def main():
     agent = engine.create_agent(
         name="support",
         system_prompt="You help customers resolve account issues.",
-        weight_config=cortex.WeightConfig(
+        weight_config=WeightConfig(
             autonomy=0.5,
             formality=0.5,
             verbosity=0.5,

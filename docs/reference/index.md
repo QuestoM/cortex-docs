@@ -57,7 +57,7 @@ Developer tool framework for extending agent capabilities:
 
 | Module | Description |
 |--------|-------------|
-| [`decorator`](tools/decorator.md) | Decorator-based tool registration (`@cortex.tool`). |
+| [`decorator`](tools/decorator.md) | Decorator-based tool registration (`@tool`). |
 | [`executor`](tools/executor.md) | Safe tool execution with timeout and error handling. |
 
 ## LLM Layer

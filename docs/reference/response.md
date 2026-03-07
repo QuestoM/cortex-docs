@@ -218,7 +218,6 @@ config = EnterpriseConfig(
 All public types are available from the top-level package:
 
 ```python
-import cortex
 
 # These are equivalent:
 from cortex import Engine, Agent, Response, ResponseMetadata

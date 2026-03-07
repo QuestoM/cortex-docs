@@ -31,7 +31,7 @@ Extend your agent with custom capabilities.
 
 | Guide | What you will learn |
 |---|---|
-| [Create Custom Tools](tools/custom-tools.md) | Build tools with the `@cortex.tool()` decorator, handle async, and validate parameters. |
+| [Create Custom Tools](tools/custom-tools.md) | Build tools with the `@tool()` decorator, handle async, and validate parameters. |
 | [Manage Tool Reputation](tools/tool-reputation.md) | Monitor tool trust scores, understand quarantine, and inspect reputation stats. |
 
 ## Advanced

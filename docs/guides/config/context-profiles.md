@@ -31,7 +31,7 @@ Pass the profile name to `ContextManagementConfig` at agent creation:
     ```python
     import cortex
 
-    engine = cortex.Engine(
+    engine = Engine(
         providers={"openai": {"api_key": "sk-..."}},
         orchestrator_model="gpt-4o",
     )
@@ -39,7 +39,7 @@ Pass the profile name to `ContextManagementConfig` at agent creation:
     agent = engine.create_agent(
         name="assistant",
         system_prompt="You are a helpful assistant.",
-        context_config=cortex.ContextManagementConfig(profile="general"),
+        context_config=ContextManagementConfig(profile="general"),
     )
     ```
 
@@ -49,7 +49,7 @@ Pass the profile name to `ContextManagementConfig` at agent creation:
     agent = engine.create_agent(
         name="coder",
         system_prompt="You are an expert Python developer.",
-        context_config=cortex.ContextManagementConfig(profile="coding"),  # (1)!
+        context_config=ContextManagementConfig(profile="coding"),  # (1)!
     )
     ```
 
@@ -61,7 +61,7 @@ Pass the profile name to `ContextManagementConfig` at agent creation:
     agent = engine.create_agent(
         name="researcher",
         system_prompt="You analyze long documents thoroughly.",
-        context_config=cortex.ContextManagementConfig(profile="research"),  # (1)!
+        context_config=ContextManagementConfig(profile="research"),  # (1)!
     )
     ```
 
@@ -120,11 +120,10 @@ Choose your profile based on the model's context window:
 
 ```python
 import asyncio
-import cortex
-
-
+from corteX.sdk import Engine
+from corteX.sdk_config import ContextManagementConfig
 async def main():
-    engine = cortex.Engine(
+    engine = Engine(
         providers={"gemini": {"api_key": "AIza..."}},
         orchestrator_model="gemini-2.5-pro",
         worker_model="gemini-2.5-flash",
@@ -133,7 +132,7 @@ async def main():
     agent = engine.create_agent(
         name="analyst",
         system_prompt="You analyze financial reports in detail.",
-        context_config=cortex.ContextManagementConfig(profile="research"),
+        context_config=ContextManagementConfig(profile="research"),
     )
 
     session = agent.start_session(user_id="analyst_1")

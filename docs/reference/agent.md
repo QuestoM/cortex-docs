@@ -117,7 +117,7 @@ session = agent.start_session(
 ### Basic Agent with Tools
 
 ```python
-import cortex
+from corteX.sdk import Engine
 from corteX.tools.decorator import tool
 
 @tool(name="check_inventory", description="Check product inventory")
@@ -129,7 +129,7 @@ def check_inventory(product_id: str) -> str:
 def create_ticket(subject: str, description: str) -> str:
     return f"Ticket created: {subject}"
 
-engine = cortex.Engine(providers={"openai": {"api_key": "sk-..."}})
+engine = Engine(providers={"openai": {"api_key": "sk-..."}})
 
 agent = engine.create_agent(
     name="support",

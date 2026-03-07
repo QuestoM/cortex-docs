@@ -1,16 +1,15 @@
 # Adding Tools
 
-Tools let your agent call functions -- query databases, trigger APIs, look up records. The `@cortex.tool` decorator turns any Python function into a tool the LLM can invoke.
+Tools let your agent call functions -- query databases, trigger APIs, look up records. The `@tool` decorator turns any Python function into a tool the LLM can invoke.
 
 ---
 
 ## Define a tool
 
 ```python
-import cortex
-
-
-@cortex.tool(name="lookup_order", description="Look up an order by ID")
+from corteX.sdk import Engine
+from corteX.tools.decorator import tool
+@tool(name="lookup_order", description="Look up an order by ID")
 async def lookup_order(order_id: str) -> str:
     """
     Retrieve the current status of a customer order.
@@ -46,7 +45,7 @@ agent = engine.create_agent(
 )
 ```
 
-1.  Each tool is a `ToolWrapper` instance returned by the `@cortex.tool` decorator.
+1.  Each tool is a `ToolWrapper` instance returned by the `@tool` decorator.
 
 ---
 
@@ -64,7 +63,7 @@ Type hints determine how the LLM sends arguments. Use standard Python types:
 | `dict` | `object` |
 
 ```python
-@cortex.tool(name="calculate_discount", description="Calculate a discount")
+@tool(name="calculate_discount", description="Calculate a discount")
 def calculate_discount(price: float, percent: int, apply: bool = False) -> str:
     discounted = price * (1 - percent / 100)
     if apply:
@@ -83,7 +82,7 @@ Both sync and async functions work. The executor detects which type your functio
 === "Async"
 
     ```python
-    @cortex.tool(name="fetch_weather", description="Get current weather")
+    @tool(name="fetch_weather", description="Get current weather")
     async def fetch_weather(city: str) -> str:
         async with httpx.AsyncClient() as client:
             resp = await client.get(f"https://api.weather.com/{city}")
@@ -93,7 +92,7 @@ Both sync and async functions work. The executor detects which type your functio
 === "Sync"
 
     ```python
-    @cortex.tool(name="add_numbers", description="Add two numbers")
+    @tool(name="add_numbers", description="Add two numbers")
     def add_numbers(a: int, b: int) -> int:
         return a + b
     ```
@@ -110,7 +109,7 @@ Tools must return a `str` (or a value that can be converted to `str`). This stri
     ```python
     import json
 
-    @cortex.tool(name="get_user_profile", description="Fetch user profile")
+    @tool(name="get_user_profile", description="Fetch user profile")
     async def get_user_profile(user_id: str) -> str:
         profile = await db.users.find(user_id)
         return json.dumps({
@@ -138,10 +137,9 @@ print(session.get_reputation_stats())
 
 ```python
 import asyncio
-import cortex
-
-
-@cortex.tool(name="lookup_order", description="Look up an order by ID")
+from corteX.sdk import Engine
+from corteX.tools.decorator import tool
+@tool(name="lookup_order", description="Look up an order by ID")
 async def lookup_order(order_id: str) -> str:
     orders = {
         "ORD-9281": "Shipped - arriving Thursday",
@@ -150,13 +148,13 @@ async def lookup_order(order_id: str) -> str:
     return orders.get(order_id, f"Order {order_id} not found")
 
 
-@cortex.tool(name="cancel_order", description="Cancel an order")
+@tool(name="cancel_order", description="Cancel an order")
 async def cancel_order(order_id: str, reason: str = "") -> str:
     return f"Order {order_id} cancelled. Reason: {reason or 'none provided'}"
 
 
 async def main():
-    engine = cortex.Engine(
+    engine = Engine(
         providers={"openai": {"api_key": "sk-..."}},
     )
 

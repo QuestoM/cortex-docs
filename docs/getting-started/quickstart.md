@@ -7,7 +7,7 @@ A working agent in four steps. Total time: under five minutes.
 ## 1. Install
 
 ```bash
-pip install cortex-engine[openai]
+pip install cortex-ai[openai]
 ```
 
 ## 2. Configure
@@ -24,12 +24,10 @@ Create a file called `main.py`:
 
 ```python
 import asyncio
-import cortex
-
-
+from corteX.sdk import Engine
 async def main():
     # 1. Create the engine with your provider
-    engine = cortex.Engine(
+    engine = Engine(
         providers={"openai": {"api_key": "sk-..."}},  # (1)!
     )
 
@@ -80,7 +78,7 @@ The three laws of thermodynamics:
 
 | Step | Object | Purpose |
 |---|---|---|
-| `cortex.Engine(...)` | `Engine` | Registers LLM providers and manages routing. |
+| `Engine(...)` | `Engine` | Registers LLM providers and manages routing. |
 | `engine.create_agent(...)` | `Agent` | Stateless template with a name and system prompt. |
 | `agent.start_session(...)` | `Session` | Stateful conversation. Initializes all 20 brain components. |
 | `session.run(...)` | `Response` | Executes the 14-step brain pipeline and returns a response. |

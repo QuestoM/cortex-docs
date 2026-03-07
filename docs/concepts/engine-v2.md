@@ -184,10 +184,9 @@ The Sub-Agent Manager delegates work to isolated sub-agents, each with its own c
 ### Single-turn (existing v1 API, unchanged)
 
 ```python
-import cortex_ai as cortex
-
-engine = cortex.Engine(provider="gemini", api_key="...")
-agent = cortex.Agent(engine=engine, system_prompt="You are a helpful assistant")
+from corteX.sdk import Agent, Engine
+engine = Engine(provider="gemini", api_key="...")
+agent = Agent(engine=engine, system_prompt="You are a helpful assistant")
 session = agent.session()
 
 result = await session.run("What is the capital of France?")
@@ -197,10 +196,9 @@ print(result.text)
 ### Multi-step goal-driven (new in v2)
 
 ```python
-import cortex_ai as cortex
-
-engine = cortex.Engine(provider="gemini", api_key="...")
-agent = cortex.Agent(
+from corteX.sdk import Agent, Engine
+engine = Engine(provider="gemini", api_key="...")
+agent = Agent(
     engine=engine,
     system_prompt="You are a data analyst with access to the complaints database",
     tools=[fetch_complaints, categorize, generate_report],
