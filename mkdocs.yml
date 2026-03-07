@@ -168,6 +168,7 @@ nav:
       - reference/agent.md
       - reference/session.md
       - reference/response.md
+      - Convenience Functions: reference/convenience.md
     - Core Modules:
       - reference/core/events.md
       - reference/core/contracts.md

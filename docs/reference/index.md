@@ -12,6 +12,7 @@ The main entry points for building agents with corteX:
 | [`Agent`](agent.md) | Configured agent template. Stateless -- creates sessions. |
 | [`Session`](session.md) | Live conversation session with full brain integration. |
 | [`Response`](response.md) | Result object returned from agent runs. |
+| [`quick_agent`](convenience.md) | One-call agent creation with auto-detected provider. |
 
 ## Engine Modules
 
