@@ -1,76 +1,46 @@
 # Quick Start
 
-A working agent in four steps. Total time: under five minutes.
+A working agent in 60 seconds. corteX auto-detects your API key.
 
 ---
 
 ## 1. Install
 
 ```bash
-pip install cortex-ai[openai]
+pip install cortex-ai
+export GEMINI_API_KEY="your-key"  # or OPENAI_API_KEY / ANTHROPIC_API_KEY
 ```
 
-## 2. Configure
-
-Set your API key:
-
-```bash
-export OPENAI_API_KEY="sk-..."
-```
-
-## 3. Run
-
-Create a file called `main.py`:
+## 2. Run
 
 ```python
 import asyncio
-from corteX.sdk import Engine
-async def main():
-    # 1. Create the engine with your provider
-    engine = Engine(
-        providers={"openai": {"api_key": "sk-..."}},  # (1)!
-    )
+from corteX import quick_agent, tool
 
-    # 2. Create an agent with a personality
-    agent = engine.create_agent(
-        name="assistant",
-        system_prompt="You are a concise, helpful assistant.",
-    )
+@tool(name="lookup", description="Look up product info")
+def lookup(query: str) -> str:
+    return f"Result for '{query}': Premium Plan - $99/mo"
 
-    # 3. Start a conversation session
-    session = agent.start_session(user_id="quickstart_user")
+agent, session = quick_agent("support", "You help customers.", tools=[lookup])
 
-    # 4. Run a message
-    response = await session.run("What are the three laws of thermodynamics?")
-    print(response.content)
-
-    # Clean up
-    await session.close()
-
-
-asyncio.run(main())
+response = asyncio.run(session.run("What is the Premium plan price?"))
+print(response.content)
+print(f"Goal progress: {response.metadata.goal_progress:.0%}")
+print(f"Drift score:   {response.metadata.drift_score:.2f}")
+print(f"Tools called:  {response.metadata.tools_called}")
 ```
 
-1.  Replace with your actual API key, or omit to use the `OPENAI_API_KEY` environment variable.
-
-## 4. See the output
-
-```bash
-python main.py
-```
+## 3. See the output
 
 ```text
-The three laws of thermodynamics:
+The Premium plan costs $99 per month.
 
-1. **First Law (Conservation of Energy):** Energy cannot be created or
-   destroyed, only transformed from one form to another.
-
-2. **Second Law (Entropy):** In any spontaneous process, the total entropy
-   of an isolated system always increases over time.
-
-3. **Third Law (Absolute Zero):** As temperature approaches absolute zero,
-   the entropy of a perfect crystal approaches zero.
+Goal progress: 100%
+Drift score:   0.05
+Tools called:  ['lookup']
 ```
+
+The brain automatically tracked goal progress, measured drift from the original question, and selected the right tool.
 
 ---
 
@@ -78,9 +48,8 @@ The three laws of thermodynamics:
 
 | Step | Object | Purpose |
 |---|---|---|
-| `Engine(...)` | `Engine` | Registers LLM providers and manages routing. |
-| `engine.create_agent(...)` | `Agent` | Stateless template with a name and system prompt. |
-| `agent.start_session(...)` | `Session` | Stateful conversation. Initializes all 20 brain components. |
+| `quick_agent(...)` | `Agent` + `Session` | Creates engine, agent, and session with auto-detected provider. |
+| `@tool(...)` | `ToolWrapper` | Registers a function as a tool the agent can call. |
 | `session.run(...)` | `Response` | Executes the 14-step brain pipeline and returns a response. |
 
 ## Response metadata
@@ -88,10 +57,36 @@ The three laws of thermodynamics:
 Every `Response` carries metadata about what happened inside the brain:
 
 ```python
-print(response.metadata.model_used)    # e.g. "gpt-4o"
-print(response.metadata.tokens_used)   # e.g. 384
-print(response.metadata.latency_ms)    # e.g. 1247.3
-print(response.metadata.tools_called)  # e.g. []
+print(response.metadata.goal_progress)  # 0.0 to 1.0 - how close to completing the goal
+print(response.metadata.drift_score)    # 0.0 to 1.0 - how far the agent drifted from the goal
+print(response.metadata.loop_detected)  # True if a loop was detected and escaped
+print(response.metadata.model_used)     # e.g. "gemini-2.5-flash"
+print(response.metadata.tokens_used)    # e.g. 384
+print(response.metadata.latency_ms)     # e.g. 1247.3
+print(response.metadata.tools_called)   # e.g. ["lookup"]
+```
+
+## Full control version
+
+For advanced configuration, use the Engine/Agent/Session pattern directly:
+
+```python
+from corteX.sdk import Engine
+
+engine = Engine(providers={
+    "openai": {"api_key": "sk-..."},
+    "gemini": {"api_key": "AIza..."},
+})
+
+agent = engine.create_agent(
+    name="assistant",
+    system_prompt="You are a helpful assistant.",
+    goal_tracking=True,       # verify every step against the goal
+    loop_prevention=True,     # detect and escape infinite loops
+)
+
+session = agent.start_session(user_id="user-1")
+response = await session.run("What is the capital of France?")
 ```
 
 ---

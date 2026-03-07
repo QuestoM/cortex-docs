@@ -65,6 +65,8 @@ markdown_extensions:
 nav:
   - Home: index.md
 
+  - Comparisons: comparisons.md
+
   - Getting Started:
     - getting-started/index.md
     - Installation: getting-started/installation.md
